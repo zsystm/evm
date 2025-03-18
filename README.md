@@ -12,7 +12,7 @@ and customizability to your Cosmos SDK chain.
 - With native support for EVM as VM and seamless EVM<>Cosmos wallet / token / user experience.
 - Leverage IBC with EVM, native support of ERC20 on Cosmos, and more with extensions and precompiles.
 
-Cosmos EVM is a fork of evmOS, maintained by Interchain Labs and the Interchain Foundation after latter funded Tharsis to open-source the original codebase.
+Cosmos EVM is a fork of [evmOS](https://github.com/evmos/OS), maintained by Interchain Labs and the Interchain Foundation after the latter funded Tharsis to open-source the original codebase.
 
 **Cosmos EVM is fully open-source under the Apache 2.0 license.** With this open-sourced version, you can get:
 
