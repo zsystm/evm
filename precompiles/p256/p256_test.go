@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package p256_test
 
 import (
@@ -8,10 +6,10 @@ import (
 	"crypto/rand"
 
 	"github.com/cometbft/cometbft/crypto"
+	"github.com/cosmos/evm/precompiles/p256"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/p256"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)

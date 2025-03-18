@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package types
 
 import (
@@ -9,7 +6,8 @@ import (
 	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	erc20api "github.com/evmos/os/api/os/erc20/v1"
+	"github.com/cosmos/evm/api/cosmos/evm/erc20/v1"
+	erc20api "github.com/cosmos/evm/api/cosmos/evm/erc20/v1"
 	protov2 "google.golang.org/protobuf/proto"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -31,7 +29,7 @@ const (
 )
 
 var MsgConvertERC20CustomGetSigner = txsigning.CustomGetSigner{
-	MsgType: protov2.MessageName(&erc20api.MsgConvertERC20{}),
+	MsgType: protov2.MessageName(&erc20v1.MsgConvertERC20{}),
 	Fn:      erc20api.GetSigners,
 }
 

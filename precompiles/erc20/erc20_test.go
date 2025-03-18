@@ -1,13 +1,10 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20_test
 
 import (
 	"math/big"
 
-	auth "github.com/evmos/os/precompiles/authorization"
-	"github.com/evmos/os/precompiles/erc20"
+	auth "github.com/cosmos/evm/precompiles/authorization"
+	"github.com/cosmos/evm/precompiles/erc20"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {

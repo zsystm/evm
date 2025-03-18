@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	exampleapp "github.com/evmos/os/example_chain"
-	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {

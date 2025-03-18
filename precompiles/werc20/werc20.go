@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package werc20
 
 import (
@@ -8,17 +5,17 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/cosmos/evm/x/vm/core/vm"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	cmn "github.com/evmos/os/precompiles/common"
-	erc20 "github.com/evmos/os/precompiles/erc20"
-	erc20types "github.com/evmos/os/x/erc20/types"
-	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	erc20 "github.com/cosmos/evm/precompiles/erc20"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the WERC-20 precompile ABI JSON file.
@@ -84,7 +81,7 @@ func (p Precompile) Address() common.Address {
 // RequiredGas calculates the contract gas use.
 func (p Precompile) RequiredGas(input []byte) uint64 {
 	// TODO: these values were obtained from Remix using the WEVMOS9.sol.
-	// We should execute the transactions from Evmos testnet
+	// We should execute the transactions from Cosmos EVM testnet
 	// to ensure parity in the values.
 
 	// If there is no method ID, then it's the fallback or receive case

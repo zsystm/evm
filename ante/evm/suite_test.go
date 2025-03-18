@@ -3,8 +3,8 @@ package evm_test
 import (
 	"testing"
 
+	testconstants "github.com/cosmos/evm/testutil/constants"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/suite"
 )
 

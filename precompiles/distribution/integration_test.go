@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package distribution_test
 
 import (
@@ -9,19 +7,19 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/cosmos/evm/precompiles/authorization"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/distribution"
+	"github.com/cosmos/evm/precompiles/staking"
+	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/precompiles/testutil/contracts"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	testutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/authorization"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/distribution"
-	"github.com/evmos/os/precompiles/staking"
-	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/precompiles/testutil/contracts"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	testutils "github.com/evmos/os/testutil/integration/os/utils"
-	testutiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

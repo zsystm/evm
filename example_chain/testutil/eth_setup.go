@@ -1,13 +1,10 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutil
 
 import (
 	"encoding/json"
 	"time"
 
-	evmostypes "github.com/evmos/os/types"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
@@ -26,11 +23,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	exampleapp "github.com/evmos/os/example_chain"
+	exampleapp "github.com/cosmos/evm/example_chain"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
-// Evmos testing.
+// Cosmos EVM testing.
 var DefaultConsensusParams = &tmproto.ConsensusParams{
 	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
@@ -49,7 +46,7 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 }
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in
-// evmOS app testing.
+// Cosmos EVM app testing.
 //
 // TODO: currently not used
 var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
@@ -69,19 +66,19 @@ var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 	},
 }
 
-// EthSetup initializes a new evmOS application. A Nop logger is set in ExampleChain.
-func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, evmostypes.GenesisState) evmostypes.GenesisState) *exampleapp.ExampleChain {
+// EthSetup initializes a new Cosmos EVM application. A Nop logger is set in ExampleChain.
+func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, cosmosevmtypes.GenesisState) cosmosevmtypes.GenesisState) *exampleapp.ExampleChain {
 	return EthSetupWithDB(isCheckTx, chainID, patchGenesis, dbm.NewMemDB())
 }
 
 // EthSetupWithDB initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, evmostypes.GenesisState) evmostypes.GenesisState, db dbm.DB) *exampleapp.ExampleChain {
+func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, cosmosevmtypes.GenesisState) cosmosevmtypes.GenesisState, db dbm.DB) *exampleapp.ExampleChain {
 	app := exampleapp.NewExampleApp(log.NewNopLogger(),
 		db,
 		nil,
 		true,
 		simtestutil.NewAppOptionsWithFlagHome(exampleapp.DefaultNodeHome),
-		exampleapp.EvmosAppOptions,
+		exampleapp.EvmAppOptions,
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
@@ -116,7 +113,7 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleap
 //
 // TODO: are these different genesis functions necessary or can they all be refactored into one?
 // there's also other genesis state functions; some like app.DefaultGenesis() or others in test helpers only.
-func NewTestGenesisState(app *exampleapp.ExampleChain) evmostypes.GenesisState {
+func NewTestGenesisState(app *exampleapp.ExampleChain) cosmosevmtypes.GenesisState {
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()
 	if err != nil {
@@ -138,10 +135,10 @@ func NewTestGenesisState(app *exampleapp.ExampleChain) evmostypes.GenesisState {
 	return genesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 }
 
-func genesisStateWithValSet(codec codec.Codec, genesisState evmostypes.GenesisState,
+func genesisStateWithValSet(codec codec.Codec, genesisState cosmosevmtypes.GenesisState,
 	valSet *cmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) evmostypes.GenesisState {
+) cosmosevmtypes.GenesisState {
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = codec.MustMarshalJSON(authGenesis)

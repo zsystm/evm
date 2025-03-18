@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package rpc
 
 import (
@@ -19,16 +16,16 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/evm/rpc/ethereum/pubsub"
+	rpcfilters "github.com/cosmos/evm/rpc/namespaces/ethereum/eth/filters"
+	"github.com/cosmos/evm/rpc/types"
+	"github.com/cosmos/evm/server/config"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/os/rpc/ethereum/pubsub"
-	rpcfilters "github.com/evmos/os/rpc/namespaces/ethereum/eth/filters"
-	"github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/server/config"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"

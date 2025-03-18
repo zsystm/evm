@@ -5,7 +5,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/cosmos/evm/testutil/integration/os/network"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -13,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/cosmos/evm/contracts"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/contracts"
-	"github.com/evmos/os/x/erc20/types"
 	"github.com/hashicorp/go-metrics"
 )
 

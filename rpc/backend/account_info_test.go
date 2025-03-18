@@ -7,12 +7,12 @@ import (
 	"github.com/cometbft/cometbft/libs/bytes"
 	cmtrpcclient "github.com/cometbft/cometbft/rpc/client"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/evm/rpc/backend/mocks"
+	rpctypes "github.com/cosmos/evm/rpc/types"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/os/rpc/backend/mocks"
-	rpctypes "github.com/evmos/os/rpc/types"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
 

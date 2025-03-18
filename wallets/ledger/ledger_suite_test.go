@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package ledger_test
 
 import (
@@ -9,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
@@ -24,17 +21,17 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/wallets/ledger"
-	"github.com/evmos/os/wallets/ledger/mocks"
-	"github.com/evmos/os/wallets/usbwallet"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/wallets/ledger"
+	"github.com/cosmos/evm/wallets/ledger/mocks"
+	"github.com/cosmos/evm/wallets/usbwallet"
 )
 
 type LedgerTestSuite struct {
 	suite.Suite
 	txAmino    []byte
 	txProtobuf []byte
-	ledger     ledger.EvmosSECP256K1
+	ledger     ledger.CosmosEVMSECP256K1
 	mockWallet *mocks.Wallet
 	hrp        string
 }
@@ -51,7 +48,7 @@ func TestLedgerTestSuite(t *testing.T) {
 }
 
 func (suite *LedgerTestSuite) SetupTest() {
-	suite.hrp = "evmos"
+	suite.hrp = "cosmos"
 
 	suite.txAmino = suite.getMockTxAmino()
 	suite.txProtobuf = suite.getMockTxProtobuf()
@@ -61,7 +58,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 
 	mockWallet := new(mocks.Wallet)
 	suite.mockWallet = mockWallet
-	suite.ledger = ledger.EvmosSECP256K1{Hub: hub, PrimaryWallet: mockWallet}
+	suite.ledger = ledger.CosmosEVMSECP256K1{Hub: hub, PrimaryWallet: mockWallet}
 }
 
 func (suite *LedgerTestSuite) newPubKey(pk string) (res cryptoTypes.PubKey) {
@@ -88,8 +85,8 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 				"type":"cosmos-sdk/MsgSend",
 				"value":{
 					"amount":[{"amount":"150","denom":"atom"}],
-					"from_address":"evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
-					"to_address":"evmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l"
+					"from_address":"cosmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwsjskvv",
+					"to_address":"cosmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l"
 				}
 			}],
 			"sequence":"6"
@@ -105,8 +102,8 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 
 	memo := "memo"
 	msg := bankTypes.NewMsgSend(
-		sdk.MustAccAddressFromBech32("evmos1r5sckdd808qvg7p8d0auaw896zcluqfduvr8nf"),
-		sdk.MustAccAddressFromBech32("evmos10t8ca2w09ykd6ph0agdz5stvgau47whhlfe3l4"),
+		sdk.MustAccAddressFromBech32("cosmos1r5sckdd808qvg7p8d0auaw896zcluqfd7djffp"),
+		sdk.MustAccAddressFromBech32("cosmos10t8ca2w09ykd6ph0agdz5stvgau47whhaggl9a"),
 		[]sdk.Coin{
 			{
 				Denom:  "atom",

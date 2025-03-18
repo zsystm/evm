@@ -8,13 +8,13 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/cosmos/evm/precompiles/bank"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	integrationutils "github.com/cosmos/evm/testutil/integration/os/utils"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/bank"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,8 +25,8 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom, tokenDenom string
-	evmosAddr, xmplAddr   common.Address
+	bondDenom, tokenDenom   string
+	cosmosEVMAddr, xmplAddr common.Address
 
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
@@ -71,9 +71,9 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.bondDenom)
 	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), tokenPairID)
 	s.Require().True(found)
-	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
+	s.cosmosEVMAddr = common.HexToAddress(tokenPair.Erc20Address)
 
-	s.evmosAddr = tokenPair.GetERC20Contract()
+	s.cosmosEVMAddr = tokenPair.GetERC20Contract()
 
 	// Mint and register a second coin for testing purposes
 	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), minttypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})

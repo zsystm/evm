@@ -1,24 +1,21 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20_test
 
 import (
 	"math"
 	"math/big"
 
-	chainutil "github.com/evmos/os/example_chain/testutil"
+	chainutil "github.com/cosmos/evm/example_chain/testutil"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	app "github.com/cosmos/evm/example_chain"
+	auth "github.com/cosmos/evm/precompiles/authorization"
+	"github.com/cosmos/evm/precompiles/erc20"
+	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	app "github.com/evmos/os/example_chain"
-	auth "github.com/evmos/os/precompiles/authorization"
-	"github.com/evmos/os/precompiles/erc20"
-	"github.com/evmos/os/x/evm/core/vm"
 )
 
 // Define useful variables for tests here.
@@ -28,9 +25,9 @@ var (
 	// validTraceDenom is a denomination trace with a valid IBC voucher name
 	validTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "uosmo"}
 	// validAttoTraceDenom is a denomination trace with a valid IBC voucher name and 18 decimals
-	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "aevmos"}
+	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "aatom"}
 	// validTraceDenomNoMicroAtto is a denomination trace with a valid IBC voucher name but no micro or atto prefix
-	validTraceDenomNoMicroAtto = types.DenomTrace{Path: "channel-0", BaseDenom: "mevmos"}
+	validTraceDenomNoMicroAtto = types.DenomTrace{Path: "channel-0", BaseDenom: "matom"}
 
 	// --------------------
 	// Variables for coin with valid metadata
@@ -154,8 +151,8 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
 			},
 			expPass:   true,
-			expName:   "Evmos",
-			expSymbol: "EVMOS",
+			expName:   "Atom",
+			expSymbol: "ATOM",
 		},
 		{
 			name:  "pass - valid denom with metadata",

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -8,9 +5,9 @@ import (
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/evm/utils"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/utils"
-	"github.com/evmos/os/x/erc20/types"
 )
 
 // CreateNewTokenPair creates a new token pair and stores it in the state.

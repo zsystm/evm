@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package werc20_test
 
 import (
@@ -10,20 +7,20 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	auth "github.com/evmos/os/precompiles/authorization"
-	"github.com/evmos/os/precompiles/erc20"
-	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/precompiles/werc20"
-	"github.com/evmos/os/precompiles/werc20/testdata"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	utiltx "github.com/evmos/os/testutil/tx"
-	erc20types "github.com/evmos/os/x/erc20/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	auth "github.com/cosmos/evm/precompiles/authorization"
+	"github.com/cosmos/evm/precompiles/erc20"
+	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/precompiles/werc20"
+	"github.com/cosmos/evm/precompiles/werc20/testdata"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -569,7 +566,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 				var name string
 				err = is.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(name).To(ContainSubstring("evmOS"), "expected different name")
+				Expect(name).To(ContainSubstring("Cosmos EVM"), "expected different name")
 			})
 
 			It("should return the correct symbol", func() {
@@ -581,7 +578,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 				var symbol string
 				err = is.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(symbol).To(ContainSubstring("EVMOS"), "expected different symbol")
+				Expect(symbol).To(ContainSubstring("ATOM"), "expected different symbol")
 			})
 
 			It("should return the decimals", func() {

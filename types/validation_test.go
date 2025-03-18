@@ -3,9 +3,9 @@ package types_test
 import (
 	"testing"
 
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/types"
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -8,13 +8,13 @@ import (
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	ethante "github.com/cosmos/evm/ante/evm"
+	"github.com/cosmos/evm/ante/testutils"
+	"github.com/cosmos/evm/testutil"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/statedb"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethante "github.com/evmos/os/ante/evm"
-	"github.com/evmos/os/ante/testutils"
-	"github.com/evmos/os/testutil"
-	testutiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/statedb"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func BenchmarkEthGasConsumeDecorator(b *testing.B) {

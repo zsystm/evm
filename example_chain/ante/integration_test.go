@@ -5,13 +5,13 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
-	testutiltx "github.com/evmos/os/testutil/tx"
+	commonfactory "github.com/cosmos/evm/testutil/integration/common/factory"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	integrationutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -68,7 +68,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
-				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+				ToAddress:   "cosmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetBaseDenom()}},
 			}
 
@@ -126,7 +126,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			addr, priv = testutiltx.NewAccAddressAndKey()
 
 			// this is a new address that does not exist on chain.
-			// Transfer 1 aevmos to this account so it is
+			// Transfer 1 aatom to this account so it is
 			// added on chain
 			err := s.factory.FundAccount(
 				s.keyring.GetKey(0),
@@ -144,7 +144,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
-				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+				ToAddress:   "cosmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: s.network.GetBaseDenom()}},
 			}
 		})

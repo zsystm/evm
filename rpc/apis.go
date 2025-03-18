@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package rpc
 
 import (
@@ -10,16 +8,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/evmos/os/rpc/backend"
-	"github.com/evmos/os/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/os/rpc/namespaces/ethereum/eth"
-	"github.com/evmos/os/rpc/namespaces/ethereum/eth/filters"
-	"github.com/evmos/os/rpc/namespaces/ethereum/miner"
-	"github.com/evmos/os/rpc/namespaces/ethereum/net"
-	"github.com/evmos/os/rpc/namespaces/ethereum/personal"
-	"github.com/evmos/os/rpc/namespaces/ethereum/txpool"
-	"github.com/evmos/os/rpc/namespaces/ethereum/web3"
-	"github.com/evmos/os/types"
+	"github.com/cosmos/evm/rpc/backend"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/debug"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/eth"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/eth/filters"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/miner"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/net"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/personal"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/txpool"
+	"github.com/cosmos/evm/rpc/namespaces/ethereum/web3"
+	"github.com/cosmos/evm/types"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 )

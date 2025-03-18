@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keyring
 
 import (
@@ -8,8 +5,8 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/os/testutil/tx"
 )
 
 type Key struct {

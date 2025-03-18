@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package tx
 
 import (
@@ -14,12 +11,12 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	cryptocodec "github.com/cosmos/evm/crypto/codec"
+	"github.com/cosmos/evm/ethereum/eip712"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	cryptocodec "github.com/evmos/os/crypto/codec"
-	"github.com/evmos/os/ethereum/eip712"
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/types"
 )
 
 type EIP712TxArgs struct {
@@ -172,14 +169,14 @@ func createTypedData(args typedDataArgs, useLegacy bool) (apitypes.TypedData, er
 		registry := codectypes.NewInterfaceRegistry()
 		types.RegisterInterfaces(registry)
 		cryptocodec.RegisterInterfaces(registry)
-		evmosCodec := codec.NewProtoCodec(registry)
+		evmCodec := codec.NewProtoCodec(registry)
 
 		feeDelegation := &eip712.FeeDelegationOptions{
 			FeePayer: args.legacyFeePayer,
 		}
 
 		return eip712.LegacyWrapTxToTypedData(
-			evmosCodec,
+			evmCodec,
 			args.chainID,
 			args.legacyMsg,
 			args.data,

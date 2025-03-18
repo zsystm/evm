@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package evm
 
 import (
@@ -9,8 +6,8 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmante "github.com/evmos/os/x/evm/ante"
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+	evmante "github.com/cosmos/evm/x/vm/ante"
 )
 
 var _ sdktypes.AnteDecorator = &EthSetupContextDecorator{}

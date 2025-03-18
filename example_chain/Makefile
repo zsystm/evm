@@ -4,7 +4,7 @@ VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
 TMVERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::')
 COMMIT := $(shell git log -1 --format='%H')
 BINDIR ?= $(GOPATH)/bin
-EXAMPLE_BINARY = osd
+EXAMPLE_BINARY = evmd
 BUILDDIR ?= $(CURDIR)/build
 
 export GO111MODULE = on

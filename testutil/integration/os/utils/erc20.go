@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package utils
 
 import (
@@ -9,10 +6,10 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/network"
-	erc20types "github.com/evmos/os/x/erc20/types"
 )
 
 // ERC20RegistrationData is the necessary data to provide in order to register an ERC20 token.

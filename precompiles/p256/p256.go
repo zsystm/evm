@@ -19,10 +19,10 @@ package p256
 import (
 	"math/big"
 
+	"github.com/cosmos/evm/crypto/secp256r1"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/crypto/secp256r1"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

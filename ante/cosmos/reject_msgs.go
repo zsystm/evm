@@ -1,13 +1,10 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package cosmos
 
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // RejectMessagesDecorator prevents invalid msg types from being executed.

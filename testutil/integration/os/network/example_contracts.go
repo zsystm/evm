@@ -1,10 +1,7 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
-	testconstants "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/cosmos/evm/testutil/constants"
 )
 
 // chainsWEVMOSHex is an utility map used to retrieve the WEVMOS contract

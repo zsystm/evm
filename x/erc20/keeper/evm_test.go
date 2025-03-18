@@ -7,16 +7,16 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	testfactory "github.com/cosmos/evm/testutil/integration/os/factory"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	testfactory "github.com/evmos/os/testutil/integration/os/factory"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/os/contracts"
-	"github.com/evmos/os/x/erc20/keeper"
-	"github.com/evmos/os/x/erc20/types"
-	erc20mocks "github.com/evmos/os/x/erc20/types/mocks"
+	"github.com/cosmos/evm/contracts"
+	"github.com/cosmos/evm/x/erc20/keeper"
+	"github.com/cosmos/evm/x/erc20/types"
+	erc20mocks "github.com/cosmos/evm/x/erc20/types/mocks"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {

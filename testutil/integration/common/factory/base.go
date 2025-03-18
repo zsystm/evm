@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package factory
 
 import (
@@ -13,8 +10,8 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/network"
 )
 
 // BaseTxFactory is the interface that wraps the common methods to build and broadcast transactions

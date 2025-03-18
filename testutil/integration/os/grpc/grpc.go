@@ -1,16 +1,13 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package grpc
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	commongrpc "github.com/cosmos/evm/testutil/integration/common/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	commongrpc "github.com/evmos/os/testutil/integration/common/grpc"
-	"github.com/evmos/os/testutil/integration/os/network"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 // Handler is an interface that defines the methods that are used to query

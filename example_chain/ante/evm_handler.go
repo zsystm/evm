@@ -1,11 +1,8 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package ante
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmante "github.com/evmos/os/ante/evm"
+	evmante "github.com/cosmos/evm/ante/evm"
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions.

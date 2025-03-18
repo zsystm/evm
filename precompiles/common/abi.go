@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package common
 
 import (
@@ -9,12 +6,12 @@ import (
 	"math/big"
 	"reflect"
 
+	contractutils "github.com/cosmos/evm/contracts/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	contractutils "github.com/evmos/os/contracts/utils"
 )
 
 // MakeTopic converts a filter query argument into a filter topic.

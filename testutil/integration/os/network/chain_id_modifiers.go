@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
 // This files contains handler for the testing suite that has to be run to
 // modify the chain configuration depending on the chainID
@@ -8,8 +6,8 @@ package network
 
 import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	testconstants "github.com/evmos/os/testutil/constants"
-	erc20types "github.com/evmos/os/x/erc20/types"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 )
 
 // updateErc20GenesisStateForChainID modify the default genesis state for the
@@ -25,8 +23,8 @@ func updateBankGenesisStateForChainID(bankGenesisState banktypes.GenesisState) b
 // for the Evm coin depending on the chainID.
 func generateBankGenesisMetadata() banktypes.Metadata {
 	return banktypes.Metadata{
-		Description: "The native EVM, governance and staking token of the evmOS example chain",
-		Base:        "aevmos",
+		Description: "The native EVM, governance and staking token of the Cosmos EVM example chain",
+		Base:        "aatom",
 		DenomUnits: []*banktypes.DenomUnit{
 			{
 				Denom:    testconstants.ExampleAttoDenom,
@@ -37,8 +35,8 @@ func generateBankGenesisMetadata() banktypes.Metadata {
 				Exponent: 18,
 			},
 		},
-		Name:    "evmOS",
-		Symbol:  "EVMOS",
+		Name:    "Cosmos EVM",
+		Symbol:  "ATOM",
 		Display: testconstants.ExampleDisplayDenom,
 	}
 }

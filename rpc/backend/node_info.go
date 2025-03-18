@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package backend
 
 import (
@@ -19,14 +16,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	rpctypes "github.com/cosmos/evm/rpc/types"
+	"github.com/cosmos/evm/server/config"
+	"github.com/cosmos/evm/testutil/constants"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	rpctypes "github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/server/config"
-	"github.com/evmos/os/testutil/constants"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // Accounts returns the list of accounts available to this node.

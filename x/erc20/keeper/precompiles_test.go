@@ -2,8 +2,8 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {

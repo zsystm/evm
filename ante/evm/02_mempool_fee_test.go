@@ -1,11 +1,9 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package evm_test
 
 import (
 	sdkmath "cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/os/ante/evm"
+	"github.com/cosmos/evm/ante/evm"
 )
 
 func (suite *EvmAnteTestSuite) TestMempoolFee() {

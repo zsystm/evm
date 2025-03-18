@@ -19,7 +19,7 @@ from pathlib import Path
 from shutil import copy, rmtree
 from typing import List, Union
 
-# The path to the main level of the Evmos repository.
+# The path to the main level of the Cosmos EVM repository.
 REPO_PATH = Path(__file__).parent.parent.parent
 
 
@@ -167,7 +167,7 @@ def copy_to_contracts_directory(target_dir: Path, contracts: List[Contract]) -> 
 
 def is_os_repo(path: Path) -> bool:
     """
-    This function checks if the given path is the root of the evmOS repository,
+    This function checks if the given path is the root of the Cosmos EVM repository,
     where this script is designed to be executed.
     """
 
@@ -182,7 +182,7 @@ def is_os_repo(path: Path) -> bool:
             if not line:
                 break
 
-            if "module github.com/evmos/os" in line:
+            if "module github.com/cosmos/evm" in line:
                 return True
 
     return False

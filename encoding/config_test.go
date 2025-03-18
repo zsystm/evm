@@ -4,10 +4,10 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/cosmos/evm/encoding"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/encoding"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

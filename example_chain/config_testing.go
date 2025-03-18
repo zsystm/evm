@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 //go:build test
 // +build test
 
@@ -12,8 +9,8 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testconstants "github.com/evmos/os/testutil/constants"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
@@ -32,20 +29,20 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 	},
 }
 
-// EvmosOptionsFn defines a function type for setting app options specifically for
-// the Evmos app. The function should receive the chainID and return an error if
+// EVMOptionsFn defines a function type for setting app options specifically for
+// the Cosmos EVM app. The function should receive the chainID and return an error if
 // any.
-type EvmosOptionsFn func(string) error
+type EVMOptionsFn func(string) error
 
-// NoOpEvmosOptions is a no-op function that can be used when the app does not
+// NoOpEVMOptions is a no-op function that can be used when the app does not
 // need any specific configuration.
-func NoOpEvmosOptions(_ string) error {
+func NoOpEVMOptions(_ string) error {
 	return nil
 }
 
-// EvmosAppOptions allows to setup the global configuration
-// for the Evmos chain.
-func EvmosAppOptions(chainID string) error {
+// EvmAppOptions allows to setup the global configuration
+// for the Cosmos EVM chain.
+func EvmAppOptions(chainID string) error {
 	// Split the revision height from the given chain ID
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := ChainsCoinInfo[id]
@@ -69,7 +66,7 @@ func EvmosAppOptions(chainID string) error {
 	// reset configuration to set the new one
 	configurator.ResetTestConfig()
 	err = configurator.
-		WithExtendedEips(evmosActivators).
+		WithExtendedEips(cosmosEVMActivators).
 		WithChainConfig(ethCfg).
 		WithEVMCoinInfo(baseDenom, uint8(coinInfo.Decimals)).
 		Configure()

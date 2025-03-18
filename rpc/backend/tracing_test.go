@@ -9,12 +9,12 @@ import (
 	"github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/crypto"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/indexer"
+	"github.com/cosmos/evm/rpc/backend/mocks"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/indexer"
-	"github.com/evmos/os/rpc/backend/mocks"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestTraceTransaction() {

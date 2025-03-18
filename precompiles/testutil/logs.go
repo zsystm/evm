@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package testutil
 
 import (
@@ -7,8 +5,8 @@ import (
 	"slices"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // CheckLogs checks the logs for the given events and whether the transaction was successful or not.

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keyring
 
 import (
@@ -8,24 +5,24 @@ import (
 	cosmosLedger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/crypto/hd"
-	"github.com/evmos/os/wallets/ledger"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/crypto/hd"
+	"github.com/cosmos/evm/wallets/ledger"
 )
 
-// AppName defines the Ledger app used for signing. evmOS uses the Ethereum app
+// AppName defines the Ledger app used for signing. Cosmos EVM uses the Ethereum app
 const AppName = "Ethereum"
 
 var (
-	// SupportedAlgorithms defines the list of signing algorithms used on evmOS:
+	// SupportedAlgorithms defines the list of signing algorithms used on Cosmos EVM:
 	//  - eth_secp256k1 (Ethereum)
 	SupportedAlgorithms = keyring.SigningAlgoList{hd.EthSecp256k1}
-	// SupportedAlgorithmsLedger defines the list of signing algorithms used by evmOS for the Ledger device:
+	// SupportedAlgorithmsLedger defines the list of signing algorithms used by Cosmos EVM for the Ledger device:
 	//  - secp256k1 (in order to comply with Cosmos SDK)
 	// The Ledger derivation function is responsible for all signing and address generation.
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{hd.EthSecp256k1}
-	// LedgerDerivation defines the evmOS Ledger Go derivation (Ethereum app with EIP-712 signing)
-	LedgerDerivation = ledger.EvmosLedgerDerivation()
+	// LedgerDerivation defines the Cosmos EVM Ledger Go derivation (Ethereum app with EIP-712 signing)
+	LedgerDerivation = ledger.EvmLedgerDerivation()
 	// CreatePubkey uses the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
 	CreatePubkey = func(key []byte) types.PubKey { return &ethsecp256k1.PubKey{Key: key} }
 	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER.

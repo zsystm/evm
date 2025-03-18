@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package utils
 
 import (
@@ -10,7 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // LoadContractFromJSONFile is a helper method to convert the embedded bytes from a JSON file,

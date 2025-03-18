@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 
 	cmttypes "github.com/cometbft/cometbft/types"
+	"github.com/cosmos/evm/rpc/backend/mocks"
+	ethrpc "github.com/cosmos/evm/rpc/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/rpc/backend/mocks"
-	ethrpc "github.com/evmos/os/rpc/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestGetLogs() {

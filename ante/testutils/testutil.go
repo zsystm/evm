@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package testutils
 
 import (
@@ -12,17 +10,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	"github.com/evmos/os/ante"
-	evmante "github.com/evmos/os/ante/evm"
-	chainante "github.com/evmos/os/example_chain/ante"
-	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	"github.com/cosmos/evm/ante"
+	evmante "github.com/cosmos/evm/ante/evm"
+	chainante "github.com/cosmos/evm/example_chain/ante"
+	chainutil "github.com/cosmos/evm/example_chain/testutil"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 type AnteTestSuite struct {

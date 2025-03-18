@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package utils
 
 import (
@@ -10,9 +7,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cmnfactory "github.com/evmos/os/testutil/integration/common/factory"
-	cmnnet "github.com/evmos/os/testutil/integration/common/network"
-	"github.com/evmos/os/testutil/integration/os/keyring"
+	cmnfactory "github.com/cosmos/evm/testutil/integration/common/factory"
+	cmnnet "github.com/cosmos/evm/testutil/integration/common/network"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
 )
 
 // FundAccountWithBaseDenom funds the given account with the given amount of the network's

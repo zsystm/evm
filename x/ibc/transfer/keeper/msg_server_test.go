@@ -9,12 +9,12 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	testutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+	"github.com/cosmos/evm/x/ibc/transfer/keeper"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	"github.com/evmos/os/testutil/integration/os/keyring"
-	testutils "github.com/evmos/os/testutil/integration/os/utils"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	"github.com/evmos/os/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
 

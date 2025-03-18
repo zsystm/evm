@@ -12,12 +12,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/gov"
+	"github.com/cosmos/evm/precompiles/testutil"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/gov"
-	"github.com/evmos/os/precompiles/testutil"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/x/evm/core/vm"
 )
 
 var (
@@ -285,7 +285,7 @@ func (s *PrecompileTestSuite) TestGetDeposit() {
 				s.Require().NoError(err)
 				s.Require().Equal(tc.expPropNumber, out.Deposit.ProposalId)
 				s.Require().Equal(common.BytesToAddress(depositor.Bytes()), out.Deposit.Depositor)
-				s.Require().Equal([]cmn.Coin{{Denom: "aevmos", Amount: big.NewInt(100)}}, out.Deposit.Amount)
+				s.Require().Equal([]cmn.Coin{{Denom: "aatom", Amount: big.NewInt(100)}}, out.Deposit.Amount)
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)

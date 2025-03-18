@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
+	"github.com/cosmos/evm/precompiles/authorization"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/authorization"
-	cmn "github.com/evmos/os/precompiles/common"
-	testutiltx "github.com/evmos/os/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 

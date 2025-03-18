@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package evm
 
 import (
@@ -11,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmkeeper "github.com/evmos/os/x/evm/keeper"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // MonoDecorator is a single decorator that handles all the prechecks for
@@ -30,7 +27,7 @@ type MonoDecorator struct {
 // NewEVMMonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
 // for EVM transactions on the chain.
 //
-// This runs all the default checks for EVM transactions enable through evmOS.
+// This runs all the default checks for EVM transactions enable through Cosmos EVM.
 // Any partner chains can use this in their ante handler logic and build additional EVM
 // decorators using the returned DecoratorUtils
 func NewEVMMonoDecorator(

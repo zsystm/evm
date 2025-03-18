@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package evm_test
 
 import (
@@ -8,13 +6,13 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evmante "github.com/evmos/os/ante/evm"
-	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
-	testfactory "github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmante "github.com/cosmos/evm/ante/evm"
+	commonfactory "github.com/cosmos/evm/testutil/integration/common/factory"
+	testfactory "github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {

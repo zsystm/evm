@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package eips_test
 
 import (
@@ -9,16 +6,16 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/evm/example_chain/eips"
+	"github.com/cosmos/evm/example_chain/eips/testdata"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	integrationutils "github.com/cosmos/evm/testutil/integration/os/utils"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/example_chain/eips"
-	"github.com/evmos/os/example_chain/eips/testdata"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
 
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/ethereum/go-ethereum/params"
 

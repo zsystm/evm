@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package slashing_test
 
 import (
@@ -9,10 +6,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/slashing"
+	"github.com/cosmos/evm/precompiles/testutil"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/slashing"
-	"github.com/evmos/os/precompiles/testutil"
 )
 
 func (s *PrecompileTestSuite) TestGetSigningInfo() {

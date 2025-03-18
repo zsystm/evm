@@ -1,21 +1,18 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutil
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	teststaking "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	app "github.com/evmos/os/example_chain"
-	testutiltx "github.com/evmos/os/testutil/tx"
+	app "github.com/cosmos/evm/example_chain"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 

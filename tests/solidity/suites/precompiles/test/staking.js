@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const hre = require('hardhat')
 
 describe('Staking', function () {
-  it('should stake EVMOS to a validator', async function () {
+  it('should stake ATOM to a validator', async function () {
     const valAddr = 'evmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pwlawghe'
     const stakeAmount = hre.ethers.parseEther('0.001')
 

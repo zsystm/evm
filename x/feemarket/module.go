@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package feemarket
 
 import (
@@ -16,9 +13,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/evmos/os/x/feemarket/client/cli"
-	"github.com/evmos/os/x/feemarket/keeper"
-	"github.com/evmos/os/x/feemarket/types"
+	"github.com/cosmos/evm/x/feemarket/client/cli"
+	"github.com/cosmos/evm/x/feemarket/keeper"
+	"github.com/cosmos/evm/x/feemarket/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package eip712
 
 import (
@@ -11,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
+	ostypes "github.com/cosmos/evm/types"
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
-	ostypes "github.com/evmos/os/types"
 )
 
 type aminoMessage struct {

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package client
 
 import (
@@ -11,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/crypto/hd"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/crypto/hd"
 )
 
 // UnsafeImportKeyCommand imports private keys from a keyfile.

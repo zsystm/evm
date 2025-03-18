@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutil
 
 import (
@@ -19,10 +16,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil/tx"
-	evm "github.com/evmos/os/x/evm/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/testutil/tx"
+	evm "github.com/cosmos/evm/x/vm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.

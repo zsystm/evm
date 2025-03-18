@@ -4,10 +4,10 @@ import (
 	"slices"
 	"testing"
 
+	exampleapp "github.com/cosmos/evm/example_chain"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	exampleapp "github.com/evmos/os/example_chain"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )

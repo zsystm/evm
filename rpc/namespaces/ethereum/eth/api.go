@@ -1,24 +1,21 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package eth
 
 import (
 	"context"
 
 	"cosmossdk.io/log"
+	"github.com/cosmos/evm/rpc/backend"
+	rpctypes "github.com/cosmos/evm/rpc/types"
+	"github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/os/rpc/backend"
-	rpctypes "github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// The Ethereum API allows applications to connect to an node of any evmOS based blockchain.
+// The Ethereum API allows applications to connect to an node of any Cosmos EVM based blockchain.
 // Developers can interact with on-chain EVM data
 // and send different types of transactions to the network by utilizing the
 // endpoints provided by the API. The API follows a JSON-RPC standard. If not
@@ -294,7 +291,7 @@ func (e *PublicAPI) ProtocolVersion() hexutil.Uint {
 	return hexutil.Uint(types.ProtocolVersion)
 }
 
-// GasPrice returns the current gas price based on evmOS's gas price oracle.
+// GasPrice returns the current gas price based on Cosmos EVM's gas price oracle.
 func (e *PublicAPI) GasPrice() (*hexutil.Big, error) {
 	e.logger.Debug("eth_gasPrice")
 	return e.backend.GasPrice()

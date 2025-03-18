@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
@@ -22,14 +19,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	app "github.com/cosmos/evm/example_chain"
+	chainutil "github.com/cosmos/evm/example_chain/testutil"
+	commonnetwork "github.com/cosmos/evm/testutil/integration/common/network"
+	"github.com/cosmos/evm/types"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	gethparams "github.com/ethereum/go-ethereum/params"
-	app "github.com/evmos/os/example_chain"
-	chainutil "github.com/evmos/os/example_chain/testutil"
-	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
-	"github.com/evmos/os/types"
-	erc20types "github.com/evmos/os/x/erc20/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.

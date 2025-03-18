@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20
 
 import (
@@ -13,8 +10,8 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/os/ibc"
-	"github.com/evmos/os/x/erc20/keeper"
+	"github.com/cosmos/evm/ibc"
+	"github.com/cosmos/evm/x/erc20/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCMiddleware{}

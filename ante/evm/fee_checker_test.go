@@ -10,13 +10,13 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/evmos/os/ante/evm"
-	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	"github.com/cosmos/evm/ante/evm"
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -106,7 +106,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				return txBuilder.GetTx()
 			},
 			false,
-			"10aevmos",
+			"10aatom",
 			0,
 			true,
 		},
@@ -151,7 +151,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				return txBuilder.GetTx()
 			},
 			true,
-			"10aevmos",
+			"10aatom",
 			0,
 			true,
 		},
@@ -168,7 +168,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				return txBuilder.GetTx()
 			},
 			true,
-			"10000010aevmos",
+			"10000010aatom",
 			10,
 			true,
 		},
@@ -189,7 +189,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				return txBuilder.GetTx()
 			},
 			true,
-			"10aevmos",
+			"10aatom",
 			0,
 			true,
 		},
@@ -212,7 +212,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				return txBuilder.GetTx()
 			},
 			true,
-			"5000010aevmos",
+			"5000010aatom",
 			5,
 			true,
 		},

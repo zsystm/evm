@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"math/big"
 
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/staking"
+	"github.com/cosmos/evm/precompiles/testutil"
+	cosmosevmutiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	"github.com/cosmos/evm/x/vm/statedb"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/staking"
-	"github.com/evmos/os/precompiles/testutil"
-	evmosutiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/core/vm"
-	"github.com/evmos/os/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestCreateValidator() {
@@ -40,7 +40,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		pubkey            = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 		validatorAddress  common.Address
 		value             = big.NewInt(1205000000000000000)
-		diffAddr, _       = evmosutiltx.NewAddrKey()
+		diffAddr, _       = cosmosevmutiltx.NewAddrKey()
 	)
 
 	testCases := []struct {
@@ -66,7 +66,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		{
 			"fail - different origin than delegator",
 			func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := cosmosevmutiltx.GenerateAddress()
 				return []interface{}{
 					description,
 					commission,
@@ -381,7 +381,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 		{
 			"fail - different origin than delegator",
 			func() []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := cosmosevmutiltx.GenerateAddress()
 				return []interface{}{
 					description,
 					differentAddr,
@@ -725,7 +725,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		{
 			name: "fail - different origin than delegator",
 			malleate: func(_, _ testkeyring.Key, operatorAddress string) []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := cosmosevmutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					operatorAddress,
@@ -955,7 +955,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 		{
 			name: "fail - different origin than delegator",
 			malleate: func(_, _ testkeyring.Key, operatorAddress string) []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := cosmosevmutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					operatorAddress,
@@ -1090,7 +1090,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 		{
 			name: "fail - different origin than delegator",
 			malleate: func(_, _ testkeyring.Key, srcOperatorAddr, dstOperatorAddr string) []interface{} {
-				differentAddr := evmosutiltx.GenerateAddress()
+				differentAddr := cosmosevmutiltx.GenerateAddress()
 				return []interface{}{
 					differentAddr,
 					srcOperatorAddr,

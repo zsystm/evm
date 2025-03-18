@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package hd
 
 import (
@@ -14,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"github.com/evmos/os/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
 )
 
 const (
@@ -23,11 +21,11 @@ const (
 )
 
 var (
-	// SupportedAlgorithms defines the list of signing algorithms used on evmOS:
+	// SupportedAlgorithms defines the list of signing algorithms used on Cosmos EVM:
 	//  - eth_secp256k1 (Ethereum)
 	//  - secp256k1 (Tendermint)
 	SupportedAlgorithms = keyring.SigningAlgoList{EthSecp256k1, hd.Secp256k1}
-	// SupportedAlgorithmsLedger defines the list of signing algorithms used on evmOS for the Ledger device:
+	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Cosmos EVM for the Ledger device:
 	//  - eth_secp256k1 (Ethereum)
 	//  - secp256k1 (Tendermint)
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{EthSecp256k1, hd.Secp256k1}

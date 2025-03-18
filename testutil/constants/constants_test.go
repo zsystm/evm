@@ -3,10 +3,10 @@ package constants_test
 import (
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
-	"github.com/evmos/os/example_chain"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
+	"github.com/cosmos/evm/example_chain"
+	chainconfig "github.com/cosmos/evm/example_chain/evmd/config"
 	"github.com/stretchr/testify/require"
 )
 

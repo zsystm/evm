@@ -14,11 +14,11 @@ import (
 	sdktestutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	"github.com/evmos/os/crypto/hd"
-	"github.com/evmos/os/encoding"
-	"github.com/evmos/os/tests/integration/ledger/mocks"
-	"github.com/evmos/os/testutil"
-	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/cosmos/evm/crypto/hd"
+	"github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/tests/integration/ledger/mocks"
+	"github.com/cosmos/evm/testutil"
+	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/spf13/cobra"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -59,7 +59,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			krHome = s.T().TempDir()
 			encCfg = encoding.MakeConfig()
 
-			cmd = s.evmosAddKeyCmd()
+			cmd = s.cosmosEVMAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
@@ -111,7 +111,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			var err error
 
 			// create add key command
-			cmd = s.evmosAddKeyCmd()
+			cmd = s.cosmosEVMAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)

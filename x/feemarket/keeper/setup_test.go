@@ -2,10 +2,10 @@ package keeper_test
 
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,7 +25,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomBaseAppOpts(baseapp.SetMinGasPrices("10aevmos")),
+		network.WithCustomBaseAppOpts(baseapp.SetMinGasPrices("10aatom")),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(nw)
 	txFactory := factory.New(nw, grpcHandler)

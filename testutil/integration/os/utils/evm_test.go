@@ -4,14 +4,14 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/cosmos/evm/contracts"
+	testfactory "github.com/cosmos/evm/testutil/integration/os/factory"
+	testhandler "github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testnetwork "github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/testutil/integration/os/utils"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/contracts"
-	testfactory "github.com/evmos/os/testutil/integration/os/factory"
-	testhandler "github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	testnetwork "github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/testutil/integration/os/utils"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

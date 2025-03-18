@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package example_chain
 
 import (
@@ -88,6 +85,23 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmante "github.com/cosmos/evm/ante"
+	cosmosevmante "github.com/cosmos/evm/ante/evm"
+	evmosencoding "github.com/cosmos/evm/encoding"
+	chainante "github.com/cosmos/evm/example_chain/ante"
+	srvflags "github.com/cosmos/evm/server/flags"
+	cosmosevmtypes "github.com/cosmos/evm/types"
+	cosmosevmutils "github.com/cosmos/evm/utils"
+	"github.com/cosmos/evm/x/erc20"
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/feemarket"
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/vm"
+	corevm "github.com/cosmos/evm/x/vm/core/vm"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
@@ -102,47 +116,30 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
-	evmosante "github.com/evmos/os/ante"
-	evmosevmante "github.com/evmos/os/ante/evm"
-	evmosencoding "github.com/evmos/os/encoding"
-	chainante "github.com/evmos/os/example_chain/ante"
-	srvflags "github.com/evmos/os/server/flags"
-	evmostypes "github.com/evmos/os/types"
-	evmosutils "github.com/evmos/os/utils"
-	"github.com/evmos/os/x/erc20"
-	erc20keeper "github.com/evmos/os/x/erc20/keeper"
-	erc20types "github.com/evmos/os/x/erc20/types"
-	"github.com/evmos/os/x/evm"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmkeeper "github.com/evmos/os/x/evm/keeper"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	"github.com/evmos/os/x/feemarket"
-	feemarketkeeper "github.com/evmos/os/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/spf13/cast"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/os/x/ibc/transfer"
-	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
+	"github.com/cosmos/evm/x/ibc/transfer"
+	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
-	_ "github.com/evmos/os/x/evm/core/tracers/js"
-	_ "github.com/evmos/os/x/evm/core/tracers/native"
+	_ "github.com/cosmos/evm/x/vm/core/tracers/js"
+	_ "github.com/cosmos/evm/x/vm/core/tracers/native"
 )
 
 func init() {
 	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
-	sdk.DefaultPowerReduction = evmostypes.AttoPowerReduction
+	sdk.DefaultPowerReduction = cosmosevmtypes.AttoPowerReduction
 
 	// get the user's home directory
 	var err error
-	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".osd")
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".evmd")
 	if err != nil {
 		panic(err)
 	}
 }
 
-const appName = "os"
+const appName = "evmd"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -158,7 +155,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 
-		// evmOS modules
+		// Cosmos EVM modules
 		evmtypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 		feemarkettypes.ModuleName: nil,
 		erc20types.ModuleName:     {authtypes.Minter, authtypes.Burner},
@@ -208,7 +205,7 @@ type ExampleChain struct {
 	scopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
-	// evmOS keepers
+	// Cosmos EVM keepers
 	FeeMarketKeeper feemarketkeeper.Keeper
 	EVMKeeper       *evmkeeper.Keeper
 	Erc20Keeper     erc20keeper.Keeper
@@ -231,7 +228,7 @@ func NewExampleApp(
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
-	evmosAppOptions EvmosOptionsFn,
+	EvmAppOptions EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ExampleChain {
 	encodingConfig := evmosencoding.MakeConfig()
@@ -280,8 +277,8 @@ func NewExampleApp(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
 
-	// initialize the evmOS application configuration
-	if err := evmosAppOptions(bApp.ChainID()); err != nil {
+	// initialize the Cosmos EVM application configuration
+	if err := EvmAppOptions(bApp.ChainID()); err != nil {
 		panic(err)
 	}
 
@@ -293,7 +290,7 @@ func NewExampleApp(
 		authzkeeper.StoreKey,
 		// ibc keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey,
-		// evmOS store keys
+		// Cosmos EVM store keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey, erc20types.StoreKey,
 	)
 
@@ -486,7 +483,7 @@ func NewExampleApp(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	// evmOS keepers
+	// Cosmos EVM keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		keys[feemarkettypes.StoreKey],
@@ -561,7 +558,7 @@ func NewExampleApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// NOTE: we are adding all available evmOS EVM extensions.
+	// NOTE: we are adding all available Cosmos EVM EVM extensions.
 	// Not all of them need to be enabled, which can be configured on a per-chain basis.
 	app.EVMKeeper.WithStaticPrecompiles(
 		NewAvailableStaticPrecompiles(
@@ -606,8 +603,8 @@ func NewExampleApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctm.NewAppModule(),
 		transferModule,
-		// evmOS modules
-		evm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		// Cosmos EVM modules
+		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 	)
@@ -649,7 +646,7 @@ func NewExampleApp(
 		// IBC modules
 		ibcexported.ModuleName, ibctransfertypes.ModuleName,
 
-		// evmOS BeginBlockers
+		// Cosmos EVM BeginBlockers
 		erc20types.ModuleName, feemarkettypes.ModuleName,
 		evmtypes.ModuleName, // NOTE: EVM BeginBlocker must come after FeeMarket BeginBlocker
 
@@ -667,7 +664,7 @@ func NewExampleApp(
 		govtypes.ModuleName, stakingtypes.ModuleName,
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 
-		// evmOS EndBlockers
+		// Cosmos EVM EndBlockers
 		evmtypes.ModuleName, erc20types.ModuleName, feemarkettypes.ModuleName,
 
 		// no-ops
@@ -690,7 +687,7 @@ func NewExampleApp(
 		minttypes.ModuleName,
 		ibcexported.ModuleName,
 
-		// evmOS modules
+		// Cosmos EVM modules
 		//
 		// NOTE: feemarket module needs to be initialized before genutil module:
 		// gentx transactions use MinGasPriceDecorator.AnteHandle
@@ -802,15 +799,15 @@ func (app *ExampleChain) setAnteHandler(txConfig client.TxConfig, maxGasWanted u
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		IBCKeeper:              app.IBCKeeper,
 		FeeMarketKeeper:        app.FeeMarketKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
+		SigGasConsumer:         evmante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		TxFeeChecker:           cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)
@@ -853,7 +850,7 @@ func (a *ExampleChain) Configurator() module.Configurator {
 
 // InitChainer application update at chain initialization
 func (app *ExampleChain) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
-	var genesisState evmostypes.GenesisState
+	var genesisState cosmosevmtypes.GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
@@ -1060,7 +1057,7 @@ func GetMaccPerms() map[string][]string {
 // Note, this includes:
 //   - module accounts
 //   - Ethereum's native precompiled smart contracts
-//   - evmOS' available static precompiled contracts
+//   - Cosmos EVM' available static precompiled contracts
 func BlockedAddresses() map[string]bool {
 	blockedAddrs := make(map[string]bool)
 
@@ -1076,12 +1073,12 @@ func BlockedAddresses() map[string]bool {
 	}
 
 	blockedPrecompilesHex := evmtypes.AvailableStaticPrecompiles
-	for _, addr := range vm.PrecompiledAddressesBerlin {
+	for _, addr := range corevm.PrecompiledAddressesBerlin {
 		blockedPrecompilesHex = append(blockedPrecompilesHex, addr.Hex())
 	}
 
 	for _, precompile := range blockedPrecompilesHex {
-		blockedAddrs[evmosutils.EthHexToCosmosAddr(precompile).String()] = true
+		blockedAddrs[cosmosevmutils.EthHexToCosmosAddr(precompile).String()] = true
 	}
 
 	return blockedAddrs
@@ -1106,7 +1103,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	// TODO: do we need a keytable? copied from Evmos repo
 
-	// evmOS modules
+	// Cosmos EVM modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)

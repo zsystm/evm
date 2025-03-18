@@ -3,15 +3,15 @@ package cosmos_test
 import (
 	"fmt"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cosmosante "github.com/evmos/os/ante/cosmos"
-	"github.com/evmos/os/testutil"
-	testutiltx "github.com/evmos/os/testutil/tx"
+	cosmosante "github.com/cosmos/evm/ante/cosmos"
+	"github.com/cosmos/evm/testutil"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
 )
 
 var execTypes = []struct {
@@ -26,8 +26,8 @@ var execTypes = []struct {
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	denom := constants.ExampleAttoDenom
 	testMsg := banktypes.MsgSend{
-		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
-		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+		FromAddress: "cosmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
+		ToAddress:   "cosmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
 	nw := suite.GetNetwork()

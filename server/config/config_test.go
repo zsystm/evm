@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
-	serverconfig "github.com/evmos/os/server/config"
+	serverconfig "github.com/cosmos/evm/server/config"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )

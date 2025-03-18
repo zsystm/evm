@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package usbwallet
 
 import (
@@ -12,11 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cosmos/evm/wallets/accounts"
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/os/wallets/accounts"
 	usb "github.com/zondax/hid"
 )
 

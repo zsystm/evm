@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package tx
 
 import (
@@ -11,12 +8,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil/constants"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/testutil/constants"
 	protov2 "google.golang.org/protobuf/proto"
 )
 
-var DefaultFee = sdk.NewCoin(constants.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
+var DefaultFee = sdk.NewCoin(constants.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AATOM
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {

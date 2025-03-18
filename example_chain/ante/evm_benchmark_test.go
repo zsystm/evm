@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package ante_test
 
 import (
@@ -11,16 +9,16 @@ import (
 	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/os/ante"
-	ethante "github.com/evmos/os/ante/evm"
-	chainante "github.com/evmos/os/example_chain/ante"
-	cmmnfactory "github.com/evmos/os/testutil/integration/common/factory"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	evmostypes "github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/cosmos/evm/ante"
+	ethante "github.com/cosmos/evm/ante/evm"
+	chainante "github.com/cosmos/evm/example_chain/ante"
+	cmmnfactory "github.com/cosmos/evm/testutil/integration/common/factory"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	cosmosevmtypes "github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 type benchmarkSuite struct {
@@ -144,7 +142,7 @@ func (s *benchmarkSuite) generateHandlerOptions() chainante.HandlerOptions {
 		Cdc:                    s.network.App.AppCodec(),
 		AccountKeeper:          s.network.App.AccountKeeper,
 		BankKeeper:             s.network.App.BankKeeper,
-		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              s.network.App.EVMKeeper,
 		FeegrantKeeper:         s.network.App.FeeGrantKeeper,
 		IBCKeeper:              s.network.App.IBCKeeper,

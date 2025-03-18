@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package ethsecp256k1
 
 import (
@@ -14,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/evm/ethereum/eip712"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/os/ethereum/eip712"
 )
 
 const (

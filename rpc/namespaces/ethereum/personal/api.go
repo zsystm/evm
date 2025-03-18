@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package personal
 
 import (
@@ -8,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/evmos/os/rpc/backend"
+	"github.com/cosmos/evm/rpc/backend"
 
-	"github.com/evmos/os/crypto/hd"
-	"github.com/evmos/os/types"
+	"github.com/cosmos/evm/crypto/hd"
+	"github.com/cosmos/evm/types"
 
 	"cosmossdk.io/log"
 
@@ -23,7 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // PrivateAccountAPI is the personal_ prefixed set of APIs in the Web3 JSON-RPC spec.
@@ -165,7 +163,7 @@ func (api *PrivateAccountAPI) EcRecover(_ context.Context, data, sig hexutil.Byt
 	return crypto.PubkeyToAddress(*pubkey), nil
 }
 
-// Unpair deletes a pairing between wallet and evmOS.
+// Unpair deletes a pairing between wallet and Cosmos EVM.
 func (api *PrivateAccountAPI) Unpair(_ context.Context, url, pin string) error {
 	api.logger.Debug("personal_unpair", "url", url, "pin", pin)
 	api.logger.Info("personal_unpair for smartcard wallet not supported")

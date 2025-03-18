@@ -3,7 +3,7 @@ package cosmos_test
 import (
 	"testing"
 
-	"github.com/evmos/os/ante/testutils"
+	"github.com/cosmos/evm/ante/testutils"
 	"github.com/stretchr/testify/suite"
 )
 

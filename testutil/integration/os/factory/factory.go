@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package factory
 
 import (
@@ -14,18 +11,18 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	"github.com/cosmos/evm/precompiles/testutil"
+	commonfactory "github.com/cosmos/evm/testutil/integration/common/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/os/precompiles/testutil"
-	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// TxFactory defines a struct that can build and broadcast transactions for the Evmos
+// TxFactory defines a struct that can build and broadcast transactions for the Cosmos EVM
 // network.
 // Methods are organized by build sign and broadcast type methods.
 type TxFactory interface {

@@ -11,11 +11,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
+	"github.com/cosmos/evm/rpc/backend/mocks"
+	rpc "github.com/cosmos/evm/rpc/types"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/rpc/backend/mocks"
-	rpc "github.com/evmos/os/rpc/types"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -24,9 +24,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// QueryClient defines a mocked object that implements the evmOS GRPC
+// QueryClient defines a mocked object that implements the Cosmos EVM GRPC
 // QueryClient interface. It allows for performing QueryClient queries without having
-// to run an evmOS GRPC server.
+// to run a Cosmos EVM GRPC server.
 //
 // To use a mock method it has to be registered in a given test.
 var _ evmtypes.QueryClient = &mocks.EVMQueryClient{}

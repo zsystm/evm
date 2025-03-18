@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package evm_test
 
 import (
@@ -9,13 +7,13 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/ante/evm"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/cosmos/evm/ante/evm"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	integrationutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestCheckGasWanted() {

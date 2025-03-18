@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package cli
 
 import (
@@ -11,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmosevmtypes "github.com/cosmos/evm/types"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/os/types"
-	"github.com/evmos/os/x/erc20/types"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +43,7 @@ func NewConvertERC20Cmd() *cobra.Command {
 			}
 
 			contract := args[0]
-			if err := evmostypes.ValidateAddress(contract); err != nil {
+			if err := cosmosevmtypes.ValidateAddress(contract); err != nil {
 				return fmt.Errorf("invalid ERC20 contract address %w", err)
 			}
 

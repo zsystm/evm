@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutil
 
 import (
@@ -21,7 +18,7 @@ func FundAccount(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddr
 }
 
 // FundAccountWithBaseDenom is a utility function that uses the FundAccount function
-// to fund an account with the default Evmos denomination.
+// to fund an account with the default Cosmos EVM denomination.
 func FundAccountWithBaseDenom(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddress, amount int64) error {
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {

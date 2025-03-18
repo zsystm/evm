@@ -7,17 +7,17 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/cosmos/evm/precompiles/bank"
+	"github.com/cosmos/evm/precompiles/bank/testdata"
+	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/integration/os/grpc"
+	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	testutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/bank"
-	"github.com/evmos/os/precompiles/bank/testdata"
-	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	"github.com/evmos/os/testutil/integration/os/grpc"
-	"github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	testutils "github.com/evmos/os/testutil/integration/os/utils"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -30,8 +30,8 @@ var is *IntegrationTestSuite
 // IntegrationTestSuite is the implementation of the TestSuite interface for Bank precompile
 // unit testis.
 type IntegrationTestSuite struct {
-	bondDenom, tokenDenom string
-	evmosAddr, xmplAddr   common.Address
+	bondDenom, tokenDenom   string
+	cosmosEVMAddr, xmplAddr common.Address
 
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
@@ -73,7 +73,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.bondDenom)
 	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(is.network.GetContext(), tokenPairID)
 	Expect(found).To(BeTrue(), "failed to register token erc20 extension")
-	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
+	is.cosmosEVMAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
 	err = is.network.App.BankKeeper.MintCoins(is.network.GetContext(), minttypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: math.NewInt(1e18)}})
@@ -108,8 +108,8 @@ var _ = Describe("Bank Extension -", func() {
 		contractData ContractData
 		passCheck    testutil.LogCheckArgs
 
-		evmosTotalSupply, _ = new(big.Int).SetString("200003000000000000000000", 10)
-		xmplTotalSupply, _  = new(big.Int).SetString("200000000000000000000000", 10)
+		cosmosEVMTotalSupply, _ = new(big.Int).SetString("200003000000000000000000", 10)
+		xmplTotalSupply, _      = new(big.Int).SetString("200000000000000000000000", 10)
 	)
 
 	BeforeEach(func() {
@@ -233,21 +233,21 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount.String()).To(Equal(evmosTotalSupply.String()))
+				Expect(balances[0].Amount.String()).To(Equal(cosmosEVMTotalSupply.String()))
 				Expect(balances[1].Amount.String()).To(Equal(xmplTotalSupply.String()))
 			})
 		})
 
 		Context("supplyOf query", func() {
-			It("should return the supply of Evmos", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, is.evmosAddr)
+			It("should return the supply of Cosmos EVM", func() {
+				queryArgs, supplyArgs := getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, is.cosmosEVMAddr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int).String()).To(Equal(evmosTotalSupply.String()))
+				Expect(out[0].(*big.Int).String()).To(Equal(cosmosEVMTotalSupply.String()))
 			})
 
 			It("should return the supply of XMPL", func() {
@@ -376,21 +376,21 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount.String()).To(Equal(evmosTotalSupply.String()))
+				Expect(balances[0].Amount.String()).To(Equal(cosmosEVMTotalSupply.String()))
 				Expect(balances[1].Amount.String()).To(Equal(xmplTotalSupply.String()))
 			})
 		})
 
 		Context("supplyOf query", func() {
-			It("should return the supply of Evmos", func() {
-				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, is.evmosAddr)
+			It("should return the supply of Cosmos EVM", func() {
+				queryArgs, supplyArgs := getTxAndCallArgs(contractCall, contractData, SupplyOfFunction, is.cosmosEVMAddr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int).String()).To(Equal(evmosTotalSupply.String()))
+				Expect(out[0].(*big.Int).String()).To(Equal(cosmosEVMTotalSupply.String()))
 			})
 
 			It("should return the supply of XMPL", func() {

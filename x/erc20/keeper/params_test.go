@@ -2,8 +2,8 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testconstants "github.com/evmos/os/testutil/constants"
-	"github.com/evmos/os/x/erc20/types"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	"github.com/cosmos/evm/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package cosmos
 
 import (
@@ -13,8 +10,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // MinGasPriceDecorator will check if the transaction's fee is at least as large
@@ -44,7 +41,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	feeCoins := feeTx.GetFee()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 
-	// only allow user to pass in aevmos and stake native token as transaction fees
+	// only allow user to pass in aatom and stake native token as transaction fees
 	// allow use stake native tokens for fees is just for unit tests to pass
 	//
 	// TODO: is the handling of stake necessary here? Why not adjust the tests to contain the correct denom?

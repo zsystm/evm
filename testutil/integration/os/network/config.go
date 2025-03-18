@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
@@ -13,10 +10,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	testconstants "github.com/evmos/os/testutil/constants"
-	testtx "github.com/evmos/os/testutil/tx"
-	evmostypes "github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	testtx "github.com/cosmos/evm/testutil/tx"
+	cosmosevmtypes "github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // defaultChain represents the default chain ID used in the suite setup.
@@ -113,7 +110,7 @@ type ConfigOption func(*Config)
 // WithChainID sets a custom chainID for the network. Changing the chainID
 // change automatically also the EVM coin used. It panics if the chainID is invalid.
 func WithChainID(chainID string) ConfigOption {
-	eip155ChainID, err := evmostypes.ParseChainID(chainID)
+	eip155ChainID, err := cosmosevmtypes.ParseChainID(chainID)
 	if err != nil {
 		panic(err)
 	}

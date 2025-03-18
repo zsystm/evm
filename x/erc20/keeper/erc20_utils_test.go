@@ -8,9 +8,9 @@ import (
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 
-	"github.com/evmos/os/contracts"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	evm "github.com/evmos/os/x/evm/types"
+	"github.com/cosmos/evm/contracts"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	evm "github.com/cosmos/evm/x/vm/types"
 )
 
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, to common.Address, amount *big.Int) (abcitypes.ExecTxResult, error) {

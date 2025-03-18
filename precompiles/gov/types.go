@@ -1,20 +1,17 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package gov
 
 import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/cosmos/evm/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	cmn "github.com/evmos/os/precompiles/common"
+	cmn "github.com/cosmos/evm/precompiles/common"
 )
 
 // EventVote defines the event data for the Vote transaction.

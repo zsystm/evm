@@ -8,11 +8,11 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/evm/testutil/integration/common/factory"
+	testutils "github.com/cosmos/evm/testutil/integration/os/utils"
+	fmkttypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/testutil/integration/common/factory"
-	testutils "github.com/evmos/os/testutil/integration/os/utils"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	fmkttypes "github.com/evmos/os/x/feemarket/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -74,7 +74,7 @@ var _ = Describe("Feemarket", func() {
 			const minGasPrices int64 = 15
 
 			BeforeEach(func() {
-				// local min-gas-prices is 10aevmos
+				// local min-gas-prices is 10aatom
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
 				params.BaseFee = math.LegacyNewDec(0)
@@ -142,7 +142,7 @@ var _ = Describe("Feemarket", func() {
 			// minGasPrices is the feemarket MinGasPrices
 			const minGasPrices int64 = 10
 			BeforeEach(func() {
-				// local min-gas-prices is 10aevmos
+				// local min-gas-prices is 10aatom
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
 				params.BaseFee = math.LegacyNewDec(0)
@@ -213,7 +213,7 @@ var _ = Describe("Feemarket", func() {
 			baseFee := math.LegacyNewDec(15)
 
 			BeforeEach(func() {
-				// local min-gas-prices is 10aevmos
+				// local min-gas-prices is 10aatom
 				params := fmkttypes.DefaultParams()
 				params.MinGasPrice = math.LegacyNewDec(minGasPrices)
 				params.BaseFee = baseFee
@@ -520,7 +520,7 @@ var _ = Describe("Feemarket", func() {
 					// 200000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 					// with `minGasPrices = 40_000_000_000` results in `minGlobalFee =
 					// 8000000000000000`
-					// local min-gas-prices is 10aevmos
+					// local min-gas-prices is 10aatom
 					params := fmkttypes.DefaultParams()
 					params.MinGasPrice = math.LegacyNewDec(minGasPrices)
 					params.BaseFee = math.LegacyNewDec(baseFee)
@@ -614,7 +614,7 @@ var _ = Describe("Feemarket", func() {
 					// 200000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 					// with `minGasPrices = 40_000_000_000` results in `minGlobalFee =
 					// 8000000000000000`
-					// local min-gas-prices is 10aevmos
+					// local min-gas-prices is 10aatom
 					params := fmkttypes.DefaultParams()
 					params.MinGasPrice = math.LegacyNewDec(minGasPrices)
 					params.BaseFee = math.LegacyNewDec(baseFee)

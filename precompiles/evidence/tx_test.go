@@ -6,9 +6,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/evidence"
-	"github.com/evmos/os/precompiles/testutil"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/evidence"
+	"github.com/cosmos/evm/precompiles/testutil"
 )
 
 func (s *PrecompileTestSuite) TestSubmitEvidence() {

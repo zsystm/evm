@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20
 
 import (
@@ -11,12 +8,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	auth "github.com/cosmos/evm/precompiles/authorization"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
+	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	auth "github.com/evmos/os/precompiles/authorization"
-	cmn "github.com/evmos/os/precompiles/common"
-	erc20types "github.com/evmos/os/x/erc20/types"
-	"github.com/evmos/os/x/evm/core/vm"
-	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
 
 const (
@@ -95,7 +92,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	// TODO: these values were obtained from Remix using the ERC20.sol from OpenZeppelin.
-	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Evmos testnet
+	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Cosmos EVM testnet
 	// to ensure parity in the values.
 	switch method.Name {
 	// ERC-20 transactions

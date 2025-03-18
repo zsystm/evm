@@ -18,21 +18,21 @@ function panic (errMsg) {
 function checkTestEnv () {
   const argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options] <tests>')
-    .example('$0 --network evmos', 'run all tests using evmos network')
+    .example('$0 --network cosmos', 'run all tests using cosmos evm network')
     .example(
-      '$0 --network evmos --allowTests=test1,test2',
-      'run only test1 and test2 using evmos network'
+      '$0 --network cosmos --allowTests=test1,test2',
+      'run only test1 and test2 using cosmos network'
     )
     .help('h')
     .alias('h', 'help')
-    .describe('network', 'set which network to use: ganache|evmos')
+    .describe('network', 'set which network to use: ganache|cosmos')
     .describe(
       'batch',
       'set the test batch in parallelized testing. Format: %d-%d'
     )
     .describe('allowTests', 'only run specified tests. Separated by comma.')
     .boolean('verbose-log')
-    .describe('verbose-log', 'print osd output, default false').argv
+    .describe('verbose-log', 'print evmd output, default false').argv
 
   if (!fs.existsSync(path.join(__dirname, './node_modules'))) {
     panic(
@@ -45,8 +45,8 @@ function checkTestEnv () {
   if (!argv.network) {
     runConfig.network = 'ganache'
   } else {
-    if (argv.network !== 'evmos' && argv.network !== 'ganache') {
-      panic('network is invalid. Must be ganache or evmos')
+    if (argv.network !== 'cosmos' && argv.network !== 'ganache') {
+      panic('network is invalid. Must be ganache or cosmos')
     } else {
       runConfig.network = argv.network
     }
@@ -112,7 +112,7 @@ function loadTests (runConfig) {
           'utf-8'
         )
       )
-      const needScripts = ['test-ganache', 'test-evmos']
+      const needScripts = ['test-ganache', 'test-cosmos']
       for (const s of needScripts) {
         if (Object.keys(testManifest.scripts).indexOf(s) === -1) {
           logger.warn(
@@ -150,7 +150,7 @@ function loadTests (runConfig) {
 }
 
 function performTestSuite ({ testName, network }) {
-  const cmd = network === 'ganache' ? 'test-ganache' : 'test-evmos'
+  const cmd = network === 'ganache' ? 'test-ganache' : 'test-cosmos'
   return new Promise((resolve, reject) => {
     const testProc = spawn('yarn', [cmd], {
       cwd: path.join(__dirname, 'suites', testName)
@@ -187,23 +187,23 @@ async function performTests ({ allTests, runConfig }) {
 }
 
 function setupNetwork ({ runConfig, timeout }) {
-  if (runConfig.network !== 'evmos') {
+  if (runConfig.network !== 'cosmos') {
     // no need to start ganache. Truffle will start it
     return
   }
 
-  // Spawn the evmos process
+  // Spawn the cosmos evm process
 
   const spawnPromise = new Promise((resolve, reject) => {
     const serverStartedLog = 'Starting JSON-RPC server'
-    const serverStartedMsg = 'osd started'
+    const serverStartedMsg = 'evmd started'
 
     const osdProc = spawn('./init-node.sh', {
       cwd: __dirname,
       stdio: ['ignore', 'pipe', 'pipe']
     })
 
-    logger.info(`Starting osd process... timeout: ${timeout}ms`)
+    logger.info(`Starting evmd process... timeout: ${timeout}ms`)
     if (runConfig.verboseLog) {
       osdProc.stdout.pipe(process.stdout)
     }
@@ -234,7 +234,7 @@ function setupNetwork ({ runConfig, timeout }) {
   })
 
   const timeoutPromise = new Promise((resolve, reject) => {
-    setTimeout(() => reject(new Error('Start osd timeout!')), timeout)
+    setTimeout(() => reject(new Error('Start evmd timeout!')), timeout)
   })
   return Promise.race([spawnPromise, timeoutPromise])
 }

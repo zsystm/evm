@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
 

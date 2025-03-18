@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package server
 
 import (
@@ -8,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/evmos/os/server/config"
+	"github.com/cosmos/evm/server/config"
 	"github.com/gorilla/mux"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/spf13/cobra"

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutil
 
 import (
@@ -12,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	exampleapp "github.com/evmos/os/example_chain"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	exampleapp "github.com/cosmos/evm/example_chain"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.

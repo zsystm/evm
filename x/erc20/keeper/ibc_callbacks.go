@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -11,19 +8,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/evm/ibc"
+	"github.com/cosmos/evm/x/erc20/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/ibc"
-	"github.com/evmos/os/x/erc20/types"
 	"github.com/hashicorp/go-metrics"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
 // converting an IBC Coin to their ERC20 representation.
 // For the conversion to succeed, the IBC denomination must have previously been
-// registered via governance. Note that the native staking denomination (e.g. "aevmos"),
+// registered via governance. Note that the native staking denomination (e.g. "aatom"),
 // is excluded from the conversion.
 //
 // CONTRACT: This middleware MUST be executed transfer after the ICS20 OnRecvPacket
@@ -219,7 +216,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return nil
 		}
 
-		// assume that all module accounts on Evmos need to have their tokens in the
+		// assume that all module accounts on Cosmos EVM need to have their tokens in the
 		// IBC representation as opposed to ERC20
 		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 		if types.IsModuleAccount(senderAcc) {

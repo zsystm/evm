@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package evm_test
 
 import (
@@ -10,11 +8,11 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/cosmos/evm/ante/evm"
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/ante/evm"
-	testconstants "github.com/evmos/os/testutil/constants"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 type validateMsgParams struct {
@@ -262,7 +260,7 @@ func (suite *EvmAnteTestSuite) TestCheckTxFee() {
 				evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
 				originalAmount = originalAmount.Quo(evmCoinDecimal.ConversionFactor())
 
-				coins := sdktypes.Coins{sdktypes.Coin{Denom: "aevmos", Amount: originalAmount}}
+				coins := sdktypes.Coins{sdktypes.Coin{Denom: "aatom", Amount: originalAmount}}
 
 				// This struct should hold values in the original representation
 				txFeeInfo := &tx.Fee{

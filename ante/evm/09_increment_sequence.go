@@ -1,13 +1,10 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package evm
 
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 )
 
 // IncrementNonce increments the sequence of the account.

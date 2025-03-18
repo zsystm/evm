@@ -1,12 +1,9 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package constants
 
 import (
 	"fmt"
 
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 const (
@@ -14,16 +11,16 @@ const (
 	DefaultGasPrice = 20
 
 	// ExampleAttoDenom provides an example denom for use in tests
-	ExampleAttoDenom = "aevmos"
+	ExampleAttoDenom = "aatom"
 
 	// ExampleMicroDenom provides an example denom for use in tests
-	ExampleMicroDenom = "uevmos"
+	ExampleMicroDenom = "uatom"
 
 	// ExampleDisplayDenom provides an example display denom for use in tests
-	ExampleDisplayDenom = "evmos"
+	ExampleDisplayDenom = "atom"
 
 	// ExampleBech32Prefix provides an example Bech32 prefix for use in tests
-	ExampleBech32Prefix = "evmos"
+	ExampleBech32Prefix = "cosmos"
 
 	// ExampleEIP155ChainID provides an example EIP-155 chain ID for use in tests
 	ExampleEIP155ChainID = 9001
@@ -36,7 +33,7 @@ const (
 
 var (
 	// ExampleChainIDPrefix provides a chain ID prefix for EIP-155 that can be used in tests
-	ExampleChainIDPrefix = fmt.Sprintf("os_%d", ExampleEIP155ChainID)
+	ExampleChainIDPrefix = fmt.Sprintf("cosmos_%d", ExampleEIP155ChainID)
 
 	// ExampleChainID provides a chain ID that can be used in tests
 	ExampleChainID = ExampleChainIDPrefix + "-1"

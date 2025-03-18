@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/gov"
-	"github.com/evmos/os/precompiles/testutil"
-	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/core/vm"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/gov"
+	"github.com/cosmos/evm/precompiles/testutil"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestVote() {

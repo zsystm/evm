@@ -3,11 +3,11 @@ package ante_test
 import (
 	"testing"
 
-	"github.com/evmos/os/ante"
-	ethante "github.com/evmos/os/ante/evm"
-	chainante "github.com/evmos/os/example_chain/ante"
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/types"
+	"github.com/cosmos/evm/ante"
+	ethante "github.com/cosmos/evm/ante/evm"
+	chainante "github.com/cosmos/evm/example_chain/ante"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

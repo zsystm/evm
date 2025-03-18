@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/x/feemarket/types"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	"github.com/cosmos/evm/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 

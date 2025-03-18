@@ -1,18 +1,17 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package example_chain
 
 const (
-	// ExampleChainDenom is the denomination of the evmOS example chain's base coin.
-	ExampleChainDenom = "aevmos"
+	// ExampleChainDenom is the denomination of the Cosmos EVM example chain's base coin.
+	ExampleChainDenom = "aatom"
 
-	// ExampleDisplayDenom is the display denomination of the evmOS example chain's base coin.
-	ExampleDisplayDenom = "evmos"
+	// ExampleDisplayDenom is the display denomination of the Cosmos EVM example chain's base coin.
+	ExampleDisplayDenom = "atom"
 
 	// EighteenDecimalsChainID is the chain ID for the 18 decimals chain.
-	EighteenDecimalsChainID = "os_9001"
+	EighteenDecimalsChainID = "cosmos_9001"
 
 	// SixDecimalsChainID is the chain ID for the 6 decimals chain.
 	SixDecimalsChainID = "ossix_9002"
+
+	CosmosChainID = "cosmos_262144"
 )

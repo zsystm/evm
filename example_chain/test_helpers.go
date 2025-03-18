@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package example_chain
 
 import (
@@ -23,10 +20,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/evm/cmd/config"
+	chainconfig "github.com/cosmos/evm/example_chain/evmd/config"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/evmos/os/cmd/config"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,7 +51,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*ExampleChain
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, EvmosAppOptions, baseapp.SetChainID(chainID))
+	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, EvmAppOptions, baseapp.SetChainID(chainID))
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
@@ -130,7 +127,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			log.NewNopLogger(),
 			db, nil, true,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
-			EvmosAppOptions,
+			EvmAppOptions,
 			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()

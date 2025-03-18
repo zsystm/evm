@@ -3,7 +3,7 @@
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
 BUILDDIR ?= $(CURDIR)/build
-HTTPS_GIT := https://github.com/evmos/os.git
+HTTPS_GIT := https://github.com/cosmos/evm.git
 DOCKER := $(shell which docker)
 
 export GO111MODULE = on
@@ -159,7 +159,7 @@ proto-check-breaking:
 ###                                Releasing                                ###
 ###############################################################################
 
-PACKAGE_NAME:=github.com/evmos/os
+PACKAGE_NAME:=github.com/cosmos/evm
 GOLANG_CROSS_VERSION  = v1.22
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
@@ -197,7 +197,7 @@ release:
 ###############################################################################
 
 # Install the necessary dependencies, compile the solidity contracts found in the
-# evmOS repository and then clean up the contracts data.
+# Cosmos EVM repository and then clean up the contracts data.
 contracts-all: contracts-compile contracts-clean
 
 # Clean smart contract compilation artifacts, dependencies and cache files
@@ -205,7 +205,7 @@ contracts-clean:
 	@echo "Cleaning up the contracts directory..."
 	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --clean
 
-# Compile the solidity contracts found in the evmOS repository.
+# Compile the solidity contracts found in the Cosmos EVM repository.
 contracts-compile:
 	@echo "Compiling smart contracts..."
 	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
@@ -218,13 +218,6 @@ contracts-add:
 ###############################################################################
 ###                           Miscellaneous Checks                          ###
 ###############################################################################
-
-# TODO: turn into CI action
-check-licenses:
-	@echo "Checking licenses..."
-	@curl -sSfL https://raw.githubusercontent.com/evmos/evmos/v19.0.0/scripts/license_checker/check_licenses.py -o check_licenses.py
-	@python3 check_licenses.py .
-	@rm check_licenses.py
 
 # Use changelog linter and auto-fix from https://github.com/MalteHerrmann/changelog-utils
 cluVersion=v1.1.2

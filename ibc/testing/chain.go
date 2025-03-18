@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package ibctesting
 
 import (
@@ -11,16 +8,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/testutil/constants"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/cosmos/ibc-go/v8/testing/mock"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/testutil/constants"
-	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
 
-// ChainIDPrefix defines the default chain ID prefix for evmOS test chains
+// ChainIDPrefix defines the default chain ID prefix for Cosmos EVM test chains
 var (
 	ChainIDPrefix = constants.ExampleChainID
 	ChainIDSuffix = ""
@@ -59,7 +56,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	baseAcc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 
-	amount := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
+	amount := sdk.TokensFromConsensusPower(1, cosmosevmtypes.AttoPowerReduction)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),

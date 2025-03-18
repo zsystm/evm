@@ -1,17 +1,14 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package utils
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil/constants"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/testutil/integration/os/network"
-	utiltx "github.com/evmos/os/testutil/tx"
-	erc20types "github.com/evmos/os/x/erc20/types"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/testutil/constants"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 )
 
 // CreateGenesisWithTokenPairs creates a genesis that includes

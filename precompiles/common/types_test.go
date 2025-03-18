@@ -3,11 +3,11 @@ package common_test
 import (
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/precompiles/common"
+	"github.com/cosmos/evm/precompiles/common"
 	"github.com/stretchr/testify/require"
 )
 

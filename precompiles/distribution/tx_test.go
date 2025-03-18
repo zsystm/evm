@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"math/big"
 
-	testconstants "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/x/vm/core/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/distribution"
-	"github.com/evmos/os/testutil/integration/os/network"
-	utiltx "github.com/evmos/os/testutil/tx"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/distribution"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	utiltx "github.com/cosmos/evm/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
@@ -529,7 +529,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			"invalid hex address address",
 		},
 		{
-			"success - fund the community pool 1 EVMOS",
+			"success - fund the community pool 1 ATOM",
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
@@ -559,7 +559,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
-			// Sanity check to make sure the starting balance is always 100k EVMOS
+			// Sanity check to make sure the starting balance is always 100k ATOM
 			balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), testconstants.ExampleAttoDenom)
 			s.Require().Equal(balance.Amount, network.PrefundedAccountInitialBalance)
 

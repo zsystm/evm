@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

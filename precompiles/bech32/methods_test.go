@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	chainconfig "github.com/cosmos/evm/example_chain/evmd/config"
+	"github.com/cosmos/evm/precompiles/bech32"
+	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/ethereum/go-ethereum/common"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
-	"github.com/evmos/os/precompiles/bech32"
-	cmn "github.com/evmos/os/precompiles/common"
 )
 
 func (s *PrecompileTestSuite) TestHexToBech32() {

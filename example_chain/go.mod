@@ -1,4 +1,4 @@
-module github.com/evmos/os/example_chain
+module github.com/cosmos/evm/example_chain
 
 go 1.22.8
 
@@ -22,7 +22,7 @@ require (
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.5.2
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/evmos/os v0.0.0-20240806115830-ab675cc0c776
+	github.com/cosmos/evm v0.0.0-20240806115830-ab675cc0c776
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cast v1.7.1
@@ -244,8 +244,8 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-// LOCAL REPLACEMENTS FOR evmOS
-replace github.com/evmos/os => ..
+// LOCAL REPLACEMENTS FOR Cosmos EVM
+replace github.com/cosmos/evm => ..
 
 replace (
 	// need this replace when importing cosmos/rosetta pkg

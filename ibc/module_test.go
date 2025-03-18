@@ -9,11 +9,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
+	cosmosevmibc "github.com/cosmos/evm/ibc"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-	evmosibc "github.com/evmos/os/ibc"
 )
 
 var _ porttypes.IBCModule = &MockIBCModule{}
@@ -184,7 +184,7 @@ func TestModule(t *testing.T) {
 	mockModule.On("OnAcknowledgementPacket").Return(nil)
 	mockModule.On("OnTimeoutPacket").Return(nil)
 
-	module := evmosibc.NewModule(mockModule)
+	module := cosmosevmibc.NewModule(mockModule)
 
 	// mock calls for abstraction
 	_, err := module.OnChanOpenInit(sdk.Context{}, channeltypes.ORDERED, nil, transfertypes.PortID, "channel-0", &capabilitytypes.Capability{}, channeltypes.Counterparty{}, "")

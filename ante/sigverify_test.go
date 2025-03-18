@@ -15,9 +15,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/os/ante"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/encoding"
+	"github.com/cosmos/evm/ante"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
+	"github.com/cosmos/evm/encoding"
 )
 
 func TestConsumeSignatureVerificationGas(t *testing.T) {

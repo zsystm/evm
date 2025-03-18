@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package coordinator
 
 import (
@@ -8,8 +5,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/evm/testutil/integration/common/network"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/evmos/os/testutil/integration/common/network"
 )
 
 // getIBCChains returns a map of TestChain's for the given network interface.
@@ -33,7 +30,7 @@ func generateDummyChains(t *testing.T, coord *ibctesting.Coordinator, numberOfCh
 	cfg.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
 	cfg.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
 	// Also need to disable address cache to avoid using modules
-	// accounts with 'evmos' addresses (because Evmos chain setup is first)
+	// accounts with 'evmos' addresses (because Cosmos EVM chain setup is first)
 	sdk.SetAddrCacheEnabled(false)
 	for i := 1; i <= numberOfChains; i++ {
 		chainID := "dummychain-" + strconv.Itoa(i)

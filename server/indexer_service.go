@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package server
 
 import (
@@ -10,7 +7,7 @@ import (
 	"github.com/cometbft/cometbft/libs/service"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cometbft/cometbft/types"
-	evmostypes "github.com/evmos/os/types"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 )
 
 const (
@@ -23,13 +20,13 @@ const (
 type EVMIndexerService struct {
 	service.BaseService
 
-	txIdxr evmostypes.EVMTxIndexer
+	txIdxr cosmosevmtypes.EVMTxIndexer
 	client rpcclient.Client
 }
 
 // NewEVMIndexerService returns a new service instance.
 func NewEVMIndexerService(
-	txIdxr evmostypes.EVMTxIndexer,
+	txIdxr cosmosevmtypes.EVMTxIndexer,
 	client rpcclient.Client,
 ) *EVMIndexerService {
 	is := &EVMIndexerService{txIdxr: txIdxr, client: client}

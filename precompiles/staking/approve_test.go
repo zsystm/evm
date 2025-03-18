@@ -9,14 +9,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/evm/precompiles/authorization"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/staking"
+	"github.com/cosmos/evm/precompiles/testutil"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	"github.com/cosmos/evm/x/vm/statedb"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/os/precompiles/authorization"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/staking"
-	"github.com/evmos/os/precompiles/testutil"
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	"github.com/evmos/os/x/evm/core/vm"
-	"github.com/evmos/os/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -197,7 +197,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"",
 		},
 		{ //nolint:dupl
-			"success - MsgDelegate with 1 Evmos as limit amount",
+			"success - MsgDelegate with 1 ATOM as limit amount",
 			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
@@ -261,7 +261,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"",
 		},
 		{ //nolint:dupl
-			"success - MsgUndelegate with 1 Evmos as limit amount",
+			"success - MsgUndelegate with 1 ATOM as limit amount",
 			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
@@ -283,7 +283,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"",
 		},
 		{
-			"success - MsgRedelegate with 1 Evmos as limit amount",
+			"success - MsgRedelegate with 1 ATOM as limit amount",
 			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
@@ -303,7 +303,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			"",
 		},
 		{
-			"success - MsgRedelegate, MsgUndelegate and MsgDelegate with 1 Evmos as limit amount",
+			"success - MsgRedelegate, MsgUndelegate and MsgDelegate with 1 ATOM as limit amount",
 			func(_ *vm.Contract, _, grantee testkeyring.Key) []interface{} {
 				return []interface{}{
 					grantee.Addr,
@@ -479,7 +479,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			"amount by which the allowance should be decreased is greater than the authorization limit",
 		},
 		{
-			"success - decrease delegate authorization allowance by 1 Evmos",
+			"success - decrease delegate authorization allowance by 1 ATOM",
 			func(_ *vm.Contract, granter, grantee testkeyring.Key) []interface{} {
 				s.ApproveAndCheckAuthz(method, granter, grantee, staking.DelegateMsg, big.NewInt(2e18))
 				return []interface{}{
@@ -612,7 +612,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			"",
 		},
 		{
-			"success - increase delegate authorization allowance by 1 Evmos",
+			"success - increase delegate authorization allowance by 1 ATOM",
 			func(granter, grantee testkeyring.Key) []interface{} {
 				s.ApproveAndCheckAuthz(method, granter, grantee, staking.DelegateMsg, big.NewInt(1e18))
 				return []interface{}{

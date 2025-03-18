@@ -3,7 +3,7 @@ export GOPATH="$HOME"/go
 export PATH="$PATH":"$GOPATH"/bin
 
 # remove existing data
-rm -rf "$HOME"/.tmp-osd-solidity-tests
+rm -rf "$HOME"/.tmp-evmd-solidity-tests
 
 # used to exit on first error (any non-zero exit code)
 set -e
@@ -22,4 +22,4 @@ else
 	yarn install
 fi
 
-yarn test --network evmos "$@"
+yarn test --network cosmos "$@"

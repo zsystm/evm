@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
@@ -20,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	testconstants "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
@@ -47,12 +44,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/evm/crypto/hd"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	chaincmd "github.com/cosmos/evm/example_chain/evmd/cmd"
+	"github.com/cosmos/evm/server/config"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/evmos/os/crypto/hd"
-	exampleapp "github.com/evmos/os/example_chain"
-	chaincmd "github.com/evmos/os/example_chain/osd/cmd"
-	"github.com/evmos/os/server/config"
-	evmostypes "github.com/evmos/os/types"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -77,25 +74,25 @@ type Config struct {
 	InterfaceRegistry codectypes.InterfaceRegistry
 	TxConfig          client.TxConfig
 	AccountRetriever  client.AccountRetriever
-	AppConstructor    AppConstructor          // the ABCI application constructor
-	GenesisState      evmostypes.GenesisState // custom gensis state to provide
-	TimeoutCommit     time.Duration           // the consensus commitment timeout
-	AccountTokens     math.Int                // the amount of unique validator tokens (e.g. 1000node0)
-	StakingTokens     math.Int                // the amount of tokens each validator has available to stake
-	BondedTokens      math.Int                // the amount of tokens each validator stakes
-	NumValidators     int                     // the total number of validators to create and bond
-	ChainID           string                  // the network chain-id
-	BondDenom         string                  // the staking bond denomination
-	MinGasPrices      string                  // the minimum gas prices each validator will accept
-	PruningStrategy   string                  // the pruning strategy each validator will have
-	SigningAlgo       string                  // signing algorithm for keys
-	RPCAddress        string                  // RPC listen address (including port)
-	JSONRPCAddress    string                  // JSON-RPC listen address (including port)
-	APIAddress        string                  // REST API listen address (including port)
-	GRPCAddress       string                  // GRPC server listen address (including port)
-	EnableTMLogging   bool                    // enable Tendermint logging to STDOUT
-	CleanupDir        bool                    // remove base temporary directory during cleanup
-	PrintMnemonic     bool                    // print the mnemonic of first validator as log output for testing
+	AppConstructor    AppConstructor              // the ABCI application constructor
+	GenesisState      cosmosevmtypes.GenesisState // custom gensis state to provide
+	TimeoutCommit     time.Duration               // the consensus commitment timeout
+	AccountTokens     math.Int                    // the amount of unique validator tokens (e.g. 1000node0)
+	StakingTokens     math.Int                    // the amount of tokens each validator has available to stake
+	BondedTokens      math.Int                    // the amount of tokens each validator stakes
+	NumValidators     int                         // the total number of validators to create and bond
+	ChainID           string                      // the network chain-id
+	BondDenom         string                      // the staking bond denomination
+	MinGasPrices      string                      // the minimum gas prices each validator will accept
+	PruningStrategy   string                      // the pruning strategy each validator will have
+	SigningAlgo       string                      // signing algorithm for keys
+	RPCAddress        string                      // RPC listen address (including port)
+	JSONRPCAddress    string                      // JSON-RPC listen address (including port)
+	APIAddress        string                      // REST API listen address (including port)
+	GRPCAddress       string                      // GRPC server listen address (including port)
+	EnableTMLogging   bool                        // enable Tendermint logging to STDOUT
+	CleanupDir        bool                        // remove base temporary directory during cleanup
+	PrintMnemonic     bool                        // print the mnemonic of first validator as log output for testing
 }
 
 // DefaultConfig returns a sane default configuration suitable for nearly all
@@ -107,7 +104,7 @@ func DefaultConfig() Config {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
 	}
 	defer os.RemoveAll(dir)
-	tempApp := exampleapp.NewExampleApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simutils.NewAppOptionsWithFlagHome(dir), exampleapp.EvmosAppOptions, baseapp.SetChainID(chainID))
+	tempApp := exampleapp.NewExampleApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simutils.NewAppOptionsWithFlagHome(dir), exampleapp.EvmAppOptions, baseapp.SetChainID(chainID))
 
 	cfg := Config{
 		Codec:             tempApp.AppCodec(),
@@ -122,9 +119,9 @@ func DefaultConfig() Config {
 		NumValidators:     4,
 		BondDenom:         testconstants.ExampleAttoDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", testconstants.ExampleAttoDenom),
-		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, evmostypes.AttoPowerReduction),
-		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, evmostypes.AttoPowerReduction),
-		BondedTokens:      sdk.TokensFromConsensusPower(100000000000000000, evmostypes.AttoPowerReduction),
+		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, cosmosevmtypes.AttoPowerReduction),
+		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, cosmosevmtypes.AttoPowerReduction),
+		BondedTokens:      sdk.TokensFromConsensusPower(100000000000000000, cosmosevmtypes.AttoPowerReduction),
 		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
 		SigningAlgo:       string(hd.EthSecp256k1Type),
@@ -134,13 +131,13 @@ func DefaultConfig() Config {
 	return cfg
 }
 
-// NewAppConstructor returns a new Evmos AppConstructor
+// NewAppConstructor returns a new Cosmos EVM AppConstructor
 func NewAppConstructor(chainID string) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return exampleapp.NewExampleApp(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true,
 			simutils.NewAppOptionsWithFlagHome(val.Ctx.Config.RootDir),
-			exampleapp.EvmosAppOptions,
+			exampleapp.EvmAppOptions,
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
 			baseapp.SetChainID(chainID),
@@ -232,7 +229,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 	l.Log("acquiring test network lock")
 	lock.Lock()
 
-	if !evmostypes.IsValidChainID(cfg.ChainID) {
+	if !cosmosevmtypes.IsValidChainID(cfg.ChainID) {
 		return nil, fmt.Errorf("invalid chain-id: %s", cfg.ChainID)
 	}
 
@@ -340,7 +337,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		ctx.Logger = logger
 
 		nodeDirName := fmt.Sprintf("node%d", i)
-		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "evmosd")
+		nodeDir := filepath.Join(network.BaseDir, nodeDirName, "evmd")
 		clientDir := filepath.Join(network.BaseDir, nodeDirName, "evmoscli")
 		gentxsDir := filepath.Join(network.BaseDir, "gentxs")
 

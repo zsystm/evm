@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 //go:build !test
 // +build !test
 
@@ -12,17 +9,17 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
-// EvmosOptionsFn defines a function type for setting app options specifically for
-// the Evmos app. The function should receive the chainID and return an error if
+// EVMOptionsFn defines a function type for setting app options specifically for
+// the Cosmos EVM app. The function should receive the chainID and return an error if
 // any.
-type EvmosOptionsFn func(string) error
+type EVMOptionsFn func(string) error
 
-// NoOpEvmosOptions is a no-op function that can be used when the app does not
+// NoOpEVMOptions is a no-op function that can be used when the app does not
 // need any specific configuration.
-func NoOpEvmosOptions(_ string) error {
+func NoOpEVMOptions(_ string) error {
 	return nil
 }
 
@@ -37,16 +34,22 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 		DisplayDenom: ExampleDisplayDenom,
 		Decimals:     evmtypes.EighteenDecimals,
 	},
+	CosmosChainID: {
+		Denom:        "utest",
+		DisplayDenom: "test",
+		Decimals:     evmtypes.EighteenDecimals,
+	},
 }
 
-// EvmosAppOptions allows to setup the global configuration
-// for the Evmos chain.
-func EvmosAppOptions(chainID string) error {
+// EvmAppOptions allows to setup the global configuration
+// for the Cosmos EVM chain.
+func EvmAppOptions(chainID string) error {
 	if sealed {
 		return nil
 	}
 
 	id := strings.Split(chainID, "-")[0]
+	fmt.Printf("ChainID: %v\n", chainID)
 	coinInfo, found := ChainsCoinInfo[id]
 	if !found {
 		return fmt.Errorf("unknown chain id: %s", id)

@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
 // This file contains all utility function that require the access to the unit
 // test network and should only be used in unit tests.
@@ -14,9 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/cosmos/evm/testutil/integration/os/network"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	"github.com/evmos/os/testutil/integration/os/network"
-	erc20types "github.com/evmos/os/x/erc20/types"
 )
 
 const (
@@ -55,18 +53,18 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), bondDenom)
+	cosmosEVMMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), bondDenom)
 	if !found {
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
 
-	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), evmosMetadata.Base)
+	_, err = network.App.Erc20Keeper.RegisterERC20Extension(network.GetContext(), cosmosEVMMetadata.Base)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}
 
-	evmosDenomID := network.App.Erc20Keeper.GetDenomMap(network.GetContext(), bondDenom)
-	tokenPair, ok := network.App.Erc20Keeper.GetTokenPair(network.GetContext(), evmosDenomID)
+	cosmosEVMDenomID := network.App.Erc20Keeper.GetDenomMap(network.GetContext(), bondDenom)
+	tokenPair, ok := network.App.Erc20Keeper.GetTokenPair(network.GetContext(), cosmosEVMDenomID)
 	if !ok {
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos erc20 token pair")
 	}

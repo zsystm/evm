@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package gov_test
 
 import (
@@ -9,14 +7,14 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/cosmos/evm/precompiles/gov"
+	"github.com/cosmos/evm/precompiles/gov/testdata"
+	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	testutiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/precompiles/gov"
-	"github.com/evmos/os/precompiles/gov/testdata"
-	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	testutiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/core/vm"
-	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

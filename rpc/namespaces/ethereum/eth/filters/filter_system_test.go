@@ -8,11 +8,11 @@ import (
 
 	"cosmossdk.io/log"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/cosmos/evm/rpc/ethereum/pubsub"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/os/rpc/ethereum/pubsub"
 )
 
 func makeSubscription(id, event string) *Subscription {

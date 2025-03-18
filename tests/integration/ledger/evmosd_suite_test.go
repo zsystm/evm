@@ -22,14 +22,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	clientkeys "github.com/cosmos/evm/client/keys"
+	"github.com/cosmos/evm/crypto/hd"
+	cosmosevmkeyring "github.com/cosmos/evm/crypto/keyring"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/tests/integration/ledger/mocks"
+	"github.com/cosmos/evm/testutil/constants"
+	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/ethereum/go-ethereum/common"
-	clientkeys "github.com/evmos/os/client/keys"
-	"github.com/evmos/os/crypto/hd"
-	evmoskeyring "github.com/evmos/os/crypto/keyring"
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/tests/integration/ledger/mocks"
-	"github.com/evmos/os/testutil/constants"
-	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"
 
@@ -144,7 +144,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 	return kr, initClientCtx, ctx
 }
 
-func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
+func (suite *LedgerTestSuite) cosmosEVMAddKeyCmd() *cobra.Command {
 	cmd := keys.AddKeyCommand()
 
 	algoFlag := cmd.Flag(flags.FlagKeyType)
@@ -169,12 +169,12 @@ func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
 
 func (suite *LedgerTestSuite) MockKeyringOption() keyring.Option {
 	return func(options *keyring.Options) {
-		options.SupportedAlgos = evmoskeyring.SupportedAlgorithms
-		options.SupportedAlgosLedger = evmoskeyring.SupportedAlgorithmsLedger
+		options.SupportedAlgos = cosmosevmkeyring.SupportedAlgorithms
+		options.SupportedAlgosLedger = cosmosevmkeyring.SupportedAlgorithmsLedger
 		options.LedgerDerivation = func() (cosmosledger.SECP256K1, error) { return suite.ledger, nil }
-		options.LedgerCreateKey = evmoskeyring.CreatePubkey
-		options.LedgerAppName = evmoskeyring.AppName
-		options.LedgerSigSkipDERConv = evmoskeyring.SkipDERConversion
+		options.LedgerCreateKey = cosmosevmkeyring.CreatePubkey
+		options.LedgerAppName = cosmosevmkeyring.AppName
+		options.LedgerSigSkipDERConv = cosmosevmkeyring.SkipDERConversion
 	}
 }
 

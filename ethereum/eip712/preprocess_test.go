@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
+	"github.com/cosmos/evm/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -17,11 +17,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/os/encoding"
-	"github.com/evmos/os/ethereum/eip712"
-	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/ethereum/eip712"
+	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -36,7 +36,7 @@ var (
 
 	// feePayerAddress is the address of the fee payer used in EIP-712 tests.
 	feePayerAddress = fmt.Sprintf(
-		"%s17xpfvakm2amg962yls6f84z3kell8c5ljcjw34",
+		"%s17xpfvakm2amg962yls6f84z3kell8c5lserqta",
 		constants.ExampleBech32Prefix,
 	)
 )
@@ -217,7 +217,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	msgSend := banktypes.MsgSend{
 		FromAddress: feePayerAddress,
-		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
+		ToAddress:   "cosmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
 				evmtypes.GetEVMCoinDenom(),

@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package utils
 
 import (
@@ -8,8 +5,8 @@ import (
 	"slices"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	"github.com/evmos/os/testutil/integration/os/factory"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response

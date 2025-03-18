@@ -5,18 +5,18 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmosevmibc "github.com/cosmos/evm/ibc"
+	precompilestestutil "github.com/cosmos/evm/precompiles/testutil"
+	testconstants "github.com/cosmos/evm/testutil/constants"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	evmosibc "github.com/evmos/os/ibc"
-	precompilestestutil "github.com/evmos/os/precompiles/testutil"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/require"
 )
 
 func init() {
 	cfg := sdk.GetConfig()
-	cfg.SetBech32PrefixForAccount("evmos", "evmospub")
+	cfg.SetBech32PrefixForAccount("cosmos", "cosmospub")
 }
 
 func TestGetTransferSenderRecipient(t *testing.T) {
@@ -38,7 +38,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			name: "invalid sender",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "cosmos1",
-				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+				Receiver: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 				Amount:   "123456",
 			},
 			expSender:    "",
@@ -49,7 +49,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 			name: "invalid recipient",
 			data: transfertypes.FungibleTokenPacketData{
 				Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-				Receiver: "evmos1",
+				Receiver: "cosmos1",
 				Amount:   "123456",
 			},
 			expSender:    "",
@@ -63,8 +63,8 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expSender:    "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+			expRecipient: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 			expError:     false,
 		},
 		{
@@ -74,8 +74,8 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 				Receiver: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-			expRecipient: "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expSender:    "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
+			expRecipient: "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
 			expError:     false,
 		},
 		{
@@ -85,14 +85,14 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 				Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
 				Amount:   "123456",
 			},
-			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expSender:    "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
+			expRecipient: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 			expError:     false,
 		},
 	}
 
 	for _, tc := range testCases {
-		sender, recipient, _, _, err := evmosibc.GetTransferSenderRecipient(tc.data)
+		sender, recipient, _, _, err := cosmosevmibc.GetTransferSenderRecipient(tc.data)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
@@ -128,7 +128,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 						Amount:   "",
 					},
 				),
@@ -142,7 +142,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 						Amount:   "test",
 					},
 				),
@@ -156,7 +156,7 @@ func TestGetTransferAmount(t *testing.T) {
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+						Receiver: "cosmos1x2w87cvt5mqjncav4lxy8yfreynn273x34qlwy",
 						Amount:   "10000",
 					},
 				),
@@ -167,7 +167,7 @@ func TestGetTransferAmount(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		amt, err := evmosibc.GetTransferAmount(tc.packet)
+		amt, err := cosmosevmibc.GetTransferAmount(tc.packet)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
@@ -204,9 +204,9 @@ func TestGetReceivedCoin(t *testing.T) {
 			"channel-0",
 			"transfer",
 			"channel-0",
-			"transfer/channel-0/aevmos",
+			"transfer/channel-0/aatom",
 			"10",
-			sdk.Coin{Denom: "aevmos", Amount: math.NewInt(10)},
+			sdk.Coin{Denom: "aatom", Amount: math.NewInt(10)},
 		},
 		{
 			"transfer 2x ibc wrapped coin to destination which is its source",
@@ -231,7 +231,7 @@ func TestGetReceivedCoin(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		coin := evmosibc.GetReceivedCoin(tc.srcPort, tc.srcChannel, tc.dstPort, tc.dstChannel, tc.rawDenom, tc.rawAmount)
+		coin := cosmosevmibc.GetReceivedCoin(tc.srcPort, tc.srcChannel, tc.dstPort, tc.dstChannel, tc.rawDenom, tc.rawAmount)
 		require.Equal(t, tc.expCoin, coin)
 	}
 }
@@ -246,16 +246,16 @@ func TestGetSentCoin(t *testing.T) {
 		expCoin   sdk.Coin
 	}{
 		{
-			"get unwrapped aevmos coin",
+			"get unwrapped aatom coin",
 			baseDenom,
 			"10",
 			sdk.Coin{Denom: baseDenom, Amount: math.NewInt(10)},
 		},
 		{
-			"get ibc wrapped aevmos coin",
-			"transfer/channel-0/aevmos",
+			"get ibc wrapped aatom coin",
+			"transfer/channel-0/aatom",
 			"10",
-			sdk.Coin{Denom: precompilestestutil.AevmosIbcdenom, Amount: math.NewInt(10)},
+			sdk.Coin{Denom: precompilestestutil.AAtomIbcdenom, Amount: math.NewInt(10)},
 		},
 		{
 			"get ibc wrapped uosmo coin",
@@ -278,7 +278,7 @@ func TestGetSentCoin(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		coin := evmosibc.GetSentCoin(tc.rawDenom, tc.rawAmount)
+		coin := cosmosevmibc.GetSentCoin(tc.rawDenom, tc.rawAmount)
 		require.Equal(t, tc.expCoin, coin)
 	}
 }
@@ -307,14 +307,14 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 		},
 		{
 			name:      "success: micro 'u' prefix",
-			baseDenom: "uevmos",
+			baseDenom: "uatom",
 			expDec:    6,
 			expFail:   false,
 			expErrMsg: "",
 		},
 		{
 			name:      "success: atto 'a' prefix",
-			baseDenom: "aevmos",
+			baseDenom: "aatom",
 			expDec:    18,
 			expFail:   false,
 			expErrMsg: "",
@@ -322,7 +322,7 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		dec, err := evmosibc.DeriveDecimalsFromDenom(tc.baseDenom)
+		dec, err := cosmosevmibc.DeriveDecimalsFromDenom(tc.baseDenom)
 		if tc.expFail {
 			require.Error(t, err, tc.expErrMsg)
 			require.Contains(t, err.Error(), tc.expErrMsg)
@@ -363,7 +363,7 @@ func TestIsBaseDenomFromSourceChain(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := evmosibc.IsBaseDenomFromSourceChain(tt.denom)
+			result := cosmosevmibc.IsBaseDenomFromSourceChain(tt.denom)
 			require.Equal(t, tt.expected, result)
 		})
 	}

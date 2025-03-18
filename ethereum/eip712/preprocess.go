@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package eip712
 
 import (
@@ -13,10 +10,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/evmos/os/types"
+	"github.com/cosmos/evm/types"
 )
 
-// PreprocessLedgerTx reformats Ledger-signed Cosmos transactions to match the fork expected by evmOS
+// PreprocessLedgerTx reformats Ledger-signed Cosmos transactions to match the fork expected by Cosmos EVM
 // by including the signature in a Web3Tx extension and sending a blank signature in the body.
 func PreprocessLedgerTx(chainID string, keyType cosmoskr.KeyType, txBuilder client.TxBuilder) error {
 	// Only process Ledger transactions
@@ -75,7 +72,7 @@ func PreprocessLedgerTx(chainID string, keyType cosmoskr.KeyType, txBuilder clie
 	extensionBuilder.SetExtensionOptions(option)
 
 	// Set blank signature with Amino Sign Type
-	// (Regardless of input signMode, evmOS requires Amino signature type for Ledger)
+	// (Regardless of input signMode, Cosmos EVM requires Amino signature type for Ledger)
 	blankSig := signing.SingleSignatureData{
 		SignMode:  signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
 		Signature: nil,

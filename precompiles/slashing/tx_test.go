@@ -1,17 +1,14 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package slashing_test
 
 import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/slashing"
+	"github.com/cosmos/evm/precompiles/testutil"
+	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/precompiles/slashing"
-	"github.com/evmos/os/precompiles/testutil"
-	utiltx "github.com/evmos/os/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestUnjail() {

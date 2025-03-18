@@ -1,14 +1,11 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package network
 
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	"github.com/cosmos/evm/x/vm/statedb"
 	"github.com/ethereum/go-ethereum/common"
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/x/evm/statedb"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
@@ -21,7 +18,7 @@ type UnitTestNetwork struct {
 
 var _ Network = (*UnitTestNetwork)(nil)
 
-// NewUnitTestNetwork configures and initializes a new Evmos Network instance with
+// NewUnitTestNetwork configures and initializes a new Cosmos EVM Network instance with
 // the given configuration options. If no configuration options are provided
 // it uses the default configuration.
 //

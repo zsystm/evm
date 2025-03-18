@@ -10,13 +10,13 @@ import (
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/evm/indexer"
+	"github.com/cosmos/evm/rpc/backend/mocks"
+	rpctypes "github.com/cosmos/evm/rpc/types"
+	cosmosevmtypes "github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/os/indexer"
-	"github.com/evmos/os/rpc/backend/mocks"
-	rpctypes "github.com/evmos/os/rpc/types"
-	evmostypes "github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -467,7 +467,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 		registerMock func()
 		height       int64
 		index        uint
-		expTxResult  *evmostypes.TxResult
+		expTxResult  *cosmosevmtypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -479,7 +479,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 			},
 			0,
 			0,
-			&evmostypes.TxResult{},
+			&cosmosevmtypes.TxResult{},
 			false,
 		},
 	}
@@ -507,7 +507,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 		registerMock func()
 		txGetter     func(*rpctypes.ParsedTxs) *rpctypes.ParsedTx
 		query        string
-		expTxResult  *evmostypes.TxResult
+		expTxResult  *cosmosevmtypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -520,7 +520,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 				return &rpctypes.ParsedTx{}
 			},
 			"",
-			&evmostypes.TxResult{},
+			&cosmosevmtypes.TxResult{},
 			false,
 		},
 	}
@@ -617,7 +617,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 	testCases := []struct {
 		name                     string
 		fixRevertGasRefundHeight int64
-		txResult                 *evmostypes.TxResult
+		txResult                 *cosmosevmtypes.TxResult
 		price                    *big.Int
 		gas                      uint64
 		exp                      uint64
@@ -625,7 +625,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"success txResult",
 			1,
-			&evmostypes.TxResult{
+			&cosmosevmtypes.TxResult{
 				Height:  1,
 				Failed:  false,
 				GasUsed: 53026,
@@ -637,7 +637,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult before cap",
 			2,
-			&evmostypes.TxResult{
+			&cosmosevmtypes.TxResult{
 				Height:  1,
 				Failed:  true,
 				GasUsed: 53026,
@@ -649,7 +649,7 @@ func (suite *BackendTestSuite) TestGetGasUsed() {
 		{
 			"fail txResult after cap",
 			2,
-			&evmostypes.TxResult{
+			&cosmosevmtypes.TxResult{
 				Height:  3,
 				Failed:  true,
 				GasUsed: 53026,

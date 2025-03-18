@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package erc20
 
 import (
@@ -22,9 +19,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/os/x/erc20/client/cli"
-	"github.com/evmos/os/x/erc20/keeper"
-	"github.com/evmos/os/x/erc20/types"
+	"github.com/cosmos/evm/x/erc20/client/cli"
+	"github.com/cosmos/evm/x/erc20/keeper"
+	"github.com/cosmos/evm/x/erc20/types"
 )
 
 // consensusVersion defines the current x/erc20 module consensus version.

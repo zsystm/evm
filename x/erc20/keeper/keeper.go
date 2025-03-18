@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package keeper
 
 import (
@@ -12,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/os/x/erc20/types"
-	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
+	"github.com/cosmos/evm/x/erc20/types"
+	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 )
 
 // Keeper of this module maintains collections of erc20.

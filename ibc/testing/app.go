@@ -1,6 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package ibctesting
 
 import (
@@ -17,11 +14,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	exampleapp "github.com/cosmos/evm/example_chain"
+	chainutil "github.com/cosmos/evm/example_chain/testutil"
+	"github.com/cosmos/evm/testutil/constants"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
-	exampleapp "github.com/evmos/os/example_chain"
-	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil/constants"
-	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -43,7 +40,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, cosmosevmtypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
@@ -69,7 +66,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
-	// set bond demon to be aevmos
+	// set bond demon to be aatom
 	stakingParams.BondDenom = constants.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
