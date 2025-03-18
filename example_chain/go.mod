@@ -18,11 +18,11 @@ require (
 	github.com/cometbft/cometbft v0.38.15
 	github.com/cosmos/cosmos-db v1.1.1
 	github.com/cosmos/cosmos-sdk v0.50.11
+	github.com/cosmos/evm v0.0.0-20240806115830-ab675cc0c776
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.5.2
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/cosmos/evm v0.0.0-20240806115830-ab675cc0c776
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cast v1.7.1
