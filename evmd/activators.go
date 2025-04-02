@@ -8,8 +8,6 @@ import (
 
 // cosmosEVMActivators defines a map of opcode modifiers associated
 // with a key defining the corresponding EIP.
-//
-//nolint:unused
 var cosmosEVMActivators = map[int]func(*vm.JumpTable){
 	0o000: eips.Enable0000,
 	0o001: eips.Enable0001,
