@@ -4,12 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
-	channeltypesv2 "github.com/cosmos/ibc-go/v10/modules/core/04-channel/v2/types"
-	ibctesting "github.com/cosmos/ibc-go/v10/testing"
-	ibcmockv2 "github.com/cosmos/ibc-go/v10/testing/mock/v2"
 	testifysuite "github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/evmd"
@@ -18,6 +12,13 @@ import (
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/erc20/v2"
+	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
+	channeltypesv2 "github.com/cosmos/ibc-go/v10/modules/core/04-channel/v2/types"
+	ibctesting "github.com/cosmos/ibc-go/v10/testing"
+	ibcmockv2 "github.com/cosmos/ibc-go/v10/testing/mock/v2"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // MiddlewareTestSuite tests the v2 IBC middleware for the ERC20 module.
