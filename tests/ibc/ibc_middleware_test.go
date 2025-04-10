@@ -158,7 +158,7 @@ func (s *MiddlewareTestSuite) TestOnRecvPacket() {
 				receiver.String(),
 				"",
 			)
-			path := s.pathAToB
+			path := s.pathBToA
 			packet = channeltypes.Packet{
 				Sequence:           1,
 				SourcePort:         path.EndpointB.ChannelConfig.PortID,

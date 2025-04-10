@@ -37,30 +37,30 @@ type MiddlewareV2TestSuite struct {
 	pathBToA *evmibctesting.Path
 }
 
-func (suite *MiddlewareV2TestSuite) SetupTest() {
-	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 1, 1)
-	suite.evmChainA = suite.coordinator.GetChain(evmibctesting.GetChainID(1))
-	suite.chainB = suite.coordinator.GetChain(evmibctesting.GetChainID(2))
+func (s *MiddlewareV2TestSuite) SetupTest() {
+	s.coordinator = evmibctesting.NewCoordinator(s.T(), 1, 1)
+	s.evmChainA = s.coordinator.GetChain(evmibctesting.GetChainID(1))
+	s.chainB = s.coordinator.GetChain(evmibctesting.GetChainID(2))
 
 	// setup between evmChainA and chainB
 	// pathAToB.EndpointA = endpoint on evmChainA
 	// pathAToB.EndpointB = endpoint on chainB
-	suite.pathAToB = evmibctesting.NewPath(suite.evmChainA, suite.chainB)
+	s.pathAToB = evmibctesting.NewPath(s.evmChainA, s.chainB)
 	// setup between chainB and evmChainA
 	// pathBToA.EndpointA = endpoint on chainB
 	// pathBToA.EndpointB = endpoint on evmChainA
-	suite.pathBToA = evmibctesting.NewPath(suite.chainB, suite.evmChainA)
+	s.pathBToA = evmibctesting.NewPath(s.chainB, s.evmChainA)
 
 	// setup IBC v2 paths between the chains
-	suite.pathAToB.SetupV2()
-	suite.pathBToA.SetupV2()
+	s.pathAToB.SetupV2()
+	s.pathBToA.SetupV2()
 }
 
 func TestMiddlewareV2TestSuite(t *testing.T) {
 	testifysuite.Run(t, new(MiddlewareV2TestSuite))
 }
 
-func (suite *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
+func (s *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 	testCases := []struct {
 		name          string
 		instantiateFn func()
@@ -91,14 +91,14 @@ func (suite *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 
 	for _, tc := range testCases {
 		tc := tc
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			if tc.expError == nil {
-				suite.Require().NotPanics(
+				s.Require().NotPanics(
 					tc.instantiateFn,
 					"unexpected panic: NewIBCMiddleware",
 				)
 			} else {
-				suite.Require().PanicsWithError(
+				s.Require().PanicsWithError(
 					tc.expError.Error(),
 					tc.instantiateFn,
 					"expected panic with error: ", tc.expError.Error(),

@@ -28,7 +28,6 @@ type NativeErc20Info struct {
 }
 
 // SetupNativeErc20 deploys, registers, and mints a native ERC20 token on an EVM-based chain.
-// Similar to what you used in your original ICS-20 tests, but extracted to a common helper.
 func SetupNativeErc20(t *testing.T, chain *evmibctesting.TestChain) *NativeErc20Info {
 	t.Helper()
 
