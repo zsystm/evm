@@ -96,7 +96,6 @@ func (s *MiddlewareTestSuite) TestNewIBCMiddleware() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			if tc.expError == nil {
 				s.Require().NotPanics(
@@ -116,9 +115,7 @@ func (s *MiddlewareTestSuite) TestNewIBCMiddleware() {
 
 // TestOnRecvPacket checks the OnRecvPacket logic for ICS-20.
 func (s *MiddlewareTestSuite) TestOnRecvPacket() {
-	var (
-		packet channeltypes.Packet
-	)
+	var packet channeltypes.Packet
 
 	testCases := []struct {
 		name     string
@@ -140,7 +137,6 @@ func (s *MiddlewareTestSuite) TestOnRecvPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -350,7 +346,6 @@ func (s *MiddlewareTestSuite) TestOnAcknowledgementPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -481,7 +476,6 @@ func (s *MiddlewareTestSuite) TestOnAcknowledgementPacketNativeErc20() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			nativeErc20 := SetupNativeErc20(s.T(), s.evmChainA)
@@ -587,9 +581,7 @@ func (s *MiddlewareTestSuite) TestOnAcknowledgementPacketNativeErc20() {
 
 // TestOnTimeoutPacket checks the timeout handling for ICS-20.
 func (s *MiddlewareTestSuite) TestOnTimeoutPacket() {
-	var (
-		packet channeltypes.Packet
-	)
+	var packet channeltypes.Packet
 
 	testCases := []struct {
 		name           string
@@ -614,7 +606,6 @@ func (s *MiddlewareTestSuite) TestOnTimeoutPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -698,9 +689,7 @@ func (s *MiddlewareTestSuite) TestOnTimeoutPacket() {
 
 // TestOnTimeoutPacketNativeErc20 tests the OnTimeoutPacket method for native ERC20 tokens.
 func (s *MiddlewareTestSuite) TestOnTimeoutPacketNativeErc20() {
-	var (
-		packet channeltypes.Packet
-	)
+	var packet channeltypes.Packet
 
 	testCases := []struct {
 		name      string
@@ -725,7 +714,6 @@ func (s *MiddlewareTestSuite) TestOnTimeoutPacketNativeErc20() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			nativeErc20 := SetupNativeErc20(s.T(), s.evmChainA)

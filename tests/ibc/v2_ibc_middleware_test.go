@@ -90,7 +90,6 @@ func (s *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			if tc.expError == nil {
 				s.Require().NotPanics(
@@ -135,7 +134,6 @@ func (s *MiddlewareV2TestSuite) TestOnSendPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.evmChainA.GetContext()
@@ -218,7 +216,6 @@ func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.chainB.GetContext()
@@ -336,7 +333,6 @@ func (s *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.evmChainA.GetContext()
@@ -428,7 +424,6 @@ func (s *MiddlewareV2TestSuite) TestOnTimeoutPacket() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			ctx = s.evmChainA.GetContext()
