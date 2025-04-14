@@ -37,30 +37,30 @@ type MiddlewareV2TestSuite struct {
 	pathBToA *evmibctesting.Path
 }
 
-func (s *MiddlewareV2TestSuite) SetupTest() {
-	s.coordinator = evmibctesting.NewCoordinator(s.T(), 1, 1)
-	s.evmChainA = s.coordinator.GetChain(evmibctesting.GetChainID(1))
-	s.chainB = s.coordinator.GetChain(evmibctesting.GetChainID(2))
+func (suite *MiddlewareV2TestSuite) SetupTest() {
+	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 1, 1)
+	suite.evmChainA = suite.coordinator.GetChain(evmibctesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(evmibctesting.GetChainID(2))
 
 	// setup between evmChainA and chainB
 	// pathAToB.EndpointA = endpoint on evmChainA
 	// pathAToB.EndpointB = endpoint on chainB
-	s.pathAToB = evmibctesting.NewPath(s.evmChainA, s.chainB)
+	suite.pathAToB = evmibctesting.NewPath(suite.evmChainA, suite.chainB)
 	// setup between chainB and evmChainA
 	// pathBToA.EndpointA = endpoint on chainB
 	// pathBToA.EndpointB = endpoint on evmChainA
-	s.pathBToA = evmibctesting.NewPath(s.chainB, s.evmChainA)
+	suite.pathBToA = evmibctesting.NewPath(suite.chainB, suite.evmChainA)
 
 	// setup IBC v2 paths between the chains
-	s.pathAToB.SetupV2()
-	s.pathBToA.SetupV2()
+	suite.pathAToB.SetupV2()
+	suite.pathBToA.SetupV2()
 }
 
 func TestMiddlewareV2TestSuite(t *testing.T) {
 	testifysuite.Run(t, new(MiddlewareV2TestSuite))
 }
 
-func (s *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
+func (suite *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 	testCases := []struct {
 		name          string
 		instantiateFn func()
@@ -90,14 +90,14 @@ func (s *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(tc.name, func() {
+		suite.Run(tc.name, func() {
 			if tc.expError == nil {
-				s.Require().NotPanics(
+				suite.Require().NotPanics(
 					tc.instantiateFn,
 					"unexpected panic: NewIBCMiddleware",
 				)
 			} else {
-				s.Require().PanicsWithError(
+				suite.Require().PanicsWithError(
 					tc.expError.Error(),
 					tc.instantiateFn,
 					"expected panic with error: ", tc.expError.Error(),
@@ -107,7 +107,7 @@ func (s *MiddlewareV2TestSuite) TestNewIBCMiddleware() {
 	}
 }
 
-func (s *MiddlewareV2TestSuite) TestOnSendPacket() {
+func (suite *MiddlewareV2TestSuite) TestOnSendPacket() {
 	var (
 		ctx        sdk.Context
 		packetData transfertypes.FungibleTokenPacketData
@@ -134,17 +134,17 @@ func (s *MiddlewareV2TestSuite) TestOnSendPacket() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-			ctx = s.evmChainA.GetContext()
-			evmApp := s.evmChainA.App.(*evmd.EVMD)
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			ctx = suite.evmChainA.GetContext()
+			evmApp := suite.evmChainA.App.(*evmd.EVMD)
 			bondDenom, err := evmApp.StakingKeeper.BondDenom(ctx)
-			s.Require().NoError(err)
+			suite.Require().NoError(err)
 			packetData = transfertypes.NewFungibleTokenPacketData(
 				bondDenom,
 				ibctesting.DefaultCoinAmount.String(),
-				s.evmChainA.SenderAccount.GetAddress().String(),
-				s.chainB.SenderAccount.GetAddress().String(),
+				suite.evmChainA.SenderAccount.GetAddress().String(),
+				suite.chainB.SenderAccount.GetAddress().String(),
 				"",
 			)
 
@@ -161,35 +161,35 @@ func (s *MiddlewareV2TestSuite) TestOnSendPacket() {
 			onSendPacket := func() error {
 				return evmApp.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort).OnSendPacket(
 					ctx,
-					s.pathAToB.EndpointA.ClientID,
-					s.pathAToB.EndpointB.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointB.ClientID,
 					1,
 					payload,
-					s.evmChainA.SenderAccount.GetAddress(),
+					suite.evmChainA.SenderAccount.GetAddress(),
 				)
 			}
 
 			err = onSendPacket()
 			if tc.expError != "" {
-				s.Require().Error(err)
-				s.Require().ErrorContains(err, tc.expError)
+				suite.Require().Error(err)
+				suite.Require().ErrorContains(err, tc.expError)
 			} else {
-				s.Require().NoError(err)
+				suite.Require().NoError(err)
 				// check that the escrowed coins are in the escrow account
 				escrowAddress := transfertypes.GetEscrowAddress(
 					transfertypes.PortID,
-					s.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
 				)
 				escrowedCoins := evmApp.BankKeeper.GetAllBalances(ctx, escrowAddress)
-				s.Require().Equal(1, len(escrowedCoins))
-				s.Require().Equal(ibctesting.DefaultCoinAmount.String(), escrowedCoins[0].Amount.String())
-				s.Require().Equal(bondDenom, escrowedCoins[0].Denom)
+				suite.Require().Equal(1, len(escrowedCoins))
+				suite.Require().Equal(ibctesting.DefaultCoinAmount.String(), escrowedCoins[0].Amount.String())
+				suite.Require().Equal(bondDenom, escrowedCoins[0].Denom)
 			}
 		})
 	}
 }
 
-func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
+func (suite *MiddlewareV2TestSuite) TestOnRecvPacket() {
 	var (
 		ctx        sdk.Context
 		packetData transfertypes.FungibleTokenPacketData
@@ -216,17 +216,17 @@ func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-			ctx = s.chainB.GetContext()
-			bondDenom, err := s.chainB.GetSimApp().StakingKeeper.BondDenom(ctx)
-			s.Require().NoError(err)
-			receiver := s.evmChainA.SenderAccount.GetAddress()
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			ctx = suite.chainB.GetContext()
+			bondDenom, err := suite.chainB.GetSimApp().StakingKeeper.BondDenom(ctx)
+			suite.Require().NoError(err)
+			receiver := suite.evmChainA.SenderAccount.GetAddress()
 			sendAmt := ibctesting.DefaultCoinAmount
 			packetData = transfertypes.NewFungibleTokenPacketData(
 				bondDenom,
 				sendAmt.String(),
-				s.chainB.SenderAccount.GetAddress().String(),
+				suite.chainB.SenderAccount.GetAddress().String(),
 				receiver.String(),
 				"",
 			)
@@ -241,16 +241,16 @@ func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
 				tc.malleate()
 			}
 
-			evmApp := s.evmChainA.App.(*evmd.EVMD)
+			evmApp := suite.evmChainA.App.(*evmd.EVMD)
 			// erc20 module is routed as top level middleware
 			transferStack := evmApp.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort)
-			sourceClient := s.pathBToA.EndpointB.ClientID
+			sourceClient := suite.pathBToA.EndpointB.ClientID
 			onRecvPacket := func() channeltypesv2.RecvPacketResult {
-				ctx = s.evmChainA.GetContext()
+				ctx = suite.evmChainA.GetContext()
 				return transferStack.OnRecvPacket(
 					ctx,
 					sourceClient,
-					s.pathBToA.EndpointA.ClientID,
+					suite.pathBToA.EndpointA.ClientID,
 					1,
 					payload,
 					receiver,
@@ -258,29 +258,29 @@ func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
 			}
 
 			recvResult := onRecvPacket()
-			s.Require().Equal(tc.expResult, recvResult.Status)
+			suite.Require().Equal(tc.expResult, recvResult.Status)
 			if recvResult.Status == channeltypesv2.PacketStatus_Success {
 				// make sure voucher coins are sent to the receiver
 				data, ackErr := transfertypes.UnmarshalPacketData(packetData.GetBytes(), transfertypes.V1, "")
-				s.Require().Nil(ackErr)
+				suite.Require().Nil(ackErr)
 				voucherDenom := testutil.GetVoucherDenomFromPacketData(data, payload.GetSourcePort(), sourceClient)
 				voucherCoin := evmApp.BankKeeper.GetBalance(ctx, receiver, voucherDenom)
-				s.Require().Equal(sendAmt.String(), voucherCoin.Amount.String())
+				suite.Require().Equal(sendAmt.String(), voucherCoin.Amount.String())
 				// make sure token pair is registered
 				singleTokenRepresentation, err := types.NewTokenPairSTRv2(voucherDenom)
-				s.Require().NoError(err)
+				suite.Require().NoError(err)
 				tokenPair, found := evmApp.Erc20Keeper.GetTokenPair(ctx, singleTokenRepresentation.GetID())
-				s.Require().True(found)
-				s.Require().Equal(voucherDenom, tokenPair.Denom)
+				suite.Require().True(found)
+				suite.Require().Equal(voucherDenom, tokenPair.Denom)
 				// Make sure dynamic precompile is registered
 				params := evmApp.Erc20Keeper.GetParams(ctx)
-				s.Require().Contains(params.DynamicPrecompiles, tokenPair.Erc20Address)
+				suite.Require().Contains(params.DynamicPrecompiles, tokenPair.Erc20Address)
 			}
 		})
 	}
 }
 
-func (s *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
+func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
 	var (
 		ctx        sdk.Context
 		packetData transfertypes.FungibleTokenPacketData
@@ -336,17 +336,17 @@ func (s *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-			ctx = s.evmChainA.GetContext()
-			evmApp := s.evmChainA.App.(*evmd.EVMD)
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			ctx = suite.evmChainA.GetContext()
+			evmApp := suite.evmChainA.App.(*evmd.EVMD)
 			bondDenom, err := evmApp.StakingKeeper.BondDenom(ctx)
-			s.Require().NoError(err)
+			suite.Require().NoError(err)
 			packetData = transfertypes.NewFungibleTokenPacketData(
 				bondDenom,
 				ibctesting.DefaultCoinAmount.String(),
-				s.evmChainA.SenderAccount.GetAddress().String(),
-				s.chainB.SenderAccount.GetAddress().String(),
+				suite.evmChainA.SenderAccount.GetAddress().String(),
+				suite.chainB.SenderAccount.GetAddress().String(),
 				"",
 			)
 
@@ -363,41 +363,41 @@ func (s *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
 			}
 
 			// erc20 module is routed as top level middleware
-			transferStack := s.evmChainA.App.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort)
+			transferStack := suite.evmChainA.App.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort)
 			if tc.onSendRequired {
-				s.NoError(transferStack.OnSendPacket(
+				suite.NoError(transferStack.OnSendPacket(
 					ctx,
-					s.pathAToB.EndpointA.ClientID,
-					s.pathAToB.EndpointB.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointB.ClientID,
 					1,
 					payload,
-					s.evmChainA.SenderAccount.GetAddress(),
+					suite.evmChainA.SenderAccount.GetAddress(),
 				))
 			}
 			onAckPacket := func() error {
 				return transferStack.OnAcknowledgementPacket(
 					ctx,
-					s.pathAToB.EndpointA.ClientID,
-					s.pathAToB.EndpointB.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointB.ClientID,
 					1,
 					ack,
 					payload,
-					s.evmChainA.SenderAccount.GetAddress(),
+					suite.evmChainA.SenderAccount.GetAddress(),
 				)
 			}
 
 			err = onAckPacket()
 			if tc.expError != "" {
-				s.Require().Error(err)
-				s.Require().ErrorContains(err, tc.expError)
+				suite.Require().Error(err)
+				suite.Require().ErrorContains(err, tc.expError)
 			} else {
-				s.Require().NoError(err)
+				suite.Require().NoError(err)
 			}
 		})
 	}
 }
 
-func (s *MiddlewareV2TestSuite) TestOnTimeoutPacket() {
+func (suite *MiddlewareV2TestSuite) TestOnTimeoutPacket() {
 	var (
 		ctx        sdk.Context
 		packetData transfertypes.FungibleTokenPacketData
@@ -427,17 +427,17 @@ func (s *MiddlewareV2TestSuite) TestOnTimeoutPacket() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			s.SetupTest()
-			ctx = s.evmChainA.GetContext()
-			evmApp := s.evmChainA.App.(*evmd.EVMD)
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+			ctx = suite.evmChainA.GetContext()
+			evmApp := suite.evmChainA.App.(*evmd.EVMD)
 			bondDenom, err := evmApp.StakingKeeper.BondDenom(ctx)
-			s.Require().NoError(err)
+			suite.Require().NoError(err)
 			packetData = transfertypes.NewFungibleTokenPacketData(
 				bondDenom,
 				ibctesting.DefaultCoinAmount.String(),
-				s.evmChainA.SenderAccount.GetAddress().String(),
-				s.chainB.SenderAccount.GetAddress().String(),
+				suite.evmChainA.SenderAccount.GetAddress().String(),
+				suite.chainB.SenderAccount.GetAddress().String(),
 				"",
 			)
 
@@ -451,42 +451,42 @@ func (s *MiddlewareV2TestSuite) TestOnTimeoutPacket() {
 				tc.malleate()
 			}
 
-			transferStack := s.evmChainA.App.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort)
+			transferStack := suite.evmChainA.App.GetIBCKeeper().ChannelKeeperV2.Router.Route(ibctesting.TransferPort)
 			if tc.onSendRequired {
-				s.NoError(transferStack.OnSendPacket(
+				suite.NoError(transferStack.OnSendPacket(
 					ctx,
-					s.pathAToB.EndpointA.ClientID,
-					s.pathAToB.EndpointB.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointB.ClientID,
 					1,
 					payload,
-					s.evmChainA.SenderAccount.GetAddress(),
+					suite.evmChainA.SenderAccount.GetAddress(),
 				))
 			}
 
 			onTimeoutPacket := func() error {
 				return transferStack.OnTimeoutPacket(
 					ctx,
-					s.pathAToB.EndpointA.ClientID,
-					s.pathAToB.EndpointB.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointB.ClientID,
 					1,
 					payload,
-					s.evmChainA.SenderAccount.GetAddress(),
+					suite.evmChainA.SenderAccount.GetAddress(),
 				)
 			}
 
 			err = onTimeoutPacket()
 			if tc.expError != "" {
-				s.Require().Error(err)
-				s.Require().ErrorContains(err, tc.expError)
+				suite.Require().Error(err)
+				suite.Require().ErrorContains(err, tc.expError)
 			} else {
-				s.Require().NoError(err)
+				suite.Require().NoError(err)
 				// check that the escrowed coins are un-escrowed
 				escrowAddress := transfertypes.GetEscrowAddress(
 					transfertypes.PortID,
-					s.pathAToB.EndpointA.ClientID,
+					suite.pathAToB.EndpointA.ClientID,
 				)
 				escrowedCoins := evmApp.BankKeeper.GetAllBalances(ctx, escrowAddress)
-				s.Require().Equal(0, len(escrowedCoins))
+				suite.Require().Equal(0, len(escrowedCoins))
 			}
 		})
 	}
