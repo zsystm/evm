@@ -197,11 +197,14 @@ func (s *MiddlewareTestSuite) TestOnRecvPacket() {
 				s.Require().Equal(sendAmt.String(), voucherCoin.Amount.String())
 
 				// Make sure token pair is registered
-				tp, err := types.NewTokenPairSTRv2(voucherDenom)
+				singleTokenRepresentation, err := types.NewTokenPairSTRv2(voucherDenom)
 				s.Require().NoError(err)
-				tokenPair, found := evmApp.Erc20Keeper.GetTokenPair(ctxA, tp.GetID())
+				tokenPair, found := evmApp.Erc20Keeper.GetTokenPair(ctxA, singleTokenRepresentation.GetID())
 				s.Require().True(found)
 				s.Require().Equal(voucherDenom, tokenPair.Denom)
+				// Make sure dynamic precompile is registered
+				params := evmApp.Erc20Keeper.GetParams(ctxA)
+				s.Require().Contains(params.DynamicPrecompiles, tokenPair.Erc20Address)
 			} else {
 				s.Require().False(ack.Success())
 

@@ -267,11 +267,14 @@ func (s *MiddlewareV2TestSuite) TestOnRecvPacket() {
 				voucherCoin := evmApp.BankKeeper.GetBalance(ctx, receiver, voucherDenom)
 				s.Require().Equal(sendAmt.String(), voucherCoin.Amount.String())
 				// make sure token pair is registered
-				tp, err := types.NewTokenPairSTRv2(voucherDenom)
+				singleTokenRepresentation, err := types.NewTokenPairSTRv2(voucherDenom)
 				s.Require().NoError(err)
-				tokenPair, found := evmApp.Erc20Keeper.GetTokenPair(ctx, tp.GetID())
+				tokenPair, found := evmApp.Erc20Keeper.GetTokenPair(ctx, singleTokenRepresentation.GetID())
 				s.Require().True(found)
 				s.Require().Equal(voucherDenom, tokenPair.Denom)
+				// Make sure dynamic precompile is registered
+				params := evmApp.Erc20Keeper.GetParams(ctx)
+				s.Require().Contains(params.DynamicPrecompiles, tokenPair.Erc20Address)
 			}
 		})
 	}
