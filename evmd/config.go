@@ -37,7 +37,7 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 		Decimals:     evmtypes.EighteenDecimals,
 	},
 	CosmosChainID: {
-		Denom:        "utest",
+		Denom:        "atest",
 		DisplayDenom: "test",
 		Decimals:     evmtypes.EighteenDecimals,
 	},
