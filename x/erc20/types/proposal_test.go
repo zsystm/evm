@@ -85,23 +85,18 @@ func (suite *ProposalTestSuite) TestValidateErc20Denom() {
 			false,
 		},
 		{
-			"- instead of :, /",
+			"fail: doesn't start with erc20:",
+			"0xdac17f958d2ee523a2206206994597c13d831ec7",
+			false,
+		},
+		{
+			"- instead of :",
 			"erc20-0xdac17f958d2ee523a2206206994597c13d831ec7",
 			false,
 		},
 		{
-			"without :, /",
+			"without :",
 			"conversionCoin",
-			false,
-		},
-		{
-			"// instead of /",
-			"erc20//0xdac17f958d2ee523a2206206994597c13d831ec7",
-			false,
-		},
-		{
-			"multiple /",
-			"erc20/0xdac17f958d2ee523a2206206994597c13d831ec7/test",
 			false,
 		},
 		{
@@ -113,11 +108,6 @@ func (suite *ProposalTestSuite) TestValidateErc20Denom() {
 			"multiple :",
 			"erc20:0xdac17f958d2ee523a2206206994597c13d831ec7:test",
 			false,
-		},
-		{
-			"pass(legacy format)",
-			"erc20/0xdac17f958d2ee523a2206206994597c13d831ec7",
-			true,
 		},
 		{
 			"pass",

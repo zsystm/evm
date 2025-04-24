@@ -46,28 +46,17 @@ func CreateDenom(address string) string {
 }
 
 // ValidateErc20Denom checks if a denom is a valid erc20 denomination.
-// Valid formats: "erc20:0xabc..." or "erc20/0xabc..." (legacy format)
+// Only the "erc20:0xabc..." format is accepted.
 func ValidateErc20Denom(denom string) error {
-	const legacyPrefix = "erc20/"
-
-	switch {
-	case strings.HasPrefix(denom, Erc20NativeCoinDenomPrefix):
+	if strings.HasPrefix(denom, Erc20NativeCoinDenomPrefix) {
 		trimmed := strings.TrimPrefix(denom, Erc20NativeCoinDenomPrefix)
 		if len(trimmed) == 0 {
-			return fmt.Errorf("invalid denom(given: %s): missing address after prefix %s", denom, Erc20NativeCoinDenomPrefix)
+			return fmt.Errorf("invalid denom (given: %s): missing address after prefix %s", denom, Erc20NativeCoinDenomPrefix)
 		}
 		return cosmosevmtypes.ValidateAddress(trimmed)
-
-	case strings.HasPrefix(denom, legacyPrefix):
-		trimmed := strings.TrimPrefix(denom, legacyPrefix)
-		if len(trimmed) == 0 {
-			return fmt.Errorf("invalid denom(given: %s): missing address after prefix %s", denom, legacyPrefix)
-		}
-		return cosmosevmtypes.ValidateAddress(trimmed)
-
-	default:
-		return fmt.Errorf("invalid denom(given: %s): denomination should be prefixed with the %s", denom, Erc20NativeCoinDenomPrefix)
 	}
+
+	return fmt.Errorf("invalid denom (given: %s): denomination should be prefixed with %s", denom, Erc20NativeCoinDenomPrefix)
 }
 
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
