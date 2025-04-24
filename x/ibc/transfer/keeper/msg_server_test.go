@@ -56,7 +56,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
 				suite.Require().NoError(err)
 
-				transferMsg := types.NewMsgTransfer(types.PortID, chan0, sdk.NewCoin(erc20types.ModuleName+contractAddr.String(), math.NewInt(10)), addr, receiver.String(), timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer(types.PortID, chan0, sdk.NewCoin(erc20types.CreateDenom(contractAddr.String()), math.NewInt(10)), addr, receiver.String(), timeoutHeight, 0, "")
 				return transferMsg
 			},
 			false,
@@ -190,7 +190,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Require().True(len(res) == 1)
 				pair := res[0]
-				suite.Require().Equal(erc20types.ModuleName+pair.Erc20Address, pair.Denom)
+				suite.Require().Equal(erc20types.CreateDenom(pair.Erc20Address), pair.Denom)
 
 				amt := math.NewInt(10)
 				_, err = suite.MintERC20Token(contractAddr, sender.Addr, amt.BigInt())

@@ -19,6 +19,7 @@ const (
 	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
+	Erc20NativeCoinDenomPrefix        string = "erc20:"                // #nosec
 )
 
 // Implements Proposal Interface
@@ -41,22 +42,32 @@ func CreateDenomDescription(address string) string {
 
 // CreateDenom generates a string the module name plus the address to avoid conflicts with names staring with a number
 func CreateDenom(address string) string {
-	return fmt.Sprintf("%s%s", ModuleName, address)
+	return Erc20NativeCoinDenomPrefix + address
 }
 
 // ValidateErc20Denom checks if a denom is a valid erc20 denomination.
-// Example: "erc200xabc..."
+// Valid formats: "erc20:0xabc..." or "erc20/0xabc..." (legacy format)
 func ValidateErc20Denom(denom string) error {
-	if strings.HasPrefix(denom, ModuleName) {
-		trimmed := strings.TrimPrefix(denom, ModuleName)
-		if len(trimmed) > 0 && trimmed[0] == '/' {
-			// backward compatibility with old denom format ("erc20/0xabc...")
-			return cosmosevmtypes.ValidateAddress(trimmed[1:])
+	const legacyPrefix = "erc20/"
+
+	switch {
+	case strings.HasPrefix(denom, Erc20NativeCoinDenomPrefix):
+		trimmed := strings.TrimPrefix(denom, Erc20NativeCoinDenomPrefix)
+		if len(trimmed) == 0 {
+			return fmt.Errorf("invalid denom(given: %s): missing address after prefix %s", denom, Erc20NativeCoinDenomPrefix)
 		}
 		return cosmosevmtypes.ValidateAddress(trimmed)
-	}
 
-	return fmt.Errorf("invalid denom. %s denomination should be prefixed with the format 'erc20", denom)
+	case strings.HasPrefix(denom, legacyPrefix):
+		trimmed := strings.TrimPrefix(denom, legacyPrefix)
+		if len(trimmed) == 0 {
+			return fmt.Errorf("invalid denom(given: %s): missing address after prefix %s", denom, legacyPrefix)
+		}
+		return cosmosevmtypes.ValidateAddress(trimmed)
+
+	default:
+		return fmt.Errorf("invalid denom(given: %s): denomination should be prefixed with the %s", denom, Erc20NativeCoinDenomPrefix)
+	}
 }
 
 // NewRegisterERC20Proposal returns new instance of RegisterERC20Proposal
