@@ -537,8 +537,8 @@ func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacket() {
 // TestOnAcknowledgementPacketNativeErc20 tests ack logic when the packet involves a native ERC20.
 func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacketNativeErc20() {
 	var (
-		packet channeltypes.Packet
-		ack    []byte
+		payload channeltypesv2.Payload
+		ack     []byte
 	)
 
 	testCases := []struct {
@@ -554,10 +554,9 @@ func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacketNativeErc20() {
 			expRefund: false,
 		},
 		{
-			name: "pass: refund escrowed token",
+			name: "pass: refund escrowed token because ack err(UNIVERSAL_ERROR_ACKNOWLEDGEMENT)",
 			malleate: func() {
-				ackErr := channeltypes.NewErrorAcknowledgement(errors.New("error"))
-				ack = ackErr.Acknowledgement()
+				ack = channeltypesv2.ErrorAcknowledgement[:]
 			},
 			expError:  "",
 			expRefund: true,
@@ -565,9 +564,9 @@ func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacketNativeErc20() {
 		{
 			name: "fail: malformed packet data",
 			malleate: func() {
-				packet.Data = []byte("malformed data")
+				payload.Value = []byte("malformed data")
 			},
-			expError:  "cannot unmarshal ICS-20 transfer packet data",
+			expError:  "cannot unmarshal ICS20-V1 transfer packet data",
 			expRefund: false,
 		},
 		{
@@ -642,7 +641,7 @@ func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacketNativeErc20() {
 				sender.String(), chainBAcc.String(),
 				"",
 			)
-			payload := channeltypesv2.NewPayload(
+			payload = channeltypesv2.NewPayload(
 				transfertypes.PortID, transfertypes.PortID,
 				transfertypes.V1, transfertypes.EncodingJSON,
 				packetData.GetBytes(),
