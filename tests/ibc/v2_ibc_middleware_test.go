@@ -1,8 +1,13 @@
 package ibc
 
 import (
-	"cosmossdk.io/math"
 	"errors"
+	"math/big"
+	"testing"
+	"time"
+
+	testifysuite "github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/evm/evmd"
 	evmibctesting "github.com/cosmos/evm/ibc/testing"
 	"github.com/cosmos/evm/testutil"
@@ -14,10 +19,8 @@ import (
 	channeltypesv2 "github.com/cosmos/ibc-go/v10/modules/core/04-channel/v2/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 	ibcmockv2 "github.com/cosmos/ibc-go/v10/testing/mock/v2"
-	testifysuite "github.com/stretchr/testify/suite"
-	"math/big"
-	"testing"
-	"time"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -335,7 +338,6 @@ func (suite *MiddlewareV2TestSuite) TestOnRecvPacketNativeERC20() {
 				new(big.Int).Sub(nativeErc20.InitialBal, sendAmt.BigInt()).String(),
 				erc20BalAfterConvert.String(),
 			)
-			// 1-2: Check native erc20 token is unregistered on chainA.
 			balAfterConvert := evmApp.BankKeeper.GetBalance(evmCtx, sender, nativeErc20.Denom)
 			suite.Require().Equal(sendAmt.String(), balAfterConvert.Amount.String())
 
@@ -607,7 +609,6 @@ func (suite *MiddlewareV2TestSuite) TestOnAcknowledgementPacketNativeErc20() {
 				new(big.Int).Sub(nativeErc20.InitialBal, sendAmt.BigInt()).String(),
 				erc20BalAfterConvert.String(),
 			)
-			// 1-2: Check native erc20 token is unregistered on chainA.
 			balAfterConvert := evmApp.BankKeeper.GetBalance(evmCtx, sender, nativeErc20.Denom)
 			suite.Require().Equal(sendAmt.String(), balAfterConvert.Amount.String())
 
@@ -842,7 +843,6 @@ func (suite *MiddlewareV2TestSuite) TestOnTimeoutPacketNativeErc20() {
 				new(big.Int).Sub(nativeErc20.InitialBal, sendAmt.BigInt()).String(),
 				erc20BalAfterConvert.String(),
 			)
-			// 1-2: Check native erc20 token is unregistered on chainA.
 			balAfterConvert := evmApp.BankKeeper.GetBalance(evmCtx, sender, nativeErc20.Denom)
 			suite.Require().Equal(sendAmt.String(), balAfterConvert.Amount.String())
 
