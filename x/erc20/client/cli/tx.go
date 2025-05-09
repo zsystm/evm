@@ -30,6 +30,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		NewConvertCoinCmd(),
 		NewConvertERC20Cmd(),
+		NewMsgRegisterERC20Cmd(),
 	)
 	return txCmd
 }
@@ -118,6 +119,36 @@ func NewConvertCoinCmd() *cobra.Command {
 
 			if err := msg.ValidateBasic(); err != nil {
 				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func NewMsgRegisterERC20Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "register-erc20 [CONTRACT_ADDRESS...]",
+		Short: "Register a native ERC20 token",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			for _, contract := range args {
+				if err := cosmosevmtypes.ValidateAddress(contract); err != nil {
+					return fmt.Errorf("invalid ERC20 contract address %w", err)
+				}
+			}
+
+			msg := &types.MsgRegisterERC20{
+				Signer:         cliCtx.GetFromAddress().String(),
+				Erc20Addresses: args,
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
