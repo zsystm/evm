@@ -35,9 +35,7 @@ func TestMakeTopic(t *testing.T) {
 			name:  "common.Hash",
 			input: common.HexToHash("0x01020304"),
 			want: func() common.Hash {
-				var h common.Hash
-				copy(h[:], common.HexToHash("0x01020304").Bytes())
-				return h
+				return common.HexToHash("0x01020304")
 			}(),
 			wantErr: false,
 		},
@@ -99,14 +97,12 @@ func TestMakeTopic(t *testing.T) {
 			name:  "int8",
 			input: int8(-2),
 			want: func() common.Hash {
-				var h common.Hash
-				h = [32]byte{
+				return [32]byte{
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 254,
 				}
-				return h
 			}(),
 			wantErr: false,
 		},
@@ -139,14 +135,12 @@ func TestMakeTopic(t *testing.T) {
 			name:  "int64",
 			input: int64(-5),
 			want: func() common.Hash {
-				var h common.Hash
-				h = [32]byte{
+				return [32]byte{
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 251,
 				}
-				return h
 			}(),
 			wantErr: false,
 		},
@@ -232,7 +226,6 @@ func TestMakeTopic(t *testing.T) {
 
 	for _, tt := range tests {
 		// Capture range variable for parallel tests
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
