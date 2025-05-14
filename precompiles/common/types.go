@@ -1,7 +1,9 @@
 package common
 
 import (
+	"fmt"
 	"math/big"
+	"reflect"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -101,4 +103,39 @@ func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 func SafeAdd(a, b math.Int) (res *big.Int, overflow bool) {
 	res = a.BigInt().Add(a.BigInt(), b.BigInt())
 	return res, res.BitLen() > math.MaxBitLen
+}
+
+func ToCoins(v interface{}) ([]Coin, error) {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("expected slice, got %T", v)
+	}
+	out := make([]Coin, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		item := rv.Index(i) // the anonymous struct value
+		denom := item.FieldByName("Denom").Interface().(string)
+		amount := item.FieldByName("Amount").Interface().(*big.Int)
+
+		if len(denom) == 0 || amount == nil {
+			return nil, fmt.Errorf("invalid coin at index %d", i)
+		}
+		out[i] = Coin{Denom: denom, Amount: amount}
+	}
+	return out, nil
+}
+
+func NewSdkCoinsFromCoins(coins []Coin) (sdk.Coins, error) {
+	sdkCoins := make(sdk.Coins, len(coins))
+	for i, coin := range coins {
+		sdkCoin := sdk.Coin{
+			Denom:  coin.Denom,
+			Amount: math.NewIntFromBigInt(coin.Amount),
+		}
+		if err := sdkCoin.Validate(); err != nil {
+			return nil, err
+		}
+
+		sdkCoins[i] = sdkCoin
+	}
+	return sdkCoins, nil
 }

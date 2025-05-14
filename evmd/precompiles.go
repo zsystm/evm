@@ -2,6 +2,7 @@ package evmd
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"maps"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -46,6 +47,7 @@ func NewAvailableStaticPrecompiles(
 	govKeeper govkeeper.Keeper,
 	slashingKeeper slashingkeeper.Keeper,
 	evidenceKeeper evidencekeeper.Keeper,
+	codec codec.Codec,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -87,7 +89,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper)
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, codec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
