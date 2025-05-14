@@ -1,17 +1,19 @@
 package gov
 
 import (
-	sdkerrors "cosmossdk.io/errors"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/utils"
 
+	sdkerrors "cosmossdk.io/errors"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -127,7 +129,7 @@ func NewMsgSubmitProposal(args []interface{}, cdc codec.Codec) (*govv1.MsgSubmit
 	// 1-a  JSON blob
 	jsonBlob, ok := args[1].([]byte)
 	if !ok || len(jsonBlob) == 0 {
-		return nil, emptyAddr, fmt.Errorf(ErrInvalidProposalJson, "jsonBlob arg")
+		return nil, emptyAddr, fmt.Errorf(ErrInvalidProposalJSON, "jsonBlob arg")
 	}
 
 	// 1-b  Deposit
@@ -169,11 +171,11 @@ func NewMsgSubmitProposal(args []interface{}, cdc codec.Codec) (*govv1.MsgSubmit
 	// 3. Pack into Any
 	anys := make([]*codectypes.Any, len(msgs))
 	for i, m := range msgs {
-		any, err := codectypes.NewAnyWithValue(m)
+		anyVal, err := codectypes.NewAnyWithValue(m)
 		if err != nil {
 			return nil, common.Address{}, err
 		}
-		anys[i] = any
+		anys[i] = anyVal
 	}
 
 	// 4. Build & dispatch MsgSubmitProposal

@@ -21,8 +21,8 @@ const (
 	ErrInvalidWeightedVoteOptionType = "invalid weighted vote option type %s "
 	// ErrInvalidWeightedVoteOptionWeight invalid weighted vote option weight.
 	ErrInvalidWeightedVoteOptionWeight = "invalid weighted vote option weight %s "
-	// ErrInvalidProposalJson invalid proposal json.
-	ErrInvalidProposalJson = "invalid proposal json %s "
+	// ErrInvalidProposalJSON invalid proposal json.
+	ErrInvalidProposalJSON = "invalid proposal json %s "
 	// ErrInvalidProposer invalid proposer.
 	ErrInvalidProposer = "invalid proposer %s"
 	// ErrInvalidDepositor invalid firstAddr address.

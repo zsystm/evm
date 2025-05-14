@@ -2,7 +2,6 @@ package evmd
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"maps"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -25,6 +24,7 @@ import (
 
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"

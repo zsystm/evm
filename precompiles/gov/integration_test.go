@@ -2,14 +2,9 @@ package gov_test
 
 import (
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"math/big"
 	"testing"
 
-	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -18,6 +13,7 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
+	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/gov"
 	"github.com/cosmos/evm/precompiles/gov/testdata"
 	"github.com/cosmos/evm/precompiles/testutil"
@@ -27,7 +23,11 @@ import (
 
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
@@ -174,13 +174,13 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			callArgs.Args = []interface{}{firstAddr, jsonBlob, minDeposit}
 			_, evmRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
-			var propId uint64
-			err = s.precompile.UnpackIntoInterface(&propId, gov.SubmitProposalMethod, evmRes.Ret)
+			var propID uint64
+			err = s.precompile.UnpackIntoInterface(&propID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			// get proposal by propId
-			prop, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propId)
+			// get proposal by propID
+			prop, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propID)
 			Expect(err).To(BeNil())
 			Expect(prop.Status).To(Equal(govv1.StatusDepositPeriod))
 			Expect(prop.Proposer).To(Equal(sdk.AccAddress(firstAddr.Bytes()).String()))
@@ -192,7 +192,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			Expect(td[0].Amount.String()).To(Equal(minDepositCoins[0].Amount.String()))
 
 			callArgs.MethodName = gov.DepositMethod
-			callArgs.Args = []interface{}{firstAddr, propId, minimalDeposit(s.network.GetBaseDenom())}
+			callArgs.Args = []interface{}{firstAddr, propID, minimalDeposit(s.network.GetBaseDenom())}
 			eventCheck = passCheck.WithExpEvents(gov.EventTypeDeposit)
 			_, _, err = s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
@@ -202,14 +202,14 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			// verify via query
 			callArgs.MethodName = gov.GetProposalMethod
-			callArgs.Args = []interface{}{propId}
+			callArgs.Args = []interface{}{propID}
 			_, ethRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, passCheck)
 			Expect(err).To(BeNil())
 
 			var out gov.ProposalOutput
 			err = s.precompile.UnpackIntoInterface(&out, gov.GetProposalMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			Expect(out.Proposal.Id).To(Equal(propId))
+			Expect(out.Proposal.Id).To(Equal(propID))
 			Expect(out.Proposal.Status).To(Equal(uint32(govv1.StatusDepositPeriod)))
 			newTd := out.Proposal.TotalDeposit
 			Expect(newTd).To(HaveLen(1))
@@ -255,19 +255,19 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
-			var propId uint64
-			err = s.precompile.UnpackIntoInterface(&propId, gov.SubmitProposalMethod, evmRes.Ret)
+			var propID uint64
+			err = s.precompile.UnpackIntoInterface(&propID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 
 			// 2. Cancel it
-			callArgs.Args = []interface{}{firstAddr, propId}
+			callArgs.Args = []interface{}{firstAddr, propID}
 			eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
 			_, _, err = s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// 3. Check that the proposal is not found
-			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propId)
+			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propID)
 			Expect(err.Error()).To(ContainSubstring("not found"))
 		})
 	})
