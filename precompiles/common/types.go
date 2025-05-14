@@ -138,7 +138,6 @@ func ToCoins(v interface{}) ([]Coin, error) {
 		out[i] = Coin{Denom: denom, Amount: amount}
 	}
 	return out, nil
-
 }
 
 // NewSdkCoinsFromCoins converts a slice of Coin to sdk.Coins.

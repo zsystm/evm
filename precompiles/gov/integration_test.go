@@ -229,8 +229,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			callArgs.Args = []interface{}{firstAddr, proposalID}
 			notProposerKey := s.keyring.GetPrivKey(1)
 			notProposerAddr := s.keyring.GetAddr(1)
-			//"expected different error; wanted \"tx origin address cosmos1sts5zd9explxw8ay94x7ejwhea5gvmvj23eftz does not match the voter address 0x31De45bef90630581cd092B126A8e9B6EcDe950B\""
-			//tx failed with VmError: invalid proposer cosmos1x80yt0heqcc9s8xsj2cjd28fkmkda9gtam9gry: invalid proposer, Logs:
 			errCheck := defaultLogCheck.WithErrContains(
 				gov.ErrDifferentOrigin,
 				notProposerAddr.String(),
@@ -243,7 +241,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 		It("cancels a live proposal and emits event", func() {
 			// 1. Submit a fresh proposal
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "1")
+			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "5")
 			submit := factory.CallArgs{
 				ContractABI: s.precompile.ABI,
 				MethodName:  gov.SubmitProposalMethod,
