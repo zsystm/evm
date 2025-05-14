@@ -44,7 +44,7 @@ func (s *PrecompileTestSuite) TestSubmitEvidence() {
 
 				evidenceData := evidence.EquivocationData{
 					Height:           1,
-					Time:             time.Now().UTC().Unix(), //nolint:gosec // G115
+					Time:             time.Now().UTC().Unix(),
 					Power:            1000,
 					ConsensusAddress: types.ConsAddress(valConsAddr).String(),
 				}
