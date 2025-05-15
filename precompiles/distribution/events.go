@@ -195,7 +195,7 @@ func (p Precompile) EmitFundCommunityPoolEvent(ctx sdk.Context, stateDB vm.State
 			Address:     p.Address(),
 			Topics:      topics,
 			Data:        data,
-			BlockNumber: uint64(ctx.BlockHeight()),
+			BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115 // won't exceed uint64
 		})
 	}
 

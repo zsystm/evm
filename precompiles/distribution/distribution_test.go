@@ -200,6 +200,34 @@ func (s *PrecompileTestSuite) TestRun() {
 			readOnly: false,
 			expPass:  true,
 		},
+		{
+			name: "pass - fund multi coins community pool transaction",
+			malleate: func() (common.Address, []byte) {
+				input, err := s.precompile.Pack(
+					distribution.FundCommunityPoolMethod,
+					s.keyring.GetAddr(0),
+					[]cmn.Coin{
+						{
+							Denom:  constants.ExampleAttoDenom,
+							Amount: big.NewInt(1e18),
+						},
+						{
+							Denom:  "foo",
+							Amount: big.NewInt(1e18),
+						},
+						{
+							Denom:  "bar",
+							Amount: big.NewInt(1e18),
+						},
+					},
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.keyring.GetAddr(0), input
+			},
+			readOnly: false,
+			expPass:  true,
+		},
 	}
 
 	for _, tc := range testcases {
@@ -386,6 +414,33 @@ func (s *PrecompileTestSuite) TestCMS() {
 					[]cmn.Coin{
 						{
 							Denom:  constants.ExampleAttoDenom,
+							Amount: big.NewInt(1e18),
+						},
+					},
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.keyring.GetAddr(0), input
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - fund multi coins community pool transaction",
+			malleate: func() (common.Address, []byte) {
+				input, err := s.precompile.Pack(
+					distribution.FundCommunityPoolMethod,
+					s.keyring.GetAddr(0),
+					[]cmn.Coin{
+						{
+							Denom:  constants.ExampleAttoDenom,
+							Amount: big.NewInt(1e18),
+						},
+						{
+							Denom:  "foo",
+							Amount: big.NewInt(1e18),
+						},
+						{
+							Denom:  "bar",
 							Amount: big.NewInt(1e18),
 						},
 					},
