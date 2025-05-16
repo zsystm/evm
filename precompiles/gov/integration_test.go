@@ -47,12 +47,12 @@ var (
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
 	outOfGasCheck testutil.LogCheckArgs
-	// firstKey is the private key of the firstAddr for the test cases
-	firstKey types.PrivKey
-	// firstAddr is the address of the firstAddr for the test cases
-	firstAddr common.Address
-	// firstAccAddr is the address of the firstAddr account
-	firstAccAddr sdk.AccAddress
+	// proposerKey is the private key of the proposerAddr for the test cases
+	proposerKey types.PrivKey
+	// proposerAddr is the address of the proposerAddr for the test cases
+	proposerAddr common.Address
+	// proposerAccAddr is the address of the proposerAddr account
+	proposerAccAddr sdk.AccAddress
 	// govModuleAddr is the address of the gov module account
 	govModuleAddr sdk.AccAddress
 )
@@ -92,9 +92,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		}
 		txArgs.GasLimit = 200_000
 
-		firstKey = s.keyring.GetPrivKey(0)
-		firstAddr = s.keyring.GetAddr(0)
-		firstAccAddr = sdk.AccAddress(firstAddr.Bytes())
+		proposerKey = s.keyring.GetPrivKey(0)
+		proposerAddr = s.keyring.GetAddr(0)
+		proposerAccAddr = sdk.AccAddress(proposerAddr.Bytes())
 		govModuleAddr = authtypes.NewModuleAddress(govtypes.ModuleName)
 	})
 
@@ -108,19 +108,19 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 		It("fails with low gas", func() {
 			txArgs.GasLimit = 30_000
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "1")
-			callArgs.Args = []interface{}{firstAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())}
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, s.network.GetBaseDenom(), "1")
+			callArgs.Args = []interface{}{proposerAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())}
 
-			_, _, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, outOfGasCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, outOfGasCheck)
 			Expect(err).To(BeNil())
 		})
 
 		It("creates a proposal and emits event", func() {
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "1")
-			callArgs.Args = []interface{}{firstAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())}
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, s.network.GetBaseDenom(), "1")
+			callArgs.Args = []interface{}{proposerAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())}
 			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
 
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 
 			// unpack return → proposalId
@@ -132,24 +132,24 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			// ensure proposal exists on-chain
 			prop, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), out)
 			Expect(err).To(BeNil())
-			Expect(prop.Proposer).To(Equal(sdk.AccAddress(firstAddr.Bytes()).String()))
+			Expect(prop.Proposer).To(Equal(sdk.AccAddress(proposerAddr.Bytes()).String()))
 		})
 
 		It("fails with invalid JSON", func() {
-			callArgs.Args = []interface{}{firstAddr, []byte("{invalid}"), minimalDeposit(s.network.GetBaseDenom())}
+			callArgs.Args = []interface{}{proposerAddr, []byte("{invalid}"), minimalDeposit(s.network.GetBaseDenom())}
 			errCheck := defaultLogCheck.WithErrContains("invalid proposal JSON")
 			_, _, err := s.factory.CallContractAndCheckLogs(
-				firstKey, txArgs, callArgs, errCheck)
+				proposerKey, txArgs, callArgs, errCheck)
 			Expect(err).To(BeNil())
 		})
 
 		It("fails with invalid deposit denom", func() {
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "1")
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, s.network.GetBaseDenom(), "1")
 			invalidDep := []cmn.Coin{{Denom: "bad", Amount: big.NewInt(1)}}
-			callArgs.Args = []interface{}{firstAddr, jsonBlob, invalidDep}
+			callArgs.Args = []interface{}{proposerAddr, jsonBlob, invalidDep}
 			errCheck := defaultLogCheck.WithErrContains("invalid deposit denom")
 			_, _, err := s.factory.CallContractAndCheckLogs(
-				firstKey, txArgs, callArgs, errCheck)
+				proposerKey, txArgs, callArgs, errCheck)
 			Expect(err).To(BeNil())
 		})
 	})
@@ -160,19 +160,19 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		BeforeEach(func() { callArgs.MethodName = method })
 
 		It("fails with wrong proposal id", func() {
-			callArgs.Args = []interface{}{firstAddr, uint64(999), minimalDeposit(s.network.GetBaseDenom())}
+			callArgs.Args = []interface{}{proposerAddr, uint64(999), minimalDeposit(s.network.GetBaseDenom())}
 			errCheck := defaultLogCheck.WithErrContains("not found")
-			_, _, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, errCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, errCheck)
 			Expect(err).To(BeNil())
 		})
 
 		It("deposits successfully and emits event", func() {
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "1")
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, s.network.GetBaseDenom(), "1")
 			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
 			callArgs.MethodName = gov.SubmitProposalMethod
 			minDeposit := minimalDeposit(s.network.GetBaseDenom())
-			callArgs.Args = []interface{}{firstAddr, jsonBlob, minDeposit}
-			_, evmRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
+			callArgs.Args = []interface{}{proposerAddr, jsonBlob, minDeposit}
+			_, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			var propID uint64
 			err = s.precompile.UnpackIntoInterface(&propID, gov.SubmitProposalMethod, evmRes.Ret)
@@ -183,7 +183,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			prop, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propID)
 			Expect(err).To(BeNil())
 			Expect(prop.Status).To(Equal(govv1.StatusDepositPeriod))
-			Expect(prop.Proposer).To(Equal(sdk.AccAddress(firstAddr.Bytes()).String()))
+			Expect(prop.Proposer).To(Equal(sdk.AccAddress(proposerAddr.Bytes()).String()))
 			minDepositCoins, err := cmn.NewSdkCoinsFromCoins(minDeposit)
 			Expect(err).To(BeNil())
 			td := prop.GetTotalDeposit()
@@ -192,9 +192,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			Expect(td[0].Amount.String()).To(Equal(minDepositCoins[0].Amount.String()))
 
 			callArgs.MethodName = gov.DepositMethod
-			callArgs.Args = []interface{}{firstAddr, propID, minimalDeposit(s.network.GetBaseDenom())}
+			callArgs.Args = []interface{}{proposerAddr, propID, minimalDeposit(s.network.GetBaseDenom())}
 			eventCheck = passCheck.WithExpEvents(gov.EventTypeDeposit)
-			_, _, err = s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 			// Update expected total deposit
@@ -203,7 +203,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			// verify via query
 			callArgs.MethodName = gov.GetProposalMethod
 			callArgs.Args = []interface{}{propID}
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, passCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, passCheck)
 			Expect(err).To(BeNil())
 
 			var out gov.ProposalOutput
@@ -226,13 +226,13 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 
 		It("fails when called by a non-proposer", func() {
-			callArgs.Args = []interface{}{firstAddr, proposalID}
+			callArgs.Args = []interface{}{proposerAddr, proposalID}
 			notProposerKey := s.keyring.GetPrivKey(1)
 			notProposerAddr := s.keyring.GetAddr(1)
 			errCheck := defaultLogCheck.WithErrContains(
 				gov.ErrDifferentOrigin,
 				notProposerAddr.String(),
-				firstAddr.String(),
+				proposerAddr.String(),
 			)
 
 			_, _, err := s.factory.CallContractAndCheckLogs(notProposerKey, txArgs, callArgs, errCheck)
@@ -241,14 +241,14 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 		It("cancels a live proposal and emits event", func() {
 			// 1. Submit a fresh proposal
-			jsonBlob := minimalBanSendProposalJSON(firstAccAddr, s.network.GetBaseDenom(), "5")
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, s.network.GetBaseDenom(), "5")
 			submit := factory.CallArgs{
 				ContractABI: s.precompile.ABI,
 				MethodName:  gov.SubmitProposalMethod,
-				Args:        []interface{}{firstAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())},
+				Args:        []interface{}{proposerAddr, jsonBlob, minimalDeposit(s.network.GetBaseDenom())},
 			}
 			_, evmRes, err := s.factory.CallContractAndCheckLogs(
-				firstKey, txArgs, submit,
+				proposerKey, txArgs, submit,
 				passCheck.WithExpEvents(gov.EventTypeSubmitProposal),
 			)
 			Expect(err).To(BeNil())
@@ -258,9 +258,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			Expect(err).To(BeNil())
 
 			// 2. Cancel it
-			callArgs.Args = []interface{}{firstAddr, propID}
+			callArgs.Args = []interface{}{proposerAddr, propID}
 			eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
-			_, _, err = s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, eventCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -945,7 +945,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			It("should return a constitution", func() {
 				callArgs.Args = []interface{}{}
 
-				_, ethRes, err := s.factory.CallContractAndCheckLogs(firstKey, txArgs, callArgs, passCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				var out string
@@ -964,8 +964,8 @@ func minimalDeposit(denom string) []cmn.Coin {
 	return []cmn.Coin{{Denom: denom, Amount: big.NewInt(1)}}
 }
 
-// minimalBanSendProposalJSON returns a valid governance proposal encoded as UTF‑8 bytes.
-func minimalBanSendProposalJSON(to sdk.AccAddress, denom, amount string) []byte {
+// minimalBankSendProposalJSON returns a valid governance proposal encoded as UTF‑8 bytes.
+func minimalBankSendProposalJSON(to sdk.AccAddress, denom, amount string) []byte {
 	// proto‑JSON marshal via std JSON since test helpers don’t expose codec here.
 	// We craft by hand for brevity.
 	msgJSON, _ := json.Marshal(map[string]interface{}{

@@ -25,8 +25,8 @@ const (
 	ErrInvalidProposalJSON = "invalid proposal json %s "
 	// ErrInvalidProposer invalid proposer.
 	ErrInvalidProposer = "invalid proposer %s"
-	// ErrInvalidDepositor invalid firstAddr address.
-	ErrInvalidDepositor = "invalid firstAddr address: %s"
+	// ErrInvalidDepositor invalid depositor address.
+	ErrInvalidDepositor = "invalid depositor address: %s"
 	// ErrInvalidDeposits invalid deposits.
 	ErrInvalidDeposits = "invalid deposits %s "
 )
