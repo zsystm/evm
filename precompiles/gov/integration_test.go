@@ -258,6 +258,50 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposal.Id)
 			Expect(err.Error()).To(ContainSubstring("not found"))
 		})
+
+		It("cancels a proposal and see cancellation fee charged", func() {
+			// Fix the gas limit and gas price for predictable gas usage.
+			// This is for calculating expected cancellation fee.
+			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
+			baseFeeInt := baseFee.TruncateInt64()
+			txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
+			txArgs.GasLimit = 500_000
+
+			// Get the prposal for cancellation
+			proposal, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), 1)
+			Expect(err).To(BeNil())
+
+			// Calc cancellation fee
+			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposal.Id)
+			Expect(err).To(BeNil())
+			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
+			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
+			Expect(err).To(BeNil())
+			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
+			cancelFee := proposalDepositAmt.ToLegacyDec().Mul(rate).TruncateInt()
+
+			// Cancel it
+			callArgs.Args = []interface{}{proposerAddr, proposal.Id}
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
+			// Balance of proposer
+			proposalBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, s.network.GetBaseDenom())
+			res, _, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+			gasCost := math.NewInt(res.GasUsed).Mul(math.NewInt(txArgs.GasPrice.Int64()))
+
+			// 6. Check that the cancellation fee is charged, diff should be less than the deposit amount
+			afterCancelBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, s.network.GetBaseDenom())
+			Expect(afterCancelBal.Amount).To(Equal(
+				proposalBal.Amount.Sub(gasCost).
+					Sub(cancelFee).
+					Add(proposalDepositAmt)),
+				"expected cancellation fee to be deducted from proposer balance")
+
+			// 7. Check that the proposal is not found
+			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposal.Id)
+			Expect(err.Error()).To(ContainSubstring("not found"))
+		})
 	})
 
 	Describe("Execute Vote transaction", func() {
