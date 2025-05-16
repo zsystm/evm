@@ -268,6 +268,56 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propID)
 			Expect(err.Error()).To(ContainSubstring("not found"))
 		})
+
+		It("cancels a proposal and see cancellation fee charged", func() {
+			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
+			Expect(err).To(BeNil())
+			// 1. Snapshot the proposer balance before submitting the proposal
+			denom := s.network.GetBaseDenom()
+			proposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, denom)
+			depositCoin := params.MinDeposit[0]
+			// 2. Submit a fresh proposal
+			jsonBlob := minimalBankSendProposalJSON(proposerAccAddr, denom, depositCoin.Amount.String())
+			submit := factory.CallArgs{
+				ContractABI: s.precompile.ABI,
+				MethodName:  gov.SubmitProposalMethod,
+				Args:        []interface{}{proposerAddr, jsonBlob, minimalDeposit(denom)},
+			}
+			//txArgs.GasPrice = big.NewInt(1)
+			_, evmRes, err := s.factory.CallContractAndCheckLogs(
+				proposerKey, txArgs, submit,
+				passCheck.WithExpEvents(gov.EventTypeSubmitProposal),
+			)
+			// 3. Check that the proposal is submitted
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+			var propID uint64
+			err = s.precompile.UnpackIntoInterface(&propID, gov.SubmitProposalMethod, evmRes.Ret)
+			Expect(err).To(BeNil())
+			afterSubmitBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, denom)
+			diff := proposerBal.Sub(afterSubmitBal)
+			Expect(diff.IsGTE(depositCoin)).To(BeTrue(), "expected deposit + gas fee to be deducted from proposer balance")
+
+			// 4. Calc canellation fee
+			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
+			cancelFee := depositCoin.Amount.ToLegacyDec().Mul(rate).TruncateInt()
+
+			// 5. Cancel it
+			callArgs.Args = []interface{}{proposerAddr, propID}
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
+			_, evmRes, err = s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// 6. Check that the cancellation fee is charged, diff should be less than the deposit amount
+			afterCancelBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, denom)
+			diff = afterSubmitBal.Sub(afterCancelBal)
+			Expect(diff.Amount.GTE(cancelFee)).To(BeTrue(), "expected cancellation fee to be deducted from proposer balance")
+
+			// 7. Check that the proposal is not found
+			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), propID)
+			Expect(err.Error()).To(ContainSubstring("not found"))
+		})
 	})
 
 	Describe("Execute Vote transaction", func() {
