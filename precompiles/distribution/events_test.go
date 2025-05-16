@@ -345,7 +345,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 					// Check event signature
 					event := s.precompile.ABI.Events[distribution.EventTypeFundCommunityPool]
 					s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-					s.Require().Equal(uint64(ctx.BlockHeight()), log.BlockNumber)
+					s.Require().Equal(uint64(ctx.BlockHeight()), log.BlockNumber) //nolint:gosec // G115
 
 					var fundCommunityPoolEvent distribution.EventFundCommunityPool
 					err := cmn.UnpackLog(s.precompile.ABI, &fundCommunityPoolEvent, distribution.EventTypeFundCommunityPool, *log)
