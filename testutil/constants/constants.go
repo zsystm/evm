@@ -86,6 +86,11 @@ var (
 		},
 	}
 
+	OtherCoinDenoms = []string{
+		"foo",
+		"bar",
+	}
+
 	// ExampleTokenPairs creates a slice of token pairs, that contains a pair for the native denom of the example chain
 	// implementation.
 	ExampleTokenPairs = []erc20types.TokenPair{

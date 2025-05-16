@@ -75,7 +75,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	nw := network.NewUnitTestNetwork(
-		network.WithOtherDenoms([]string{"foo", "bar"}),
+		network.WithOtherDenoms(testconstants.OtherCoinDenoms),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGen),
 		network.WithValidatorOperators(operatorsAddr),
