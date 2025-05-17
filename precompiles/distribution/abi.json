@@ -32,16 +32,16 @@
           "type": "address"
         },
         {
-          "indexed": false,
-          "internalType": "string",
-          "name": "denom",
-          "type": "string"
-        },
-        {
           "indexed": true,
           "internalType": "address",
           "name": "validatorAddress",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         },
         {
           "indexed": false,
@@ -61,6 +61,12 @@
           "internalType": "address",
           "name": "depositor",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
         },
         {
           "indexed": false,
