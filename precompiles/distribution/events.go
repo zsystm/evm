@@ -26,6 +26,8 @@ const (
 	EventTypeFundCommunityPool = "FundCommunityPool"
 	// EventTypeClaimRewards defines the event type for the distribution ClaimRewardsMethod transaction.
 	EventTypeClaimRewards = "ClaimRewards"
+	// EventTypeDepositValidatorRewardsPool defines the event type for the distribution DepositValidatorRewardsPoolMethod transaction.
+	EventTypeDepositValidatorRewardsPool = "DepositValidatorRewardsPool"
 )
 
 // EmitClaimRewardsEvent creates a new event emitted on a ClaimRewards transaction.
@@ -185,6 +187,53 @@ func (p Precompile) EmitFundCommunityPoolEvent(ctx sdk.Context, stateDB vm.State
 
 		// Encode denom and amount as event data
 		// Assuming FundCommunityPool(address,string,uint256)
+		data, err := event.Inputs.NonIndexed().Pack(coin.Denom, coin.Amount.BigInt())
+		if err != nil {
+			return fmt.Errorf("failed to pack event data: %w", err)
+		}
+
+		// Emit log for each coin
+		stateDB.AddLog(&ethtypes.Log{
+			Address:     p.Address(),
+			Topics:      topics,
+			Data:        data,
+			BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115 // won't exceed uint64
+		})
+	}
+
+	return nil
+}
+
+// EmitDepositValidatorRewardsPoolEvent creates a new event emitted on a DepositValidatorRewardsPool transaction.
+func (p Precompile) EmitDepositValidatorRewardsPoolEvent(ctx sdk.Context, stateDB vm.StateDB, depositor common.Address, validatorAddress string, coins sdk.Coins) error {
+	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeDepositValidatorRewardsPool]
+	for _, coin := range coins {
+		topics := make([]common.Hash, 3)
+
+		// The first topic is always the signature of the event.
+		topics[0] = event.ID
+
+		// The second topic is depositor address.
+		var err error
+		topics[1], err = cmn.MakeTopic(depositor)
+		if err != nil {
+			return err
+		}
+
+		// The third topic is validator address.
+		topics[2], err = cmn.MakeTopic(common.BytesToAddress(valAddr.Bytes()))
+		if err != nil {
+			return err
+		}
+
+		// Encode denom and amount as event data assuming the event type is
+		// DepositValidatorRewardsPool(address, address, string, uint256)
 		data, err := event.Inputs.NonIndexed().Pack(coin.Denom, coin.Amount.BigInt())
 		if err != nil {
 			return fmt.Errorf("failed to pack event data: %w", err)
