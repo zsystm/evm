@@ -797,7 +797,6 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 	})
 
-
 	Describe("Execute FundCommunityPool transaction", func() {
 		const method = distribution.FundCommunityPoolMethod
 
@@ -1260,7 +1259,9 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			callArgs.MethodName = distribution.FundCommunityPoolMethod
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0),
-				big.NewInt(1_000_000),
+				[]cmn.Coin{
+					{Denom: s.bondDenom, Amount: fundAmount},
+				},
 			}
 
 			txArgs.GasLimit = 200_000
@@ -3567,7 +3568,9 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				callArgs.MethodName = "testFundCommunityPool"
 				callArgs.Args = []interface{}{
 					s.keyring.GetAddr(0),
-					fundAmt,
+					[]cmn.Coin{
+						{Denom: s.bondDenom, Amount: fundAmt},
+					},
 				}
 
 				fundCheck := passCheck.WithExpEvents(distribution.EventTypeFundCommunityPool)
