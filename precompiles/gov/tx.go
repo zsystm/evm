@@ -1,14 +1,16 @@
 package gov
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
-	cmn "github.com/cosmos/evm/precompiles/common"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	cmn "github.com/cosmos/evm/precompiles/common"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"

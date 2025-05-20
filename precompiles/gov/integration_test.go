@@ -2,7 +2,6 @@ package gov_test
 
 import (
 	"encoding/json"
-	"github.com/cosmos/evm/precompiles/testutil/contracts"
 	"math/big"
 	"testing"
 
@@ -17,6 +16,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/gov"
 	"github.com/cosmos/evm/precompiles/testutil"
+	"github.com/cosmos/evm/precompiles/testutil/contracts"
 	"github.com/cosmos/evm/testutil/integration/os/factory"
 	testutiltx "github.com/cosmos/evm/testutil/tx"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
@@ -279,6 +279,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
 			cancelFee := proposalDepositAmt.ToLegacyDec().Mul(rate).TruncateInt()
+			remaining := proposalDepositAmt.Sub(cancelFee)
 
 			// Cancel it
 			callArgs.Args = []interface{}{proposerAddr, proposal.Id}
@@ -293,9 +294,10 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			// 6. Check that the cancellation fee is charged, diff should be less than the deposit amount
 			afterCancelBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, s.network.GetBaseDenom())
 			Expect(afterCancelBal.Amount).To(Equal(
-				proposalBal.Amount.Sub(gasCost).
-					Sub(cancelFee).
-					Add(proposalDepositAmt)),
+				proposalBal.Amount.
+					Sub(gasCost).
+					Add(remaining),
+			),
 				"expected cancellation fee to be deducted from proposer balance")
 
 			// 7. Check that the proposal is not found
@@ -1006,7 +1008,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 		err               error
 
 		execRevertedCheck  testutil.LogCheckArgs
-		proposalId         uint64 // proposal id submitted by eoa
+		proposalID         uint64 // proposal id submitted by eoa
 		contractProposalId uint64 // proposal id submitted by contract account
 
 		cancelFee math.Int
@@ -1572,23 +1574,13 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			err = s.precompile.UnpackIntoInterface(&proposalId, gov.SubmitProposalMethod, evmRes.Ret)
+			err = s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 
 			// Calc cancellation fee
-			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposalId)
+			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposalID)
 			Expect(err).To(BeNil())
-			proposalDepositAmt := math.NewInt(0)
-			for _, deposit := range proposalDeposits {
-				if deposit.Depositor != proposerAccAddr.String() {
-					continue
-				}
-				for _, coin := range deposit.Amount {
-					if coin.Denom == s.network.GetBaseDenom() {
-						proposalDepositAmt.Add(coin.Amount)
-					}
-				}
-			}
+			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
 			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
 			Expect(err).To(BeNil())
 			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
@@ -1606,12 +1598,12 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 				baseFeeInt := baseFee.TruncateInt64()
 				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
 				txArgs.GasLimit = 500_000
-				txArgs.Amount = common.Big0 // no need to send any amount, eoa already has enough balance
+				txArgs.Amount = big.NewInt(100)
 
 				cancellerAddr := proposerAddr
 				callArgs.Args = []interface{}{
 					cancellerAddr,
-					proposalId,
+					proposalID,
 					tc.before, tc.after,
 				}
 				eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
@@ -1709,10 +1701,10 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 				baseFeeInt := baseFee.TruncateInt64()
 				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
 				txArgs.GasLimit = 500_000
-				txArgs.Amount = math.NewInt(100).BigInt()
-				cancellerAddr := contractAccAddr
+				txArgs.Amount = big.NewInt(100)
+				txSender := proposerAddr
 				callArgs.Args = []interface{}{
-					cancellerAddr,
+					txSender,
 					contractProposalId,
 					tc.before, tc.after,
 				}
