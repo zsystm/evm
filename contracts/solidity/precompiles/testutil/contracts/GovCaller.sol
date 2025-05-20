@@ -44,7 +44,7 @@ contract GovCaller {
         types.Coin[] calldata _deposit,
         bool _before,
         bool _after
-    ) public returns (uint64) {
+    ) public payable returns (uint64) {
         if (_before) {
             counter++;
             (bool sent, ) = _proposerAddr.call{value: 15}("");
@@ -62,6 +62,32 @@ contract GovCaller {
         }
         return proposalId;
     }
+
+    function testSubmitProposalFromContractWithTransfer(
+        address payable _randomAddr,
+        bytes calldata _jsonProposal,
+        types.Coin[] calldata _deposit,
+        bool _before,
+        bool _after
+    ) public payable returns (uint64) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        uint64 proposalId = gov.GOV_CONTRACT.submitProposal(
+            address(this),
+            _jsonProposal,
+            _deposit
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        return proposalId;
+    }
+
 
     function deposit() public payable {}
 

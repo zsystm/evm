@@ -992,6 +992,12 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 var _ = Describe("Calling governance precompile from another contract", Ordered, func() {
 	s := new(PrecompileTestSuite)
+	// testCase is a struct used for cases of contracts calls that have some operation
+	// performed before and/or after the precompile call
+	type testCase struct {
+		before bool
+		after  bool
+	}
 
 	var (
 		govCallerContract evmtypes.CompiledContract
@@ -1203,6 +1209,159 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			Expect(deposits[0].Amount[0].Amount).To(Equal(math.NewInt(200)))
 		})
 	})
+
+	Context("testSubmitProposal with transfer", func() {
+		BeforeEach(func() { callArgs.MethodName = "testSubmitProposalWithTransfer" })
+
+		DescribeTable("eoa proposer should submit proposal with transfer",
+			func(tc testCase) {
+				// Fix the gas limit and gas price for predictable gas usage.
+				// This is for calculating expected cancellation fee.
+				baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
+				baseFeeInt := baseFee.TruncateInt64()
+				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
+				txArgs.GasLimit = 500_000
+
+				// Prepare the proposal
+				toAddr := s.keyring.GetAccAddr(1)
+				denom := s.network.GetBaseDenom()
+				amount := "100"
+				jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
+				minDepositAmt := math.NewInt(100)
+				callArgs.Args = []interface{}{
+					proposerAddr, jsonBlob,
+					minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
+					tc.before, tc.after,
+				}
+				txArgs.Amount = minDepositAmt.BigInt()
+				eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+				txArgs.To = &contractAddr
+				baseDenom := s.network.GetBaseDenom()
+				contractBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+				proposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+				res, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+				gasCost := math.NewInt(res.GasUsed).Mul(math.NewInt(txArgs.GasPrice.Int64()))
+
+				// check submitted proposal
+				var proposalID uint64
+				err = s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)
+				Expect(err).To(BeNil())
+				Expect(proposalID).To(BeNumerically(">", 0))
+
+				afterSubmitProposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+				afterSubmitContractBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+
+				amtFromContract := math.ZeroInt()
+				for _, transferred := range []bool{tc.before, tc.after} {
+					if transferred {
+						amtFromContract = amtFromContract.AddRaw(15)
+					}
+				}
+				Expect(afterSubmitProposerBal.Amount).To(Equal(
+					proposerBal.Amount.
+						Sub(gasCost).
+						Sub(minDepositAmt).
+						Sub(math.NewIntFromBigInt(txArgs.Amount)).
+						Add(amtFromContract),
+				))
+
+				Expect(afterSubmitContractBal.Amount).To(Equal(
+					contractBal.Amount.Add(math.NewIntFromBigInt(txArgs.Amount).Sub(amtFromContract)),
+				))
+			},
+			Entry("with internal transfers before and after precompile call", testCase{
+				before: true,
+				after:  true,
+			}),
+			Entry("with internal transfers before precompile call", testCase{
+				before: true,
+				after:  false,
+			}),
+			Entry("with internal transfers after precompile call", testCase{
+				before: false,
+				after:  true,
+			}),
+		)
+	})
+
+	Context("testSubmitProposalFromContract with transfer", func() {
+		BeforeEach(func() { callArgs.MethodName = "testSubmitProposalFromContractWithTransfer" })
+
+		DescribeTable("contract proposer should submit proposal with transfer",
+			func(tc testCase) {
+				// Fix the gas limit and gas price for predictable gas usage.
+				// This is for calculating expected cancellation fee.
+				baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
+				baseFeeInt := baseFee.TruncateInt64()
+				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
+				txArgs.GasLimit = 500_000
+
+				// Prepare the proposal
+				toAddr := s.keyring.GetAccAddr(1)
+				denom := s.network.GetBaseDenom()
+				amount := "100"
+				jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
+				minDepositAmt := math.NewInt(100)
+				callArgs.Args = []interface{}{
+					proposerAddr, jsonBlob,
+					minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
+					tc.before, tc.after,
+				}
+				extraContractFundinAmt := math.NewInt(100)
+				txArgs.Amount = minDepositAmt.Add(extraContractFundinAmt).BigInt()
+				eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+				txArgs.To = &contractAddr
+				baseDenom := s.network.GetBaseDenom()
+				contractBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+				proposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+				res, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+				gasCost := math.NewInt(res.GasUsed).Mul(math.NewInt(txArgs.GasPrice.Int64()))
+
+				// check submitted proposal
+				var proposalID uint64
+				err = s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)
+				Expect(err).To(BeNil())
+				Expect(proposalID).To(BeNumerically(">", 0))
+
+				afterSubmitProposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+				afterSubmitContractBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+
+				amtFromContract := math.ZeroInt()
+				for _, transferred := range []bool{tc.before, tc.after} {
+					if transferred {
+						amtFromContract = amtFromContract.AddRaw(15)
+					}
+				}
+				Expect(afterSubmitProposerBal.Amount).To(Equal(
+					proposerBal.Amount.
+						Sub(gasCost).
+						Sub(math.NewIntFromBigInt(txArgs.Amount)).
+						Add(amtFromContract),
+				))
+
+				Expect(afterSubmitContractBal.Amount).To(Equal(
+					contractBal.Amount.Add(math.NewIntFromBigInt(txArgs.Amount).Sub(minDepositAmt).Sub(amtFromContract)),
+				))
+			},
+			Entry("with internal transfers before and after precompile call", testCase{
+				before: true,
+				after:  true,
+			}),
+			Entry("with internal transfers before precompile call", testCase{
+				before: true,
+				after:  false,
+			}),
+			Entry("with internal transfers after precompile call", testCase{
+				before: false,
+				after:  true,
+			}),
+		)
+	})
+
 })
 
 // -----------------------------------------------------------------------------
