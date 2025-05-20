@@ -2,6 +2,7 @@ package gov_test
 
 import (
 	"encoding/json"
+	"github.com/cosmos/evm/precompiles/testutil/contracts"
 	"math/big"
 	"testing"
 
@@ -15,7 +16,6 @@ import (
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/gov"
-	"github.com/cosmos/evm/precompiles/gov/testdata"
 	"github.com/cosmos/evm/precompiles/testutil"
 	"github.com/cosmos/evm/testutil/integration/os/factory"
 	testutiltx "github.com/cosmos/evm/testutil/tx"
@@ -895,7 +895,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				// Setting gas tip cap to zero to have zero gas price.
 				txArgs.GasTipCap = new(big.Int).SetInt64(0)
 
-				govCallerContract, err = testdata.LoadGovCallerContract()
+				govCallerContract, err = contracts.LoadGovCallerContract()
 				Expect(err).ToNot(HaveOccurred(), "failed to load GovCaller contract")
 
 				govCallerContractAddr, err = s.factory.DeployContract(
@@ -986,6 +986,221 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
 				Expect(err).To(BeNil())
 			})
+		})
+	})
+})
+
+var _ = Describe("Calling governance precompile from another contract", Ordered, func() {
+	s := new(PrecompileTestSuite)
+
+	var (
+		govCallerContract evmtypes.CompiledContract
+		contractAddr      common.Address
+		contractAccAddr   sdk.AccAddress
+		err               error
+
+		execRevertedCheck  testutil.LogCheckArgs
+		contractProposalId uint64
+	)
+
+	BeforeAll(func() {
+		govCallerContract, err = contracts.LoadGovCallerContract()
+		Expect(err).ToNot(HaveOccurred(), "failed to load GovCaller contract")
+	})
+
+	BeforeEach(func() {
+		_ = execRevertedCheck  // TODO:
+		_ = contractProposalId // TODO:
+		s.SetupTest()
+
+		contractAddr, err = s.factory.DeployContract(
+			s.keyring.GetPrivKey(0),
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: govCallerContract,
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy gov caller contract")
+		Expect(s.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+		contractAccAddr = sdk.AccAddress(contractAddr.Bytes())
+
+		cAcc := s.network.App.EVMKeeper.GetAccount(s.network.GetContext(), contractAddr)
+		Expect(cAcc).ToNot(BeNil(), "failed to get contract account")
+		Expect(cAcc.IsContract()).To(BeTrue(), "expected contract account")
+
+		callArgs = factory.CallArgs{
+			ContractABI: govCallerContract.ABI,
+		}
+
+		txArgs = evmtypes.EvmTxArgs{
+			To: &contractAddr,
+		}
+
+		txArgs.GasLimit = 200_000
+
+		proposerKey = s.keyring.GetPrivKey(0)
+		proposerAddr = s.keyring.GetAddr(0)
+		proposerAccAddr = sdk.AccAddress(proposerAddr.Bytes())
+		govModuleAddr = authtypes.NewModuleAddress(govtypes.ModuleName)
+
+		defaultLogCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
+		execRevertedCheck = defaultLogCheck.WithErrContains("execution reverted")
+		passCheck = defaultLogCheck.WithExpPass(true)
+	})
+
+	// =====================================
+	// 				TRANSACTIONS
+	// =====================================
+	Context("submitProposal as a contract proposer", func() {
+		BeforeEach(func() { callArgs.MethodName = "testSubmitProposalFromContract" })
+		It("should submit proposal successfully", func() {
+			// Prepare the proposal
+			toAddr := s.keyring.GetAccAddr(1)
+			denom := s.network.GetBaseDenom()
+			amount := "100"
+			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
+			callArgs.Args = []interface{}{
+				jsonBlob,
+				minimalDeposit(s.network.GetBaseDenom(), big.NewInt(100)),
+			}
+
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+
+			txArgs := evmtypes.EvmTxArgs{
+				To:       &contractAddr,
+				GasLimit: 500_000,
+				Amount:   big.NewInt(1000),
+			}
+			_, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			var proposalID uint64
+			err = s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)
+			Expect(err).To(BeNil())
+			// Expect ProposalID greater than 0
+			Expect(proposalID).To(BeNumerically(">", 0))
+
+			contractProposer := sdk.AccAddress(contractAddr.Bytes()).String()
+			// ensure proposal exists on-chain
+			prop, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposalID)
+			Expect(err).To(BeNil())
+			Expect(prop.Id).To(Equal(proposalID))
+			Expect(prop.Proposer).To(Equal(contractProposer), "expected contract proposer to be equal")
+		})
+	})
+
+	Context("cancelProposal as contract proposer", func() {
+		BeforeEach(func() { callArgs.MethodName = "testCancelProposalFromContract" })
+		It("should cancel proposal successfully", func() {
+			// submit a proposal
+			toAddr := s.keyring.GetAccAddr(1)
+			denom := s.network.GetBaseDenom()
+			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, "100")
+			callArgs.MethodName = "testSubmitProposalFromContract"
+			minDepositAmt := math.NewInt(100)
+			callArgs.Args = []interface{}{
+				jsonBlob,
+				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
+			}
+
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+
+			txArgs := evmtypes.EvmTxArgs{
+				To:       &contractAddr,
+				GasLimit: 500_000,
+				Amount:   minDepositAmt.BigInt(),
+			}
+			_, evmRes, _ := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			var proposalID uint64
+			Expect(s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)).To(BeNil())
+
+			// Get the proposal for cancellation
+			proposal, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposalID)
+			Expect(err).To(BeNil())
+
+			// Calc cancellation fee
+			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposal.Id)
+			Expect(err).To(BeNil())
+			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
+			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
+			Expect(err).To(BeNil())
+			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
+			cancelFee := proposalDepositAmt.ToLegacyDec().Mul(rate).TruncateInt()
+
+			// Cancel it
+			callArgs.MethodName = "testCancelProposalFromContract"
+			callArgs.Args = []interface{}{proposal.Id}
+			eventCheck = passCheck.WithExpEvents(gov.EventTypeCancelProposal)
+			// Balance of contract proposer
+			proposerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, s.network.GetBaseDenom())
+			txArgs.Amount = common.Big0
+			_, _, err = s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// 6. Check that the cancellation fee is charged, diff should be less than the deposit amount
+			afterCancelBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, s.network.GetBaseDenom())
+			Expect(afterCancelBal.Amount).To(Equal(
+				proposerBal.Amount.
+					Sub(cancelFee).
+					Add(proposalDepositAmt)),
+				"expected cancellation fee to be deducted from proposer balance")
+
+			// 7. Check that the proposal is not found
+			_, err = s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposal.Id)
+			Expect(err.Error()).To(ContainSubstring("not found"))
+		})
+	})
+
+	Context("deposit as contract proposer", func() {
+		BeforeEach(func() { callArgs.MethodName = "testDepositFromContract" })
+		It("should deposit successfully", func() {
+			// submit a proposal
+			toAddr := s.keyring.GetAccAddr(1)
+			denom := s.network.GetBaseDenom()
+			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, "100")
+			callArgs.MethodName = "testSubmitProposalFromContract"
+			minDepositAmt := math.NewInt(100)
+			callArgs.Args = []interface{}{
+				jsonBlob,
+				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
+			}
+
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+			txArgs := evmtypes.EvmTxArgs{
+				To:       &contractAddr,
+				GasLimit: 500_000,
+				Amount:   minDepositAmt.BigInt(),
+			}
+			_, evmRes, _ := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			var proposalID uint64
+			Expect(s.precompile.UnpackIntoInterface(&proposalID, gov.SubmitProposalMethod, evmRes.Ret)).To(BeNil())
+
+			// Get the proposal for deposit
+			proposal, err := s.network.App.GovKeeper.Proposals.Get(s.network.GetContext(), proposalID)
+			Expect(err).To(BeNil())
+
+			// Deposit it
+			callArgs.MethodName = "testDepositFromContract"
+			callArgs.Args = []interface{}{
+				proposal.Id,
+				minimalDeposit(s.network.GetBaseDenom(), big.NewInt(100)),
+			}
+			eventCheck = passCheck.WithExpEvents(gov.EventTypeDeposit)
+			_, _, err = s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			// Check that the deposit is found
+			deposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposal.Id)
+			Expect(err).To(BeNil())
+			Expect(deposits).To(HaveLen(1))
+			Expect(deposits[0].Amount[0].Amount).To(Equal(math.NewInt(200)))
 		})
 	})
 })

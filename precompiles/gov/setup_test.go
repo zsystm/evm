@@ -97,6 +97,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Coins:   sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(200))),
 	}}
 	govGen := govv1.DefaultGenesisState()
+	govGen.StartingProposalId = 3
 	govGen.Deposits = []*govv1.Deposit{
 		{
 			ProposalId: 1,

@@ -1,7 +1,10 @@
 package gov
 
 import (
+	"cosmossdk.io/math"
 	"fmt"
+	cmn "github.com/cosmos/evm/precompiles/common"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -50,6 +53,14 @@ func (p *Precompile) SubmitProposal(
 		return nil, err
 	}
 
+	if contract.CallerAddress != origin {
+		deposit := msg.InitialDeposit
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(deposit.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Sub))
+		}
+	}
+
 	if err = p.EmitSubmitProposalEvent(ctx, stateDB, proposerHexAddr, res.ProposalId); err != nil {
 		return nil, err
 	}
@@ -79,6 +90,17 @@ func (p *Precompile) Deposit(
 	if _, err = govkeeper.NewMsgServerImpl(&p.govKeeper).Deposit(ctx, msg); err != nil {
 		return nil, err
 	}
+	if contract.CallerAddress != origin {
+		for _, coin := range msg.Amount {
+			if coin.Denom != evmtypes.GetEVMCoinDenom() {
+				continue
+			}
+			convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(coin.Amount.BigInt())
+			if convertedAmount.Cmp(common.Big0) == 1 {
+				p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, convertedAmount, cmn.Sub))
+			}
+		}
+	}
 
 	if err = p.EmitDepositEvent(ctx, stateDB, depositorHexAddr, msg.ProposalId, msg.Amount); err != nil {
 		return nil, err
@@ -106,8 +128,40 @@ func (p *Precompile) CancelProposal(
 		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), proposerHexAddr.String())
 	}
 
+	// pre-calculate the remaining deposit
+	govParams, err := p.govKeeper.Params.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cancelRate, err := math.LegacyNewDecFromStr(govParams.ProposalCancelRatio)
+	if err != nil {
+		return nil, err
+	}
+	deposits, err := p.govKeeper.GetDeposits(ctx, msg.ProposalId)
+	if err != nil {
+		return nil, err
+	}
+	var remaninig math.Int
+	for _, deposit := range deposits {
+		if deposit.Depositor != sdk.AccAddress(proposerHexAddr.Bytes()).String() {
+			continue
+		}
+		for _, coin := range deposit.Amount {
+			if coin.Denom == evmtypes.GetEVMCoinDenom() {
+				cancelFee := coin.Amount.ToLegacyDec().Mul(cancelRate).TruncateInt()
+				remaninig = coin.Amount.Sub(cancelFee)
+			}
+		}
+	}
 	if _, err = govkeeper.NewMsgServerImpl(&p.govKeeper).CancelProposal(ctx, msg); err != nil {
 		return nil, err
+	}
+
+	if contract.CallerAddress != origin {
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(remaninig.BigInt())
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Add))
+		}
 	}
 
 	if err = p.EmitCancelProposalEvent(ctx, stateDB, proposerHexAddr, msg.ProposalId); err != nil {

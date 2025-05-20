@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: LGPL-3.0-only
+pragma solidity >=0.8.17;
+
+import "../../gov/IGov.sol" as gov;
+import "../../common/Types.sol" as types;
+
+contract GovCaller {
+    int64 public counter;
+
+    function testSubmitProposalFromContract(
+        bytes calldata _jsonProposal,
+        types.Coin[] calldata _deposit
+    ) public payable returns (uint64 proposalId) {
+        return gov.GOV_CONTRACT.submitProposal(
+            address(this),
+            _jsonProposal,
+            _deposit
+        );
+    }
+
+    function testCancelProposalFromContract(
+        uint64 _proposalId
+    ) public payable returns (bool success) {
+        return gov.GOV_CONTRACT.cancelProposal(
+            address(this),
+            _proposalId
+        );
+    }
+
+    function testDepositFromContract(
+        uint64 _proposalId,
+        types.Coin[] calldata _deposit
+    ) public payable returns (bool success) {
+        return gov.GOV_CONTRACT.deposit(
+            address(this),
+            _proposalId,
+            _deposit
+        );
+    }
+
+    function testSubmitProposalWithTransfer(
+        address payable _proposerAddr,
+        bytes calldata _jsonProposal,
+        types.Coin[] calldata _deposit,
+        bool _before,
+        bool _after
+    ) public returns (uint64) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _proposerAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        uint64 proposalId = gov.GOV_CONTRACT.submitProposal(
+            _proposerAddr,
+            _jsonProposal,
+            _deposit
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _proposerAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        return proposalId;
+    }
+
+    function deposit() public payable {}
+
+    function getParams() external view returns (gov.Params memory params) {
+        return gov.GOV_CONTRACT.getParams();
+    }
+}
