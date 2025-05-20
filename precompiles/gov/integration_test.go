@@ -1578,7 +1578,17 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			// Calc cancellation fee
 			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposalId)
 			Expect(err).To(BeNil())
-			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
+			proposalDepositAmt := math.NewInt(0)
+			for _, deposit := range proposalDeposits {
+				if deposit.Depositor != proposerAccAddr.String() {
+					continue
+				}
+				for _, coin := range deposit.Amount {
+					if coin.Denom == s.network.GetBaseDenom() {
+						proposalDepositAmt.Add(coin.Amount)
+					}
+				}
+			}
 			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
 			Expect(err).To(BeNil())
 			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
@@ -1596,7 +1606,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 				baseFeeInt := baseFee.TruncateInt64()
 				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
 				txArgs.GasLimit = 500_000
-				txArgs.Amount = math.NewInt(100).BigInt()
+				txArgs.Amount = common.Big0 // no need to send any amount, eoa already has enough balance
 
 				cancellerAddr := proposerAddr
 				callArgs.Args = []interface{}{
@@ -1631,7 +1641,6 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 				Expect(afterCancellerBal.Amount).To(Equal(
 					cancellerBal.Amount.
 						Sub(gasCost).
-						Sub(cancelFee).
 						Add(remaining).
 						Sub(math.NewIntFromBigInt(txArgs.Amount)).
 						Add(amtFromContract),
@@ -1640,6 +1649,108 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 					contractBal.Amount.
 						Add(math.NewIntFromBigInt(txArgs.Amount).
 							Sub(amtFromContract)),
+				))
+			},
+			Entry("with internal transfers before and after precompile call", testCase{
+				before: true,
+				after:  true,
+			}),
+			Entry("with internal transfers before precompile call", testCase{
+				before: true,
+				after:  false,
+			}),
+			Entry("with internal transfers after precompile call", testCase{
+				before: false,
+				after:  true,
+			}),
+		)
+	})
+
+	Context("testCancelFromContract with transfer", func() {
+		BeforeEach(func() {
+			toAddr := s.keyring.GetAccAddr(1)
+			denom := s.network.GetBaseDenom()
+			amount := "100"
+			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
+			minDepositAmt := math.NewInt(100)
+			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.Args = []interface{}{
+				jsonBlob,
+				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
+			}
+			txArgs.Amount = minDepositAmt.BigInt()
+			eventCheck := passCheck.WithExpEvents(gov.EventTypeSubmitProposal)
+			txArgs.To = &contractAddr
+			_, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+			Expect(err).To(BeNil())
+			Expect(s.network.NextBlock()).To(BeNil())
+
+			err = s.precompile.UnpackIntoInterface(&contractProposalId, gov.SubmitProposalMethod, evmRes.Ret)
+			Expect(err).To(BeNil())
+
+			// Calc cancellation fee
+			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), contractProposalId)
+			Expect(err).To(BeNil())
+			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
+			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
+			Expect(err).To(BeNil())
+			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
+			cancelFee = proposalDepositAmt.ToLegacyDec().Mul(rate).TruncateInt()
+			remaining = proposalDepositAmt.Sub(cancelFee)
+
+			callArgs.MethodName = "testCancelFromContractWithTransfer"
+		})
+
+		DescribeTable("contract proposer should cancel proposal with transfer",
+			func(tc testCase) {
+				// Fix the gas limit and gas price for predictable gas usage.
+				// This is for calculating expected cancellation fee.
+				baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(s.network.GetContext())
+				baseFeeInt := baseFee.TruncateInt64()
+				txArgs.GasPrice = new(big.Int).SetInt64(baseFeeInt)
+				txArgs.GasLimit = 500_000
+				txArgs.Amount = math.NewInt(100).BigInt()
+				cancellerAddr := contractAccAddr
+				callArgs.Args = []interface{}{
+					cancellerAddr,
+					contractProposalId,
+					tc.before, tc.after,
+				}
+				eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
+
+				baseDenom := s.network.GetBaseDenom()
+				cancellerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+				txSenderBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+
+				res, evmRes, err := s.factory.CallContractAndCheckLogs(proposerKey, txArgs, callArgs, eventCheck)
+				Expect(err).To(BeNil())
+				Expect(s.network.NextBlock()).To(BeNil())
+				var success bool
+				err = s.precompile.UnpackIntoInterface(&success, gov.CancelProposalMethod, evmRes.Ret)
+				Expect(err).To(BeNil())
+				Expect(success).To(BeTrue())
+
+				afterCancellerBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), contractAccAddr, baseDenom)
+				afterTxSenderBal := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), proposerAccAddr, baseDenom)
+				gasCost := math.NewInt(res.GasUsed).Mul(math.NewInt(txArgs.GasPrice.Int64()))
+				amtFromContract := math.ZeroInt()
+				for _, transferred := range []bool{tc.before, tc.after} {
+					if transferred {
+						amtFromContract = amtFromContract.AddRaw(15)
+					}
+				}
+
+				Expect(afterCancellerBal.Amount).To(Equal(
+					cancellerBal.Amount.
+						Add(remaining).
+						Add(math.NewIntFromBigInt(txArgs.Amount).
+							Sub(amtFromContract)),
+				))
+				Expect(afterTxSenderBal.Amount).To(Equal(
+					txSenderBal.Amount.
+						Sub(gasCost).
+						Sub(math.NewIntFromBigInt(txArgs.Amount)).
+						Add(amtFromContract),
 				))
 			},
 			Entry("with internal transfers before and after precompile call", testCase{
