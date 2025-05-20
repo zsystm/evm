@@ -57,6 +57,10 @@ var (
 	govModuleAddr sdk.AccAddress
 )
 
+const (
+	testSubmitProposalFromContract = "testSubmitProposalFromContract"
+)
+
 func TestKeeperIntegrationTestSuite(t *testing.T) {
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
@@ -1007,9 +1011,8 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 		contractAccAddr   sdk.AccAddress
 		err               error
 
-		execRevertedCheck  testutil.LogCheckArgs
 		proposalID         uint64 // proposal id submitted by eoa
-		contractProposalId uint64 // proposal id submitted by contract account
+		contractProposalID uint64 // proposal id submitted by contract account
 
 		cancelFee math.Int
 		remaining math.Int
@@ -1021,7 +1024,6 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 	})
 
 	BeforeEach(func() {
-		_ = execRevertedCheck // TODO:
 		s.SetupTest()
 
 		contractAddr, err = s.factory.DeployContract(
@@ -1055,7 +1057,6 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 		govModuleAddr = authtypes.NewModuleAddress(govtypes.ModuleName)
 
 		defaultLogCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
-		execRevertedCheck = defaultLogCheck.WithErrContains("execution reverted")
 		passCheck = defaultLogCheck.WithExpPass(true)
 	})
 
@@ -1063,7 +1064,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 	// 				TRANSACTIONS
 	// =====================================
 	Context("submitProposal as a contract proposer", func() {
-		BeforeEach(func() { callArgs.MethodName = "testSubmitProposalFromContract" })
+		BeforeEach(func() { callArgs.MethodName = testSubmitProposalFromContract })
 		It("should submit proposal successfully", func() {
 			// Prepare the proposal
 			toAddr := s.keyring.GetAccAddr(1)
@@ -1108,7 +1109,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			toAddr := s.keyring.GetAccAddr(1)
 			denom := s.network.GetBaseDenom()
 			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, "100")
-			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.MethodName = testSubmitProposalFromContract
 			minDepositAmt := math.NewInt(100)
 			callArgs.Args = []interface{}{
 				jsonBlob,
@@ -1173,7 +1174,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			toAddr := s.keyring.GetAccAddr(1)
 			denom := s.network.GetBaseDenom()
 			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, "100")
-			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.MethodName = testSubmitProposalFromContract
 			minDepositAmt := math.NewInt(100)
 			callArgs.Args = []interface{}{
 				jsonBlob,
@@ -1374,7 +1375,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			amount := "100"
 			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
 			minDepositAmt := math.NewInt(100)
-			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.MethodName = testSubmitProposalFromContract
 			callArgs.Args = []interface{}{
 				jsonBlob,
 				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
@@ -1386,7 +1387,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			err = s.precompile.UnpackIntoInterface(&contractProposalId, gov.SubmitProposalMethod, evmRes.Ret)
+			err = s.precompile.UnpackIntoInterface(&contractProposalID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 
 			callArgs.MethodName = "testDepositWithTransfer"
@@ -1403,7 +1404,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 
 				minDepositAmt := math.NewInt(100)
 				callArgs.Args = []interface{}{
-					proposerAddr, contractProposalId,
+					proposerAddr, contractProposalID,
 					minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
 					tc.before, tc.after,
 				}
@@ -1466,7 +1467,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			amount := "100"
 			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
 			minDepositAmt := math.NewInt(100)
-			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.MethodName = testSubmitProposalFromContract
 			callArgs.Args = []interface{}{
 				jsonBlob,
 				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
@@ -1478,7 +1479,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			err = s.precompile.UnpackIntoInterface(&contractProposalId, gov.SubmitProposalMethod, evmRes.Ret)
+			err = s.precompile.UnpackIntoInterface(&contractProposalID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 
 			callArgs.MethodName = "testDepositFromContractWithTransfer"
@@ -1495,7 +1496,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 
 				minDepositAmt := math.NewInt(100)
 				callArgs.Args = []interface{}{
-					proposerAddr, contractProposalId,
+					proposerAddr, contractProposalID,
 					minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
 					tc.before, tc.after,
 				}
@@ -1665,7 +1666,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			amount := "100"
 			jsonBlob := minimalBankSendProposalJSON(toAddr, denom, amount)
 			minDepositAmt := math.NewInt(100)
-			callArgs.MethodName = "testSubmitProposalFromContract"
+			callArgs.MethodName = testSubmitProposalFromContract
 			callArgs.Args = []interface{}{
 				jsonBlob,
 				minimalDeposit(s.network.GetBaseDenom(), minDepositAmt.BigInt()),
@@ -1677,11 +1678,11 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			err = s.precompile.UnpackIntoInterface(&contractProposalId, gov.SubmitProposalMethod, evmRes.Ret)
+			err = s.precompile.UnpackIntoInterface(&contractProposalID, gov.SubmitProposalMethod, evmRes.Ret)
 			Expect(err).To(BeNil())
 
 			// Calc cancellation fee
-			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), contractProposalId)
+			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), contractProposalID)
 			Expect(err).To(BeNil())
 			proposalDepositAmt := proposalDeposits[0].Amount[0].Amount
 			params, err := s.network.App.GovKeeper.Params.Get(s.network.GetContext())
@@ -1705,7 +1706,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 				txSender := proposerAddr
 				callArgs.Args = []interface{}{
 					txSender,
-					contractProposalId,
+					contractProposalID,
 					tc.before, tc.after,
 				}
 				eventCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
