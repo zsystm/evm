@@ -93,4 +93,52 @@ contract GovCaller {
     function getParams() external view returns (gov.Params memory params) {
         return gov.GOV_CONTRACT.getParams();
     }
+
+    function testDepositWithTransfer(
+        address payable _depositorAddr,
+        uint64 _proposalId,
+        types.Coin[] calldata _deposit,
+        bool _before,
+        bool _after
+    ) public payable returns (bool success) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _depositorAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        success = gov.GOV_CONTRACT.deposit(
+            _depositorAddr,
+            _proposalId,
+            _deposit
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _depositorAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+    }
+
+    function testDepositFromContractWithTransfer(
+        address payable _randomAddr,
+        uint64 _proposalId,
+        types.Coin[] calldata _deposit,
+        bool _before,
+        bool _after
+    ) public payable returns (bool success) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        success = gov.GOV_CONTRACT.deposit(
+            address(this),
+            _proposalId,
+            _deposit
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+    }
 }
