@@ -7,6 +7,18 @@ import "../../common/Types.sol" as types;
 contract GovCaller {
     int64 public counter;
 
+    function testSubmitProposal(
+        address _proposerAddr,
+        bytes calldata _jsonProposal,
+        types.Coin[] calldata _deposit
+    ) public payable returns (uint64 proposalId) {
+        return gov.GOV_CONTRACT.submitProposal(
+            _proposerAddr,
+            _jsonProposal,
+            _deposit
+        );
+    }
+
     function testSubmitProposalFromContract(
         bytes calldata _jsonProposal,
         types.Coin[] calldata _deposit
@@ -134,6 +146,50 @@ contract GovCaller {
             address(this),
             _proposalId,
             _deposit
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+    }
+
+    function testCancelWithTransfer(
+        address payable _cancellerAddr,
+        uint64 _proposalId,
+        bool _before,
+        bool _after
+    ) public payable returns (bool success) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _cancellerAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        success = gov.GOV_CONTRACT.cancelProposal(
+            _cancellerAddr,
+            _proposalId
+        );
+        if (_after) {
+            counter++;
+            (bool sent, ) = _cancellerAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+    }
+
+    function testCancelFromContractWithTransfer(
+        address payable _randomAddr,
+        uint64 _proposalId,
+        bool _before,
+        bool _after
+    ) public payable returns (bool success) {
+        if (_before) {
+            counter++;
+            (bool sent, ) = _randomAddr.call{value: 15}("");
+            require(sent, "Failed to send Ether to proposer");
+        }
+        success = gov.GOV_CONTRACT.cancelProposal(
+            address(this),
+            _proposalId
         );
         if (_after) {
             counter++;
