@@ -1813,7 +1813,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			}
 			txArgs.Amount = common.Big0
 			eventCheck = passCheck.WithExpEvents(gov.EventTypeDeposit)
-			_, evmRes, err = s.factory.CallContractAndCheckLogs(depositorKey1, txArgs, callArgs, eventCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(depositorKey1, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1823,6 +1823,8 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
 			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposalID)
 			Expect(err).To(BeNil())
+			Expect(proposalDeposits).To(HaveLen(2))
+
 			cancelFees = make(map[string]math.Int)
 			remainingFees = make(map[string]math.Int)
 
@@ -1837,6 +1839,8 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 					}
 				}
 			}
+			Expect(cancelFees).To(HaveLen(2))
+			Expect(remainingFees).To(HaveLen(2))
 
 			callArgs.MethodName = "testCancelWithTransfer"
 		})
@@ -1952,7 +1956,7 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			}
 			txArgs.Amount = common.Big0
 			eventCheck = passCheck.WithExpEvents(gov.EventTypeDeposit)
-			_, evmRes, err = s.factory.CallContractAndCheckLogs(depositorKey1, txArgs, callArgs, eventCheck)
+			_, _, err = s.factory.CallContractAndCheckLogs(depositorKey1, txArgs, callArgs, eventCheck)
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
@@ -1962,6 +1966,8 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 			rate := math.LegacyMustNewDecFromStr(params.ProposalCancelRatio)
 			proposalDeposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), contractProposalID)
 			Expect(err).To(BeNil())
+			Expect(proposalDeposits).To(HaveLen(2))
+
 			cancelFees = make(map[string]math.Int)
 			remainingFees = make(map[string]math.Int)
 
@@ -1976,6 +1982,8 @@ var _ = Describe("Calling governance precompile from another contract", Ordered,
 					}
 				}
 			}
+			Expect(cancelFees).To(HaveLen(2))
+			Expect(remainingFees).To(HaveLen(2))
 
 			callArgs.MethodName = "testCancelFromContractWithTransfer"
 		})
