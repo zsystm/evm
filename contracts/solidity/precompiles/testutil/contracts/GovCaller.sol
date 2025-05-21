@@ -39,6 +39,18 @@ contract GovCaller {
         );
     }
 
+    function testDeposit(
+        address payable _depositorAddr,
+        uint64 _proposalId,
+        types.Coin[] calldata _deposit
+    ) public payable returns (bool success) {
+        return gov.GOV_CONTRACT.deposit(
+            _depositorAddr,
+            _proposalId,
+            _deposit
+        );
+    }
+
     function testDepositFromContract(
         uint64 _proposalId,
         types.Coin[] calldata _deposit
