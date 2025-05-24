@@ -36,7 +36,6 @@ const (
 // ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
 func (p *Precompile) ClaimRewards(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -102,7 +101,6 @@ func (p *Precompile) ClaimRewards(
 // SetWithdrawAddress sets the withdrawal address for a delegator (or validator self-delegation).
 func (p Precompile) SetWithdrawAddress(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -133,7 +131,6 @@ func (p Precompile) SetWithdrawAddress(
 // WithdrawDelegatorReward withdraws the rewards of a delegator from a single validator.
 func (p *Precompile) WithdrawDelegatorReward(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -177,7 +174,6 @@ func (p *Precompile) WithdrawDelegatorReward(
 // WithdrawValidatorCommission withdraws the rewards of a validator.
 func (p *Precompile) WithdrawValidatorCommission(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -221,7 +217,6 @@ func (p *Precompile) WithdrawValidatorCommission(
 // FundCommunityPool directly fund the community pool
 func (p *Precompile) FundCommunityPool(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -260,7 +255,6 @@ func (p *Precompile) FundCommunityPool(
 // for a specific validator.
 func (p *Precompile) DepositValidatorRewardsPool(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
