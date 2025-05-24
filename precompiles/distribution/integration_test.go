@@ -1359,14 +1359,13 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			ExpEvents: []string{staking.EventTypeDelegate},
 		}
 		delegateAmt := big.NewInt(1e18)
-		txArgs := evmtypes.EvmTxArgs{
-			To:       &contractAddr,
-			GasLimit: 500_000,
-			Amount:   delegateAmt,
-		}
 		_, _, err = s.factory.CallContractAndCheckLogs(
 			s.keyring.GetPrivKey(0),
-			txArgs,
+			evmtypes.EvmTxArgs{
+				To:       &contractAddr,
+				GasLimit: 500_000,
+				Amount:   delegateAmt,
+			},
 			factory.CallArgs{
 				ContractABI: distrCallerContract.ABI,
 				MethodName:  "testDelegateFromContract",
@@ -2180,7 +2179,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 				logCheckArgs := passCheck.
 					WithExpEvents(distribution.EventTypeClaimRewards)
 				txArgs.GasLimit = 400_000 // set gas limit to avoid out of gas error
-				_, ethres, err := s.factory.CallContractAndCheckLogs(
+				_, evmRes, err := s.factory.CallContractAndCheckLogs(
 					txSenderKey,
 					txArgs,
 					callArgs,
@@ -2190,7 +2189,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 				err = s.network.NextBlock()
 				Expect(err).To(BeNil())
 
-				fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(int64(ethres.GasUsed))
+				fees := math.NewIntFromUint64(evmRes.GasUsed).Mul(math.NewIntFromBigInt(txArgs.GasPrice))
 
 				// calculate the transferred amt during the call
 				contractTransferredAmt := math.ZeroInt()
@@ -2462,9 +2461,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 	})
 
 	Context("depositValidatorRewardsPool", func() {
-		var (
-			depositAmt *big.Int
-		)
+		var depositAmt *big.Int
 
 		BeforeEach(func() { //nolint:dupl
 			depositAmt = big.NewInt(1_000_000)
@@ -2549,7 +2546,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 					Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
-					fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(int64(res.GasUsed))
+					fees := math.NewIntFromBigInt(txArgs.GasPrice).MulRaw(res.GasUsed)
 
 					// check balances
 					contractTransferredAmt := math.ZeroInt()
