@@ -1890,7 +1890,6 @@ var _ = Describe("Calling governance precompile from contract", Ordered, func() 
 				after:  true,
 			}),
 		)
-
 	})
 
 	Context("testCancelFromContract with transfer (multiple deposits & refund)", func() {
