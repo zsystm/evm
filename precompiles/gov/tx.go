@@ -32,7 +32,6 @@ const (
 // SubmitProposal defines a method to submit a proposal.
 func (p *Precompile) SubmitProposal(
 	ctx sdk.Context,
-	origin common.Address, // msg.sender of the EVM side
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -43,11 +42,9 @@ func (p *Precompile) SubmitProposal(
 		return nil, err
 	}
 
-	// If the contract is the voter, we don't need an origin check
-	// Otherwise check if the origin matches the voter address
-	isContractProposer := contract.CallerAddress == proposerHexAddr && contract.CallerAddress != origin
-	if !isContractProposer && origin != proposerHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), proposerHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != proposerHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), proposerHexAddr.String())
 	}
 
 	res, err := govkeeper.NewMsgServerImpl(&p.govKeeper).SubmitProposal(ctx, msg)
@@ -55,12 +52,10 @@ func (p *Precompile) SubmitProposal(
 		return nil, err
 	}
 
-	if contract.CallerAddress != origin {
-		deposit := msg.InitialDeposit
-		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(deposit.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
-		if convertedAmount.Cmp(common.Big0) == 1 {
-			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Sub))
-		}
+	deposit := msg.InitialDeposit
+	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(deposit.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
+	if convertedAmount.Cmp(common.Big0) == 1 {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Sub))
 	}
 
 	if err = p.EmitSubmitProposalEvent(ctx, stateDB, proposerHexAddr, res.ProposalId); err != nil {
@@ -73,7 +68,6 @@ func (p *Precompile) SubmitProposal(
 // Deposit defines a method to add a deposit on a specific proposal.
 func (p *Precompile) Deposit(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -84,23 +78,21 @@ func (p *Precompile) Deposit(
 		return nil, err
 	}
 
-	isContractDepositor := contract.CallerAddress == depositorHexAddr && contract.CallerAddress != origin
-	if !isContractDepositor && origin != depositorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), depositorHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != depositorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), depositorHexAddr.String())
 	}
 
 	if _, err = govkeeper.NewMsgServerImpl(&p.govKeeper).Deposit(ctx, msg); err != nil {
 		return nil, err
 	}
-	if contract.CallerAddress != origin {
-		for _, coin := range msg.Amount {
-			if coin.Denom != evmtypes.GetEVMCoinDenom() {
-				continue
-			}
-			convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(coin.Amount.BigInt())
-			if convertedAmount.Cmp(common.Big0) == 1 {
-				p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, convertedAmount, cmn.Sub))
-			}
+	for _, coin := range msg.Amount {
+		if coin.Denom != evmtypes.GetEVMCoinDenom() {
+			continue
+		}
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(coin.Amount.BigInt())
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, convertedAmount, cmn.Sub))
 		}
 	}
 
@@ -114,7 +106,6 @@ func (p *Precompile) Deposit(
 // CancelProposal defines a method to cancel a proposal.
 func (p *Precompile) CancelProposal(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -125,9 +116,9 @@ func (p *Precompile) CancelProposal(
 		return nil, err
 	}
 
-	isContractProposer := contract.CallerAddress == proposerHexAddr && contract.CallerAddress != origin
-	if !isContractProposer && origin != proposerHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), proposerHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != proposerHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), proposerHexAddr.String())
 	}
 
 	// pre-calculate the remaining deposit
@@ -159,11 +150,9 @@ func (p *Precompile) CancelProposal(
 		return nil, err
 	}
 
-	if contract.CallerAddress != origin {
-		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(remaninig.BigInt())
-		if convertedAmount.Cmp(common.Big0) == 1 {
-			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Add))
-		}
+	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(remaninig.BigInt())
+	if convertedAmount.Cmp(common.Big0) == 1 {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Add))
 	}
 
 	if err = p.EmitCancelProposalEvent(ctx, stateDB, proposerHexAddr, msg.ProposalId); err != nil {
@@ -176,7 +165,6 @@ func (p *Precompile) CancelProposal(
 // Vote defines a method to add a vote on a specific proposal.
 func (p Precompile) Vote(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -187,11 +175,9 @@ func (p Precompile) Vote(
 		return nil, err
 	}
 
-	// If the contract is the voter, we don't need an origin check
-	// Otherwise check if the origin matches the voter address
-	isContractVoter := contract.CallerAddress == voterHexAddr && contract.CallerAddress != origin
-	if !isContractVoter && origin != voterHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), voterHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != voterHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), voterHexAddr.String())
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
@@ -209,7 +195,6 @@ func (p Precompile) Vote(
 // VoteWeighted defines a method to add a vote on a specific proposal.
 func (p Precompile) VoteWeighted(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -220,11 +205,9 @@ func (p Precompile) VoteWeighted(
 		return nil, err
 	}
 
-	// If the contract is the voter, we don't need an origin check
-	// Otherwise check if the origin matches the voter address
-	isContractVoter := contract.CallerAddress == voterHexAddr && contract.CallerAddress != origin
-	if !isContractVoter && origin != voterHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), voterHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != voterHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), voterHexAddr.String())
 	}
 
 	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
