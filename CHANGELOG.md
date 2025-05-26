@@ -14,7 +14,7 @@
 - Fixed example chain's cmd by adding NoOpEVMOptions to tmpApp in root.go
 - Added RPC support for `--legacy` transactions (Non EIP-1559)
 
-### IMPROVEMENTS 
+### IMPROVEMENTS
 
 - [\#183](https://github.com/cosmos/evm/pull/183) Enforce `msg.sender == requester` on
 all precompiles (no more proxy calls)
