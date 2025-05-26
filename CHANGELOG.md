@@ -14,10 +14,10 @@
 - Fixed example chain's cmd by adding NoOpEVMOptions to tmpApp in root.go
 - Added RPC support for `--legacy` transactions (Non EIP-1559)
 
-### IMPROVEMENTS
-- 
-- [\#183](https://github.com/cosmos/evm/pull/183) Enforce `msg.sender == requester` on all precompiles (no more proxy calls).
+### IMPROVEMENTS 
 
+- [\#183](https://github.com/cosmos/evm/pull/183) Enforce `msg.sender == requester` on
+all precompiles (no more proxy calls)
 
 ### FEATURES
 
@@ -41,4 +41,5 @@
 - Renamed protobuf files from evmos to cosmos org
 - [\#95](https://github.com/cosmos/evm/pull/95) Updated ics20 precompile to use Denom instead of DenomTrace for IBC v2
 - [\#183](https://github.com/cosmos/evm/pull/183) **evidence precompile**
-    - `SubmitEvidence` now takes the `submitter` address as its first argument (was previously implicit), and will revert if not called directly by that EOA.
+    - `SubmitEvidence` now takes the `submitter` address as its first argument (was previously implicit),
+and will revert if not called directly by that EOA.
