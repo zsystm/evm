@@ -81,7 +81,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			nil,
 			func([]byte) {},
 			true,
-			"is not the same as delegator address",
+			"does not match the requester address",
 		},
 		{
 			"fail - invalid description",
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			&diffAddr,
 			func([]byte) {},
 			true,
-			"this method can only be called directly to the precompile",
+			"does not match the requester address",
 		},
 		{
 			"success",
@@ -406,7 +406,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			nil,
 			func([]byte) {},
 			true,
-			"is not the same as validator operator address",
+			"does not match the requester address",
 		},
 		{
 			"fail - invalid description",
@@ -537,7 +537,7 @@ func (s *PrecompileTestSuite) TestEditValidator() {
 			}(),
 			func([]byte) {},
 			true,
-			"this method can only be called directly to the precompile",
+			"does not match the requester address",
 		},
 		{
 			"success",
@@ -746,7 +746,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			},
 			gas:         200000,
 			expError:    true,
-			errContains: "is not the same as delegator address",
+			errContains: "does not match the requester address",
 		},
 		{
 			"fail - invalid delegator address",
@@ -901,7 +901,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 			},
 			gas:         200000,
 			expError:    true,
-			errContains: "is not the same as delegator",
+			errContains: "does not match the requester address",
 		},
 		{
 			"fail - invalid delegator address",
@@ -1033,7 +1033,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			},
 			gas:         200000,
 			expError:    true,
-			errContains: "is not the same as delegator",
+			errContains: "does not match the requester address",
 		},
 		{
 			"fail - invalid delegator address",

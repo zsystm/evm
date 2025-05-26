@@ -62,14 +62,13 @@ func (p Precompile) CreateValidator(
 		"value", msg.Value.Amount.String(),
 	)
 
+	msgSender := contract.CallerAddress
 	// we won't allow calls from smart contracts
-	if contract.CallerAddress != origin {
+	if hasCode := stateDB.GetCode(msgSender) != nil; hasCode {
 		return nil, errors.New(ErrCannotCallFromContract)
 	}
-
-	// we only allow the tx signer "origin" to create their own validator.
-	if origin != validatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), validatorHexAddr.String())
+	if msgSender != validatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), validatorHexAddr.String())
 	}
 
 	// Execute the transaction using the message server
@@ -111,14 +110,13 @@ func (p Precompile) EditValidator(
 		"min_self_delegation", msg.MinSelfDelegation,
 	)
 
+	msgSender := contract.CallerAddress
 	// we won't allow calls from smart contracts
-	if contract.CallerAddress != origin {
+	if hasCode := stateDB.GetCode(msgSender) != nil; hasCode {
 		return nil, errors.New(ErrCannotCallFromContract)
 	}
-
-	// we only allow the tx signer "origin" to edit their own validator.
-	if origin != validatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOriginFromValidator, origin.String(), validatorHexAddr.String())
+	if msgSender != validatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), validatorHexAddr.String())
 	}
 
 	// Execute the transaction using the message server
@@ -164,9 +162,9 @@ func (p *Precompile) Delegate(
 		),
 	)
 
-	// The provided delegator address should always be equal to the contract caller address.
-	if contract.CallerAddress != delegatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentCallerFromDelegator, contract.CallerAddress.String(), delegatorHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != delegatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), delegatorHexAddr.String())
 	}
 
 	// Execute the transaction using the message server
@@ -180,7 +178,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if contract.CallerAddress != origin && msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
+	if msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 		// when calling the precompile from a smart contract
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
@@ -223,9 +221,9 @@ func (p Precompile) Undelegate(
 		),
 	)
 
-	// The provided delegator address should always be equal to the contract caller address.
-	if contract.CallerAddress != delegatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentCallerFromDelegator, contract.CallerAddress.String(), delegatorHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != delegatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), delegatorHexAddr.String())
 	}
 
 	// Execute the transaction using the message server
@@ -275,9 +273,9 @@ func (p Precompile) Redelegate(
 		),
 	)
 
-	// The provided delegator address should always be equal to the contract caller address.
-	if contract.CallerAddress != delegatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentCallerFromDelegator, origin.String(), delegatorHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != delegatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
@@ -325,9 +323,9 @@ func (p Precompile) CancelUnbondingDelegation(
 		),
 	)
 
-	// The provided delegator address should always be equal to the contract caller address.
-	if contract.CallerAddress != delegatorHexAddr {
-		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), delegatorHexAddr.String())
+	msgSender := contract.CallerAddress
+	if msgSender != delegatorHexAddr {
+		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), delegatorHexAddr.String())
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)

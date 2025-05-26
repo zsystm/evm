@@ -221,7 +221,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentOriginFromDelegator, s.keyring.GetAddr(0), differentAddr),
+					fmt.Sprintf(cmn.ErrRequesterIsNotMsgSender, s.keyring.GetAddr(0), differentAddr),
 				)
 
 				_, _, err := s.factory.CallContractAndCheckLogs(
@@ -340,7 +340,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 					logCheckArgs,
 				)
 				Expect(err).NotTo(BeNil(), "error while calling the contract and checking logs")
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("origin address %s is not the same as validator operator address %s", s.keyring.GetAddr(1), valHexAddr)))
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("msg.sender address %s does not match the requester address %s", s.keyring.GetAddr(1), valHexAddr)))
 			})
 		})
 	})
@@ -440,7 +440,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentCallerFromDelegator, delegator.Addr, differentAddr),
+					fmt.Sprintf(cmn.ErrRequesterIsNotMsgSender, delegator.Addr, differentAddr),
 				)
 
 				_, _, err := s.factory.CallContractAndCheckLogs(
@@ -535,7 +535,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentCallerFromDelegator, delegator.Addr, differentAddr),
+					fmt.Sprintf(cmn.ErrRequesterIsNotMsgSender, delegator.Addr, differentAddr),
 				)
 
 				_, _, err := s.factory.CallContractAndCheckLogs(
@@ -628,7 +628,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
-					fmt.Sprintf(staking.ErrDifferentCallerFromDelegator, delegator.Addr, differentAddr),
+					fmt.Sprintf(cmn.ErrRequesterIsNotMsgSender, delegator.Addr, differentAddr),
 				)
 
 				_, _, err := s.factory.CallContractAndCheckLogs(
