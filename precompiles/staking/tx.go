@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
@@ -38,7 +37,6 @@ const (
 // CreateValidator performs create validator.
 func (p Precompile) CreateValidator(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -92,7 +90,6 @@ func (p Precompile) CreateValidator(
 // EditValidator performs edit validator.
 func (p Precompile) EditValidator(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -137,7 +134,6 @@ func (p Precompile) EditValidator(
 // Delegate performs a delegation of coins from a delegator to a validator.
 func (p *Precompile) Delegate(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -199,7 +195,6 @@ func (p *Precompile) Delegate(
 // The provided amount cannot be negative. This is validated in the msg.ValidateBasic() function.
 func (p Precompile) Undelegate(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -250,7 +245,6 @@ func (p Precompile) Undelegate(
 // The provided amount cannot be negative. This is validated in the msg.ValidateBasic() function.
 func (p Precompile) Redelegate(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -300,7 +294,6 @@ func (p Precompile) Redelegate(
 // The provided amount cannot be negative. This is validated in the msg.ValidateBasic() function.
 func (p Precompile) CancelUnbondingDelegation(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
