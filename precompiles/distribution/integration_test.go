@@ -1727,7 +1727,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 						withdrawerFinalBalance := balRes.Balance
 						Expect(withdrawerFinalBalance.Amount).To(Equal(expWithdrawerFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
 					} else { // contract is the withdrawer
-						// contract balance be updated according to the transferred amountn and rewards
+						// contract balance be updated according to the transferred amount and rewards
 						balRes, err = s.grpcHandler.GetBalanceFromBank(contractAccAddr, s.bondDenom)
 						Expect(err).To(BeNil())
 						contractFinalBalance := balRes.Balance
@@ -2469,7 +2469,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			callArgs.MethodName = "testDepositValidatorRewardsPool"
 		})
 
-		When("depositor is not a contract", func() {
+		When("depositor is different from the depositing contract", func() {
 			It("should fail to deposit rewards to the validator rewards pool", func() {
 				callArgs.Args = []interface{}{
 					differentAddr,

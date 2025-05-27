@@ -249,7 +249,7 @@ func (p *Precompile) FundCommunityPool(
 		return nil, err
 	}
 
-	convertedAmount, err := utils.Uint256FromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.AmountOf(baseDenom).BigInt()))
+	convertedAmount, err := utils.Uint256FromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()))
 	if err != nil {
 		return nil, err
 	}
