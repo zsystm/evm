@@ -6,8 +6,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/holiman/uint256"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/utils"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"cosmossdk.io/math"
@@ -53,8 +55,11 @@ func (p *Precompile) SubmitProposal(
 	}
 
 	deposit := msg.InitialDeposit
-	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(deposit.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
-	if convertedAmount.Cmp(common.Big0) == 1 {
+	convertedAmount, err := utils.Uint256FromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(deposit.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt()))
+	if err != nil {
+		return nil, err
+	}
+	if convertedAmount.Cmp(uint256.NewInt(0)) == 1 {
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Sub))
 	}
 
@@ -90,8 +95,11 @@ func (p *Precompile) Deposit(
 		if coin.Denom != evmtypes.GetEVMCoinDenom() {
 			continue
 		}
-		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(coin.Amount.BigInt())
-		if convertedAmount.Cmp(common.Big0) == 1 {
+		convertedAmount, err := utils.Uint256FromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(coin.Amount.BigInt()))
+		if err != nil {
+			return nil, err
+		}
+		if convertedAmount.Cmp(uint256.NewInt(0)) == 1 {
 			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, convertedAmount, cmn.Sub))
 		}
 	}
@@ -150,8 +158,11 @@ func (p *Precompile) CancelProposal(
 		return nil, err
 	}
 
-	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(remaninig.BigInt())
-	if convertedAmount.Cmp(common.Big0) == 1 {
+	convertedAmount, err := utils.Uint256FromBigInt(evmtypes.ConvertAmountTo18DecimalsBigInt(remaninig.BigInt()))
+	if err != nil {
+		return nil, err
+	}
+	if convertedAmount.Cmp(uint256.NewInt(0)) == 1 {
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(proposerHexAddr, convertedAmount, cmn.Add))
 	}
 
