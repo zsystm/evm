@@ -185,7 +185,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			callArgs.MethodName = staking.CreateValidatorMethod
 		})
 
-		Context("when validator address is the origin", func() {
+		Context("when validator address is the msg.sender & EoA", func() {
 			It("should succeed", func() {
 				callArgs.Args = []interface{}{
 					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.keyring.GetAddr(0), defaultPubkeyBase64Str, defaultValue,
@@ -212,7 +212,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 		})
 
-		Context("when validator address is not the origin", func() {
+		Context("when validator address is not the msg.sender", func() {
 			It("should fail", func() {
 				differentAddr := testutiltx.GenerateAddress()
 
@@ -252,7 +252,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			callArgs.MethodName = staking.EditValidatorMethod
 		})
 
-		Context("when origin is equal to validator address", func() {
+		Context("when msg.sender is equal to validator address", func() {
 			It("should succeed", func() {
 				// create a new validator
 				newAddr, newPriv := testutiltx.NewAccAddressAndKey()
@@ -326,7 +326,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			})
 		})
 
-		Context("with origin different than validator address", func() {
+		Context("with msg.sender different than validator address", func() {
 			It("should fail", func() {
 				valHexAddr := common.BytesToAddress(valAddr.Bytes())
 				callArgs.Args = []interface{}{
@@ -431,7 +431,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		Context("on behalf of another account", func() {
-			It("should not delegate if delegator address is not the origin", func() {
+			It("should not delegate if delegator address is not the msg.sender", func() {
 				delegator := s.keyring.GetKey(0)
 				differentAddr := testutiltx.GenerateAddress()
 
@@ -526,7 +526,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		Context("on behalf of another account", func() {
-			It("should not undelegate if delegator address is not the origin", func() {
+			It("should not undelegate if delegator address is not the msg.sender", func() {
 				differentAddr := testutiltx.GenerateAddress()
 				delegator := s.keyring.GetKey(0)
 
@@ -619,7 +619,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		Context("on behalf of another account", func() {
-			It("should not redelegate if delegator address is not the origin", func() {
+			It("should not redelegate if delegator address is not the msg.sender", func() {
 				differentAddr := testutiltx.GenerateAddress()
 				delegator := s.keyring.GetKey(0)
 

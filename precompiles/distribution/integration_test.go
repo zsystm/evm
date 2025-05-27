@@ -31,7 +31,7 @@ import (
 
 // General variables used for integration tests
 var (
-	// differentAddr is an address generated for testing purposes that e.g. raises the different origin error
+	// differentAddr is an address generated for testing purposes that e.g. raises the different requester error (msg.sender != requester)
 	differentAddr, diffKey = testutiltx.NewAddrKey()
 	// gasPrice is the gas price used for the transactions
 	gasPrice = math.NewInt(1e9)
@@ -118,7 +118,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(res.WithdrawAddress).To(Equal(delAddr), "expected withdraw address to remain unchanged")
 		})
 
-		It("should return error if the origin is different than the delegator", func() {
+		It("should return error if the msg.sender is different than the delegator", func() {
 			callArgs.Args = []interface{}{
 				differentAddr,
 				s.keyring.GetAddr(0).String(),
@@ -179,7 +179,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 		})
 
-		It("should return error if the origin is different than the delegator", func() {
+		It("should return error if the msg.sender is different than the delegator", func() {
 			callArgs.Args = []interface{}{
 				differentAddr,
 				s.network.GetValidators()[0].OperatorAddress,
@@ -427,7 +427,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil(), "error while calling the precompile")
 		})
 
-		It("should return error if the origin is different than the validator", func() {
+		It("should return error if the msg.sender is different than the validator", func() {
 			callArgs.Args = []interface{}{
 				s.network.GetValidators()[0].OperatorAddress,
 			}
@@ -586,7 +586,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil(), "error waiting to accrue rewards")
 		})
 
-		It("should return err if the origin is different than the delegator", func() {
+		It("should return err if the msg.sender is different than the delegator", func() {
 			callArgs.Args = []interface{}{
 				differentAddr, uint32(1),
 			}
@@ -656,7 +656,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			callArgs.MethodName = method
 		})
 
-		It("should revert if the origin is different from the depositor", func() {
+		It("should revert if the msg.sender is different from the depositor", func() {
 			callArgs.Args = []interface{}{
 				differentAddr, // depositor
 				s.network.GetValidators()[0].OperatorAddress,
@@ -1456,7 +1456,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			callArgs.MethodName = "testSetWithdrawAddressFromContract"
 		})
 
-		It("should set withdraw address successfully without origin check", func() {
+		It("should set withdraw address successfully", func() {
 			callArgs.Args = []interface{}{newWithdrawer.String()}
 			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
@@ -1907,7 +1907,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			callArgs.MethodName = "testWithdrawDelegatorRewardFromContract"
 		})
 
-		It("should withdraw rewards successfully without origin check", func() {
+		It("should withdraw rewards successfully", func() {
 			callArgs.Args = []interface{}{s.network.GetValidators()[0].OperatorAddress}
 
 			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorReward)
@@ -1928,7 +1928,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Add(accruedRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
-		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
+		It("should withdraw rewards successfully", func() {
 			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
 
 			balRes, err := s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
@@ -1984,7 +1984,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
 		})
 
-		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
+		It("should withdraw rewards successfully", func() {
 			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
 
 			balRes, err := s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
@@ -2356,7 +2356,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			callArgs.MethodName = "testClaimRewards"
 		})
 
-		It("should withdraw rewards successfully without origin check", func() {
+		It("should withdraw rewards successfully", func() {
 			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerInitialBalance := balRes.Balance
@@ -2389,7 +2389,7 @@ var _ = Describe("Calling distribution precompile from contract", Ordered, func(
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Add(accruedRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
-		It("should withdraw rewards successfully to a different address without origin check", func() {
+		It("should withdraw rewards successfully to a different address", func() {
 			balanceRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerInitialBalance := balanceRes.Balance
