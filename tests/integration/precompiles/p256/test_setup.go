@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
+
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/cryptobyte/asn1"
@@ -37,8 +38,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.precompile = &p256.Precompile{}
 }
 
-// nolint:thelper
-func signMsg(msg []byte, priv *ecdsa.PrivateKey) ([]byte, error) {
+func signMsg(msg []byte, priv *ecdsa.PrivateKey) ([]byte, error) { //nolint:thelper
 	hash := crypto.Sha256(msg)
 
 	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)

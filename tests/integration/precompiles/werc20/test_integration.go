@@ -6,8 +6,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/evm/precompiles/erc20"
 	"github.com/cosmos/evm/precompiles/testutil"

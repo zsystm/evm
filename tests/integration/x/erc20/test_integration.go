@@ -6,8 +6,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/evm/testutil/integration/base/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
@@ -21,7 +23,7 @@ import (
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = Describe("Performing EVM transactions", Ordered, func() {
+	_ = Describe("Performing EVM transactions", Ordered, func() {
 		var s *KeeperTestSuite
 		BeforeEach(func() {
 			s = NewKeeperTestSuite(create, options...)
@@ -54,7 +56,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 		})
 	})
 
-	var _ = Describe("ERC20:", Ordered, func() {
+	_ = Describe("ERC20:", Ordered, func() {
 		var (
 			s         *KeeperTestSuite
 			contract  common.Address

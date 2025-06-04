@@ -43,7 +43,7 @@ func (s *KeeperIntegrationTestSuite) TestBlockedRecipient() {
 	)
 }
 
-func (s *KeeperIntegrationTestSuite) TestMintCoins_MatchingErrors() {
+func (s *KeeperIntegrationTestSuite) TestMintCoinsMatchingErrors() {
 	// x/precisebank MintCoins should be identical to x/bank MintCoins to
 	// consumers. This test ensures that the panics & errors returned by
 	// x/precisebank are identical to x/bank.
@@ -355,7 +355,7 @@ func (s *KeeperIntegrationTestSuite) TestMintCoins() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestMintCoins_RandomValueMultiDecimals() {
+func (s *KeeperIntegrationTestSuite) TestMintCoinsRandomValueMultiDecimals() {
 	tests := []struct {
 		name    string
 		chainID testconstants.ChainID

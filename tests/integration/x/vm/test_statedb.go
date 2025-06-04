@@ -1,15 +1,8 @@
 package vm
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/cosmos/evm/contracts"
-	"github.com/cosmos/evm/testutil/integration/evm/factory"
-	"github.com/cosmos/evm/testutil/integration/evm/grpc"
-	testutiltypes "github.com/cosmos/evm/testutil/types"
-	"github.com/stretchr/testify/require"
 	"math/big"
-	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"

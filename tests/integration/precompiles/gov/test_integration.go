@@ -8,8 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/gov"

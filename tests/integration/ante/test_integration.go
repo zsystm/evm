@@ -5,8 +5,10 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	commonfactory "github.com/cosmos/evm/testutil/integration/base/factory"
@@ -84,7 +86,7 @@ func TestIntegrationAnteHandler(t *testing.T, create network.CreateEvmApp, optio
 		panic("create function cannot be nil")
 	}
 
-	var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Ordered, func() {
+	_ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Ordered, func() {
 		var s *IntegrationTestSuite
 
 		BeforeAll(func() {
