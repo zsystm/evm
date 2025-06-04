@@ -40,7 +40,7 @@ import (
 )
 
 // EvmApp defines the interface for an EVM application.
-type EvmApp interface {
+type EvmApp interface { //nolint:revive
 	ibctesting.TestingApp
 	runtime.AppI
 	InterfaceRegistry() types.InterfaceRegistry

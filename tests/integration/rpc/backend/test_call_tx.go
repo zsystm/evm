@@ -22,7 +22,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (s *BackendTestSuite) TestResend() {
+func (s *TestSuite) TestResend() {
 	txNonce := (hexutil.Uint64)(1)
 	baseFee := math.NewInt(1)
 	gasPrice := new(hexutil.Big)
@@ -288,7 +288,7 @@ func (s *BackendTestSuite) TestResend() {
 	}
 }
 
-func (s *BackendTestSuite) TestSendRawTransaction() {
+func (s *TestSuite) TestSendRawTransaction() {
 	ethTx, bz := s.buildEthereumTx()
 
 	emptyEvmChainIDTx := s.buildEthereumTxWithChainID(nil)
@@ -408,7 +408,7 @@ func (s *BackendTestSuite) TestSendRawTransaction() {
 	}
 }
 
-func (s *BackendTestSuite) TestDoCall() {
+func (s *TestSuite) TestDoCall() {
 	_, bz := s.buildEthereumTx()
 	gasPrice := (*hexutil.Big)(big.NewInt(1))
 	toAddr := utiltx.GenerateAddress()
@@ -483,7 +483,7 @@ func (s *BackendTestSuite) TestDoCall() {
 	}
 }
 
-func (s *BackendTestSuite) TestGasPrice() {
+func (s *TestSuite) TestGasPrice() {
 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
 
 	testCases := []struct {

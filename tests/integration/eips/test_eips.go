@@ -10,10 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	"github.com/cosmos/evm/testutil/integration/evm/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/grpc"
@@ -34,7 +32,7 @@ import (
 //     the EIP.
 
 func TestEIPs(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = Describe("EIP-0000 - ", Ordered, func() {
+	_ = Describe("EIP-0000 - ", Ordered, func() {
 		var (
 			in network.Network
 			tf factory.TxFactory
@@ -145,12 +143,12 @@ func TestEIPs(t *testing.T, create network.CreateEvmApp, options ...network.Conf
 			// The difference in gas is the new cost of the opcode, minus the cost of the
 			// opcode before enabling the new eip.
 			gasUsedDiff := eipMultiplier*gasCostPre - gasCostPre
-			expectedGas := gasUsedPre + int64(gasUsedDiff)
+			expectedGas := gasUsedPre + int64(gasUsedDiff) //#nosec G115 -- int overflow is not a concern here
 			Expect(gasUsedPost).To(Equal(expectedGas))
 		})
 	})
 
-	var _ = Describe("EIP0001 - ", Ordered, func() {
+	_ = Describe("EIP0001 - ", Ordered, func() {
 		var (
 			in network.Network
 			tf factory.TxFactory
@@ -324,12 +322,12 @@ func TestEIPs(t *testing.T, create network.CreateEvmApp, options ...network.Conf
 			// The difference in gas is the new cost of the opcode, minus the cost of the
 			// opcode before enabling the new eip.
 			gasUsedDiff := eipMultiplier*gasCostPre - gasCostPre
-			expectedGas := gasUsedPre + int64(gasUsedDiff)
+			expectedGas := gasUsedPre + int64(gasUsedDiff) //#nosec G115 -- int overflow is not a concern here
 			Expect(gasUsedPost).To(Equal(expectedGas))
 		})
 	})
 
-	var _ = Describe("EIP0002 - ", Ordered, func() {
+	_ = Describe("EIP0002 - ", Ordered, func() {
 		var (
 			in network.Network
 			tf factory.TxFactory
@@ -435,7 +433,7 @@ func TestEIPs(t *testing.T, create network.CreateEvmApp, options ...network.Conf
 
 			// The expected gas is previous gas plus the constant gas because
 			// previous this eip, SSTORE was using only the dynamic gas.
-			expectedGas := gasUsedPre + int64(constantGas)
+			expectedGas := gasUsedPre + int64(constantGas) //#nosec G115 -- int overflow is not a concern here
 			Expect(gasUsedPost).To(Equal(expectedGas))
 		})
 	})

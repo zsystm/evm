@@ -74,11 +74,12 @@ func (s *KeeperTestSuite) SetupTest() {
 	if s.Options == nil {
 		s.Options = []network.ConfigOption{}
 	}
-	options := append(s.Options,
+	opts := []network.ConfigOption{
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGenesis),
-	)
-	nw := network.NewUnitTestNetwork(s.Create, options...)
+	}
+	opts = append(opts, s.Options...)
+	nw := network.NewUnitTestNetwork(s.Create, opts...)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 

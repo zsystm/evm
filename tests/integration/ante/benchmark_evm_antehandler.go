@@ -59,6 +59,7 @@ var table = []struct {
 	},
 }
 
+//nolint:thelper // RunBenchmarkAnteHandler is not a helper function; it's an externally called benchmark entry point
 func RunBenchmarkAnteHandler(b *testing.B, create network.CreateEvmApp, options ...network.ConfigOption) {
 	keyring := testkeyring.New(2)
 

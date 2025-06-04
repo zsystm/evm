@@ -67,11 +67,12 @@ func (s *NestedEVMExtensionCallSuite) SetupTest() {
 	if s.options == nil {
 		s.options = []network.ConfigOption{}
 	}
-	options := append(s.options,
+	opts := []network.ConfigOption{
 		network.WithPreFundedAccounts(s.keyring.GetAllAccAddrs()...),
-	)
+	}
+	opts = append(opts, s.options...)
 	// fresh network, handler, factory
-	s.network = network.NewUnitTestNetwork(s.create, options...)
+	s.network = network.NewUnitTestNetwork(s.create, opts...)
 	s.handler = grpc.NewIntegrationHandler(s.network)
 	s.factory = factory.New(s.network, s.handler)
 

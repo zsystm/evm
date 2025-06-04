@@ -53,14 +53,14 @@ func (s *PrecompileTestSuite) SetupTest() {
 	bankGenesis := banktypes.DefaultGenesisState()
 	bankGenesis.Balances = balances
 	customGenesis[banktypes.ModuleName] = bankGenesis
-	cfgOpts := []network.ConfigOption{
+	opts := []network.ConfigOption{
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	}
 	if s.customGenesis {
-		cfgOpts = append(cfgOpts, network.WithCustomGenesis(customGenesis))
+		opts = append(opts, network.WithCustomGenesis(customGenesis))
 	}
-	options := append(s.options, cfgOpts...)
-	nw := network.NewUnitTestNetwork(s.create, options...)
+	opts = append(opts, s.options...)
+	nw := network.NewUnitTestNetwork(s.create, opts...)
 	grpcHandler := grpc.NewIntegrationHandler(nw)
 	txFactory := factory.New(nw, grpcHandler)
 

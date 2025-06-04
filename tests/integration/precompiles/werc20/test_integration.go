@@ -6,10 +6,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	"github.com/cosmos/evm/precompiles/erc20"
 	"github.com/cosmos/evm/precompiles/testutil"
@@ -36,7 +34,6 @@ import (
 // -------------------------------------------------------------------------------------------------
 
 type PrecompileIntegrationTestSuite struct {
-	create      network.CreateEvmApp
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -50,7 +47,7 @@ type PrecompileIntegrationTestSuite struct {
 }
 
 func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = When("a user interact with the WEVMOS precompiled contract", func() {
+	_ = When("a user interact with the WEVMOS precompiled contract", func() {
 		var (
 			is                                         *PrecompileIntegrationTestSuite
 			passCheck, failCheck                       testutil.LogCheckArgs

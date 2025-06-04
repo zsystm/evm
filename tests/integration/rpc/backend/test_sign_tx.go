@@ -22,7 +22,7 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 )
 
-func (s *BackendTestSuite) TestSendTransaction() {
+func (s *TestSuite) TestSendTransaction() {
 	gasPrice := new(hexutil.Big)
 	gas := hexutil.Uint64(1)
 	zeroGas := hexutil.Uint64(0)
@@ -144,7 +144,7 @@ func (s *BackendTestSuite) TestSendTransaction() {
 	}
 }
 
-func (s *BackendTestSuite) TestSign() {
+func (s *TestSuite) TestSign() {
 	from, priv := utiltx.NewAddrKey()
 	testCases := []struct {
 		name         string
@@ -191,7 +191,7 @@ func (s *BackendTestSuite) TestSign() {
 	}
 }
 
-func (s *BackendTestSuite) TestSignTypedData() {
+func (s *TestSuite) TestSignTypedData() {
 	from, priv := utiltx.NewAddrKey()
 	testCases := []struct {
 		name           string
@@ -241,7 +241,7 @@ func (s *BackendTestSuite) TestSignTypedData() {
 	}
 }
 
-func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee math.Int, callArgsDefault evmtypes.TransactionArgs) (client *mocks.Client, txBytes []byte) {
+func broadcastTx(suite *TestSuite, priv *ethsecp256k1.PrivKey, baseFee math.Int, callArgsDefault evmtypes.TransactionArgs) (client *mocks.Client, txBytes []byte) {
 	var header metadata.MD
 	QueryClient := suite.backend.QueryClient.QueryClient.(*mocks.EVMQueryClient)
 	client = suite.backend.ClientCtx.Client.(*mocks.Client)

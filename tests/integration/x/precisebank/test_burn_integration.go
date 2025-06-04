@@ -19,7 +19,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func (s *KeeperIntegrationTestSuite) TestBurnCoins_MatchingErrors() {
+func (s *KeeperIntegrationTestSuite) TestBurnCoinsMatchingErrors() {
 	// x/precisebank BurnCoins should be identical to x/bank BurnCoins to
 	// consumers. This test ensures that the panics & errors returned by
 	// x/precisebank are identical to x/bank.
@@ -226,7 +226,7 @@ func (s *KeeperIntegrationTestSuite) TestBurnCoins() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestBurnCoins_Remainder() {
+func (s *KeeperIntegrationTestSuite) TestBurnCoinsRemainder() {
 	// This tests a series of small burns to ensure the remainder is both
 	// updated correctly and reserve is correctly updated. This only burns from
 	// 1 single account.
@@ -315,7 +315,7 @@ func (s *KeeperIntegrationTestSuite) TestBurnCoins_Remainder() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestBurnCoins_Spread_Remainder() {
+func (s *KeeperIntegrationTestSuite) TestBurnCoinsSpreadRemainder() {
 	// This tests a series of small burns to ensure the remainder is both
 	// updated correctly and reserve is correctly updated. This burns from
 	// a series of multiple accounts, to test when the remainder is modified
@@ -426,7 +426,7 @@ func (s *KeeperIntegrationTestSuite) TestBurnCoins_Spread_Remainder() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestBurnCoins_RandomValueMultiDecimals() {
+func (s *KeeperIntegrationTestSuite) TestBurnCoinsRandomValueMultiDecimals() {
 	tests := []struct {
 		name    string
 		chainID testconstants.ChainID

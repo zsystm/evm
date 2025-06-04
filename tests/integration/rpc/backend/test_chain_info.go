@@ -22,7 +22,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (s *BackendTestSuite) TestBaseFee() {
+func (s *TestSuite) TestBaseFee() {
 	baseFee := math.NewInt(1)
 
 	testCases := []struct {
@@ -154,7 +154,7 @@ func (s *BackendTestSuite) TestBaseFee() {
 	}
 }
 
-func (s *BackendTestSuite) TestChainId() {
+func (s *TestSuite) TestChainID() {
 	expChainID := (*hexutil.Big)(big.NewInt(evmdconfig.EVMChainID))
 	testCases := []struct {
 		name         string
@@ -190,7 +190,7 @@ func (s *BackendTestSuite) TestChainId() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetCoinbase() {
+func (s *TestSuite) TestGetCoinbase() {
 	validatorAcc := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	testCases := []struct {
 		name         string
@@ -247,7 +247,7 @@ func (s *BackendTestSuite) TestGetCoinbase() {
 	}
 }
 
-func (s *BackendTestSuite) TestSuggestGasTipCap() {
+func (s *TestSuite) TestSuggestGasTipCap() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -287,7 +287,7 @@ func (s *BackendTestSuite) TestSuggestGasTipCap() {
 	}
 }
 
-func (s *BackendTestSuite) TestGlobalMinGasPrice() {
+func (s *TestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
@@ -321,7 +321,7 @@ func (s *BackendTestSuite) TestGlobalMinGasPrice() {
 	}
 }
 
-func (s *BackendTestSuite) TestFeeHistory() {
+func (s *TestSuite) TestFeeHistory() {
 	testCases := []struct {
 		name           string
 		registerMock   func(validator sdk.AccAddress)

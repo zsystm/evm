@@ -20,6 +20,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+//nolint:thelper // RunBenchmarkEthGasConsumeDecorator is not a helper function; it's an externally called benchmark entry point
 func RunBenchmarkEthGasConsumeDecorator(b *testing.B, create network.CreateEvmApp, options ...network.ConfigOption) {
 	s := NewEvmAnteTestSuite(create, options...)
 	s.SetT(&testing.T{})

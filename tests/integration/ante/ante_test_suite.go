@@ -22,7 +22,7 @@ import (
 
 const TestGasLimit uint64 = 100000
 
-type AnteTestSuite struct {
+type AnteTestSuite struct { // nolint:revive
 	suite.Suite
 
 	create      network.CreateEvmApp

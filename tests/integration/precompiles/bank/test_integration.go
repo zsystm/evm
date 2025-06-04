@@ -7,10 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	bank2 "github.com/cosmos/evm/precompiles/bank"
 	"github.com/cosmos/evm/precompiles/bank/testdata"
@@ -29,8 +27,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
-
-var is *IntegrationTestSuite
 
 // IntegrationTestSuite is the implementation of the TestSuite interface for Bank precompile
 // unit testis.
@@ -107,7 +103,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 func TestIntegrationSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
 	var is *IntegrationTestSuite
 
-	var _ = Describe("Bank Extension -", func() {
+	_ = Describe("Bank Extension -", func() {
 		var (
 			bankCallerContractAddr common.Address
 			bankCallerContract     evmtypes.CompiledContract

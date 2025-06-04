@@ -35,10 +35,11 @@ func (s *GenesisTestSuite) SetupTest() {
 	if s.options == nil {
 		s.options = []network.ConfigOption{}
 	}
-	options := append(s.options,
+	opts := []network.ConfigOption{
 		network.WithPreFundedAccounts(s.keyring.GetAllAccAddrs()...),
-	)
-	s.network = network.NewUnitTestNetwork(s.create, options...)
+	}
+	opts = append(opts, s.options...)
+	s.network = network.NewUnitTestNetwork(s.create, opts...)
 	s.handler = grpc.NewIntegrationHandler(s.network)
 	s.factory = factory.New(s.network, s.handler)
 }

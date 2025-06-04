@@ -17,8 +17,6 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
-var s *PrecompileTestSuite
-
 // PrecompileTestSuite is the implementation of the TestSuite interface for ERC20 precompile
 // unit tests.
 type PrecompileTestSuite struct {

@@ -54,7 +54,7 @@ var params = EIP712FuzzTestParams{
 // variable input sizes, types, and fields. While it may be possible to translate a single input into
 // a JSON object, it would require difficult parsing, and ultimately approximates our randomized unit
 // tests as they are.
-func (suite *EIP712TestSuite) TestRandomPayloadFlattening() {
+func (suite *TestSuite) TestRandomPayloadFlattening() {
 	// Re-seed rand generator
 	rand.Seed(rand.Int64())
 
@@ -73,7 +73,7 @@ func (suite *EIP712TestSuite) TestRandomPayloadFlattening() {
 }
 
 // generateRandomPayload creates a random payload of the desired format, with random sub-objects.
-func (suite *EIP712TestSuite) generateRandomPayload(numMessages int) gjson.Result {
+func (suite *TestSuite) generateRandomPayload(numMessages int) gjson.Result {
 	payload := suite.createRandomJSONObject().Raw
 	msgs := make([]gjson.Result, numMessages)
 
@@ -88,7 +88,7 @@ func (suite *EIP712TestSuite) generateRandomPayload(numMessages int) gjson.Resul
 }
 
 // createRandomJSONObject creates a JSON object with random fields.
-func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
+func (suite *TestSuite) createRandomJSONObject() gjson.Result {
 	var err error
 	payloadRaw := ""
 
@@ -106,7 +106,7 @@ func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
 
 // createRandomJSONField creates a random field with a random JSON type, with the possibility of
 // nested fields up to depth objects.
-func (suite *EIP712TestSuite) createRandomJSONField(t int, depth int) interface{} {
+func (suite *TestSuite) createRandomJSONField(t int, depth int) interface{} {
 	switch t % numJSONTypes {
 	case jsonBoolType:
 		return suite.createRandomBoolean()
@@ -124,7 +124,7 @@ func (suite *EIP712TestSuite) createRandomJSONField(t int, depth int) interface{
 }
 
 // createRandomJSONNestedArray creates an array of random nested JSON fields.
-func (suite *EIP712TestSuite) createRandomJSONNestedArray(depth int) []interface{} {
+func (suite *TestSuite) createRandomJSONNestedArray(depth int) []interface{} {
 	arr := make([]interface{}, rand.Intn(params.maxArrayLength))
 	for i := range arr {
 		arr[i] = suite.createRandomJSONNestedField(depth)
@@ -134,7 +134,7 @@ func (suite *EIP712TestSuite) createRandomJSONNestedArray(depth int) []interface
 }
 
 // createRandomJSONNestedObject creates a key-value set of objects with random nested JSON fields.
-func (suite *EIP712TestSuite) createRandomJSONNestedObject(depth int) interface{} {
+func (suite *TestSuite) createRandomJSONNestedObject(depth int) interface{} {
 	numFields := rand.Intn(params.maxNumFieldsPerObject)
 	obj := make(map[string]interface{})
 
@@ -149,7 +149,7 @@ func (suite *EIP712TestSuite) createRandomJSONNestedObject(depth int) interface{
 
 // createRandomJSONNestedField serves as a helper for createRandomJSONField and returns a random
 // subfield to populate an array or object type.
-func (suite *EIP712TestSuite) createRandomJSONNestedField(depth int) interface{} {
+func (suite *TestSuite) createRandomJSONNestedField(depth int) interface{} {
 	var newFieldType int
 
 	if depth == params.maxObjectDepth {
@@ -161,15 +161,15 @@ func (suite *EIP712TestSuite) createRandomJSONNestedField(depth int) interface{}
 	return suite.createRandomJSONField(newFieldType, depth+1)
 }
 
-func (suite *EIP712TestSuite) createRandomBoolean() bool {
+func (suite *TestSuite) createRandomBoolean() bool {
 	return rand.Intn(2) == 0
 }
 
-func (suite *EIP712TestSuite) createRandomFloat() float64 {
+func (suite *TestSuite) createRandomFloat() float64 {
 	return (rand.Float64() - 0.5) * params.randomFloatRange
 }
 
-func (suite *EIP712TestSuite) createRandomString() string {
+func (suite *TestSuite) createRandomString() string {
 	bzLen := suite.createRandomIntInRange(params.minStringLength, params.maxStringLength)
 	bz := make([]byte, bzLen)
 
@@ -189,6 +189,6 @@ func (suite *EIP712TestSuite) createRandomString() string {
 }
 
 // createRandomIntInRange provides a random integer between [min, max)
-func (suite *EIP712TestSuite) createRandomIntInRange(minInt int, maxInt int) int {
+func (suite *TestSuite) createRandomIntInRange(minInt int, maxInt int) int {
 	return rand.Intn(maxInt-minInt) + minInt
 }

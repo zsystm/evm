@@ -12,10 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/stretchr/testify/suite"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	"github.com/cosmos/evm/contracts"
 	"github.com/cosmos/evm/precompiles/erc20"
@@ -104,7 +102,7 @@ var (
 
 func TestIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
 	is = NewIntegrationTestSuite(create, options...)
-	var _ = Describe("ERC20 Extension -", func() {
+	_ = Describe("ERC20 Extension -", func() {
 		var (
 			// contractsData holds the addresses and ABIs for the different
 			// contract instances that are subject to testing here.
@@ -2656,7 +2654,7 @@ func TestIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options
 			})
 		})
 	})
-	var _ = Describe("ERC20 Extension migration Flows -", func() {
+	_ = Describe("ERC20 Extension migration Flows -", func() {
 		When("migrating an existing ERC20 token", func() {
 			var (
 				contractData          ContractsData

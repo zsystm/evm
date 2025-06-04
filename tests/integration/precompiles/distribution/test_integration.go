@@ -7,10 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/distribution"
@@ -55,7 +53,7 @@ var (
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = Describe("Calling distribution precompile from EOA", func() {
+	_ = Describe("Calling distribution precompile from EOA", func() {
 		s := NewPrecompileTestSuite(create, options...)
 
 		BeforeEach(func() {
@@ -605,7 +603,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 
 				valCount := len(s.network.GetValidators())
 				callArgs.Args = []interface{}{
-					s.keyring.GetAddr(0), uint32(valCount),
+					s.keyring.GetAddr(0), uint32(valCount), //#nosec G115 -- int overflow is not a concern here
 				}
 				txArgs.GasLimit = 250_000
 
@@ -1293,7 +1291,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 			})
 		})
 	})
-	var _ = Describe("Calling distribution precompile from contract", Ordered, func() {
+	_ = Describe("Calling distribution precompile from contract", Ordered, func() {
 		s := NewPrecompileTestSuite(create, options...)
 		// testCase is a struct used for cases of contracts calls that have some operation
 		// performed before and/or after the precompile call

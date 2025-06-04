@@ -23,7 +23,7 @@ func mookProofs(num int, withData bool) *crypto.ProofOps {
 	return proofOps
 }
 
-func (s *BackendTestSuite) TestGetHexProofs() {
+func (s *TestSuite) TestGetHexProofs() {
 	defaultRes := []string{""}
 	testCases := []struct {
 		name  string

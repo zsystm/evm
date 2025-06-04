@@ -6,10 +6,8 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	"github.com/cosmos/evm/testutil/integration/base/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
@@ -39,7 +37,7 @@ func TestKeeperIntegrationTestSuite(t *testing.T) {
 		panic("CreateApp must be set before running the tests")
 	}
 
-	var _ = Describe("Feemarket", func() {
+	_ = Describe("Feemarket", func() {
 		var (
 			s       *KeeperTestSuite
 			privKey cryptotypes.PrivKey

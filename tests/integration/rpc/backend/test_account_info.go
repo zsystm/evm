@@ -19,7 +19,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func (s *BackendTestSuite) TestGetCode() {
+func (s *TestSuite) TestGetCode() {
 	blockNr := rpctypes.NewBlockNumber(big.NewInt(1))
 	contractCode := []byte("0xef616c92f3cfc9e92dc270d6acff9cea213cecc7020a76ee4395af09bdceb4837a1ebdb5735e11e7d3adb6104e0c3ac55180b4ddf5e54d022cc5e8837f6a4f971b")
 
@@ -78,7 +78,7 @@ func (s *BackendTestSuite) TestGetCode() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetProof() {
+func (s *TestSuite) TestGetProof() {
 	blockNrInvalid := rpctypes.NewBlockNumber(big.NewInt(1))
 	blockNr := rpctypes.NewBlockNumber(big.NewInt(4))
 	address1 := utiltx.GenerateAddress()
@@ -185,7 +185,7 @@ func (s *BackendTestSuite) TestGetProof() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetStorageAt() {
+func (s *TestSuite) TestGetStorageAt() {
 	blockNr := rpctypes.NewBlockNumber(big.NewInt(1))
 
 	testCases := []struct {
@@ -247,7 +247,7 @@ func (s *BackendTestSuite) TestGetStorageAt() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetBalance() {
+func (s *TestSuite) TestGetBalance() {
 	blockNr := rpctypes.NewBlockNumber(big.NewInt(1))
 
 	testCases := []struct {
@@ -355,7 +355,7 @@ func (s *BackendTestSuite) TestGetBalance() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionCount() {
+func (s *TestSuite) TestGetTransactionCount() {
 	testCases := []struct {
 		name         string
 		accExists    bool

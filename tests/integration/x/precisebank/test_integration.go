@@ -18,7 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (s *KeeperIntegrationTestSuite) TestMintBurnSendCoins_RandomValueMultiDecimals() {
+func (s *KeeperIntegrationTestSuite) TestMintBurnSendCoinsRandomValueMultiDecimals() {
 	tests := []struct {
 		name    string
 		chainID testconstants.ChainID
@@ -131,7 +131,7 @@ func (s *KeeperIntegrationTestSuite) TestMintBurnSendCoins_RandomValueMultiDecim
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendEvmTx_RandomValueMultiDecimals() {
+func (s *KeeperIntegrationTestSuite) TestSendEvmTxRandomValueMultiDecimals() {
 	maxGasLimit := int64(500000)
 	defaultEVMCoinTransferGasLimit := int64(21000)
 
@@ -247,7 +247,7 @@ func (s *KeeperIntegrationTestSuite) TestSendEvmTx_RandomValueMultiDecimals() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestWATOMWrapUnwrap_MultiDecimal() {
+func (s *KeeperIntegrationTestSuite) TestWATOMWrapUnwrapMultiDecimal() {
 	tests := []struct {
 		name    string
 		chainID testconstants.ChainID

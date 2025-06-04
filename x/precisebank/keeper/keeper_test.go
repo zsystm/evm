@@ -41,11 +41,11 @@ func newMockedTestData(t *testing.T) testData {
 	bk := mocks.NewMockBankKeeper(t)
 	ak := mocks.NewMockAccountKeeper(t)
 
-	chainId := testconstants.SixDecimalsChainID.EVMChainID
-	cfg := evmosencoding.MakeConfig(chainId)
+	chainID := testconstants.SixDecimalsChainID.EVMChainID
+	cfg := evmosencoding.MakeConfig(chainID)
 	cdc := cfg.Codec
 	k := keeper.NewKeeper(cdc, storeKey, bk, ak)
-	err := evmd.EvmAppOptions(chainId)
+	err := evmd.EvmAppOptions(chainID)
 	if err != nil {
 		return testData{}
 	}

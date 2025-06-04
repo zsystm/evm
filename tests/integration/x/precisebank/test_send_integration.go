@@ -22,7 +22,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModule_MatchingErrors() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModuleMatchingErrors() {
 	// No specific errors for SendCoinsFromAccountToModule, only 1 panic if
 	// the module account does not exist
 
@@ -70,7 +70,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModule_MatchingEr
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccount_MatchingErrors() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccountMatchingErrors() {
 	// Ensure errors match x/bank errors AND panics. This needs to be well
 	// tested before SendCoins as all send tests rely on this to initialize
 	// account balances.
@@ -222,7 +222,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccount_MatchingEr
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoins_MatchingErrors() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsMatchingErrors() {
 	// Ensure errors match x/bank errors
 
 	tests := []struct {
@@ -470,7 +470,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoins() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoins_Matrix() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsMatrix() {
 	// SendCoins is tested mostly in this integration test, as a unit test with
 	// mocked BankKeeper overcomplicates expected keepers and makes initializing
 	// balances very complex.
@@ -619,7 +619,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModule() {
 	)
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModule_BlockedRecipientCarry() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModuleBlockedRecipientCarry() {
 	// Carrying to module account balance. This tests that SendCoinsFromAccountToModule
 	// does not fail when sending to a blocked module account.
 
@@ -648,7 +648,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromAccountToModule_BlockedRec
 	s.Require().NoError(err)
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoins_BlockedRecipientCarry() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsBlockedRecipientCarry() {
 	// Same test as TestSendCoinsFromModuleToAccount_Blocked, but with SendCoins
 	// which also should not fail when sending to a blocked module account.
 	sender := sdk.AccAddress([]byte{1})
@@ -715,7 +715,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccount() {
 	)
 }
 
-func (s *KeeperIntegrationTestSuite) TestSendCoins_RandomValueMultiDecimals() {
+func (s *KeeperIntegrationTestSuite) TestSendCoinsRandomValueMultiDecimals() {
 	tests := []struct {
 		name    string
 		chainID testconstants.ChainID

@@ -8,10 +8,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	"github.com/cometbft/cometbft/crypto"
 
@@ -33,7 +31,7 @@ type IntegrationTestSuite struct {
 }
 
 func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), Ordered, func() {
+	_ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), Ordered, func() {
 		var s *IntegrationTestSuite
 
 		BeforeAll(func() {
@@ -89,7 +87,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 				Entry(
 					"valid signature",
 					func() (input, expOutput []byte, expErr string) {
-						input = signMsg(t, []byte("hello world"), s.p256Priv)
+						input, err := signMsg([]byte("hello world"), s.p256Priv)
+						Expect(err).To(BeNil())
 						return input, trueValue, ""
 					},
 				),
@@ -148,7 +147,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 				Entry(
 					"valid signature",
 					func() (input []byte) {
-						input = signMsg(t, []byte("hello world"), s.p256Priv)
+						input, err := signMsg([]byte("hello world"), s.p256Priv)
+						Expect(err).To(BeNil())
 						return input
 					},
 				),

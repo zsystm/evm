@@ -5,8 +5,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
-	"testing"
-
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/cryptobyte/asn1"
@@ -16,8 +14,6 @@ import (
 	"github.com/cosmos/evm/precompiles/p256"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 )
-
-var s *PrecompileTestSuite
 
 type PrecompileTestSuite struct {
 	suite.Suite
@@ -41,12 +37,13 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.precompile = &p256.Precompile{}
 }
 
-func signMsg(t *testing.T, msg []byte, priv *ecdsa.PrivateKey) []byte {
+// nolint:thelper
+func signMsg(msg []byte, priv *ecdsa.PrivateKey) ([]byte, error) {
 	hash := crypto.Sha256(msg)
 
 	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)
 	if err != nil {
-		t.Fatalf("failed to sign message: %v", err)
+		return nil, err
 	}
 
 	input := make([]byte, p256.VerifyInputLength)
@@ -56,7 +53,7 @@ func signMsg(t *testing.T, msg []byte, priv *ecdsa.PrivateKey) []byte {
 	copy(input[96:128], priv.PublicKey.X.Bytes())
 	copy(input[128:160], priv.PublicKey.Y.Bytes())
 
-	return input
+	return input, nil
 }
 
 func parseSignature(sig []byte) (r, s []byte, err error) {

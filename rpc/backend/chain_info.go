@@ -201,7 +201,7 @@ func (b *Backend) FeeHistory(
 		}
 
 		// tendermint block result
-		tendermintBlockResult, err := b.RpcClient.BlockResults(b.Ctx, &tendermintblock.Block.Height)
+		tendermintBlockResult, err := b.RPCClient.BlockResults(b.Ctx, &tendermintblock.Block.Height)
 		if tendermintBlockResult == nil {
 			b.Logger.Debug("block result not found", "height", tendermintblock.Block.Height, "error", err.Error())
 			return nil, err

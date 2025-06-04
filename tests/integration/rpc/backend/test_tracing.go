@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto"
 )
 
-func (s *BackendTestSuite) TestTraceTransaction() {
+func (s *TestSuite) TestTraceTransaction() {
 	msgEthereumTx, _ := s.buildEthereumTx()
 	msgEthereumTx2, _ := s.buildEthereumTx()
 
@@ -208,7 +208,7 @@ func (s *BackendTestSuite) TestTraceTransaction() {
 	}
 }
 
-func (s *BackendTestSuite) TestTraceBlock() {
+func (s *TestSuite) TestTraceBlock() {
 	msgEthTx, bz := s.buildEthereumTx()
 	emptyBlock := types.MakeBlock(1, []types.Tx{}, nil, nil)
 	emptyBlock.ChainID = ChainID.ChainID

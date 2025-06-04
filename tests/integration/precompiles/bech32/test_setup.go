@@ -8,8 +8,6 @@ import (
 	testkeyring "github.com/cosmos/evm/testutil/keyring"
 )
 
-var s *PrecompileTestSuite
-
 // PrecompileTestSuite is the implementation of the TestSuite interface for ERC20 precompile
 // unit tests.
 type PrecompileTestSuite struct {

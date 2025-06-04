@@ -128,7 +128,7 @@ var _ BackendI = (*Backend)(nil)
 type Backend struct {
 	Ctx                 context.Context
 	ClientCtx           client.Context
-	RpcClient           tmrpcclient.SignClient
+	RPCClient           tmrpcclient.SignClient
 	QueryClient         *rpctypes.QueryClient // gRPC query client
 	Logger              log.Logger
 	EvmChainID          *big.Int
@@ -158,7 +158,7 @@ func NewBackend(
 	return &Backend{
 		Ctx:                 context.Background(),
 		ClientCtx:           clientCtx,
-		RpcClient:           rpcClient,
+		RPCClient:           rpcClient,
 		QueryClient:         rpctypes.NewQueryClient(clientCtx),
 		Logger:              logger.With("module", "backend"),
 		EvmChainID:          big.NewInt(int64(appConf.EVM.EVMChainID)), //nolint:gosec // G115 // won't exceed uint64

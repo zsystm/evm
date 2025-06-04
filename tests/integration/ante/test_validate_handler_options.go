@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/evm/types"
 )
 
+//nolint:thelper // RunValidateHandlerOptionsTest is not a helper function; it's an externally called benchmark entry point
 func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
 	nw := network.NewUnitTestNetwork(create, options...)
 	cases := []struct {

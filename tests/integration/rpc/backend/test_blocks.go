@@ -24,7 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (s *BackendTestSuite) TestBlockNumber() {
+func (s *TestSuite) TestBlockNumber() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
@@ -82,7 +82,7 @@ func (s *BackendTestSuite) TestBlockNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetBlockByNumber() {
+func (s *TestSuite) TestGetBlockByNumber() {
 	var (
 		blockRes *cmtrpctypes.ResultBlockResults
 		resBlock *cmtrpctypes.ResultBlock
@@ -225,7 +225,7 @@ func (s *BackendTestSuite) TestGetBlockByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetBlockByHash() {
+func (s *TestSuite) TestGetBlockByHash() {
 	var (
 		blockRes *cmtrpctypes.ResultBlockResults
 		resBlock *cmtrpctypes.ResultBlock
@@ -371,7 +371,7 @@ func (s *BackendTestSuite) TestGetBlockByHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetBlockTransactionCountByHash() {
+func (s *TestSuite) TestGetBlockTransactionCountByHash() {
 	_, bz := s.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
 	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
@@ -450,7 +450,7 @@ func (s *BackendTestSuite) TestGetBlockTransactionCountByHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetBlockTransactionCountByNumber() {
+func (s *TestSuite) TestGetBlockTransactionCountByNumber() {
 	_, bz := s.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
 	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
@@ -530,7 +530,7 @@ func (s *BackendTestSuite) TestGetBlockTransactionCountByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestTendermintBlockByNumber() {
+func (s *TestSuite) TestTendermintBlockByNumber() {
 	var expResultBlock *cmtrpctypes.ResultBlock
 
 	testCases := []struct {
@@ -637,7 +637,7 @@ func (s *BackendTestSuite) TestTendermintBlockByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestTendermintBlockResultByNumber() {
+func (s *TestSuite) TestTendermintBlockResultByNumber() {
 	var expBlockRes *cmtrpctypes.ResultBlockResults
 
 	testCases := []struct {
@@ -688,7 +688,7 @@ func (s *BackendTestSuite) TestTendermintBlockResultByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestBlockNumberFromTendermint() {
+func (s *TestSuite) TestBlockNumberFromTendermint() {
 	var resHeader *cmtrpctypes.ResultHeader
 
 	_, bz := s.buildEthereumTx()
@@ -765,7 +765,7 @@ func (s *BackendTestSuite) TestBlockNumberFromTendermint() {
 	}
 }
 
-func (s *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
+func (s *TestSuite) TestBlockNumberFromTendermintByHash() {
 	var resHeader *cmtrpctypes.ResultHeader
 
 	_, bz := s.buildEthereumTx()
@@ -823,7 +823,7 @@ func (s *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestBlockBloom() {
+func (s *TestSuite) TestBlockBloom() {
 	testCases := []struct {
 		name          string
 		blockRes      *cmtrpctypes.ResultBlockResults
@@ -889,7 +889,7 @@ func (s *BackendTestSuite) TestBlockBloom() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetEthBlockFromTendermint() {
+func (s *TestSuite) TestGetEthBlockFromTendermint() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
@@ -1134,7 +1134,7 @@ func (s *BackendTestSuite) TestGetEthBlockFromTendermint() {
 	}
 }
 
-func (s *BackendTestSuite) TestEthMsgsFromTendermintBlock() {
+func (s *TestSuite) TestEthMsgsFromTendermintBlock() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 
 	testCases := []struct {
@@ -1198,7 +1198,7 @@ func (s *BackendTestSuite) TestEthMsgsFromTendermintBlock() {
 	}
 }
 
-func (s *BackendTestSuite) TestHeaderByNumber() {
+func (s *TestSuite) TestHeaderByNumber() {
 	var expResultBlock *cmtrpctypes.ResultBlock
 
 	_, bz := s.buildEthereumTx()
@@ -1310,7 +1310,7 @@ func (s *BackendTestSuite) TestHeaderByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestHeaderByHash() {
+func (s *TestSuite) TestHeaderByHash() {
 	var expResultHeader *cmtrpctypes.ResultHeader
 
 	_, bz := s.buildEthereumTx()
@@ -1421,7 +1421,7 @@ func (s *BackendTestSuite) TestHeaderByHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestEthBlockByNumber() {
+func (s *TestSuite) TestEthBlockByNumber() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
@@ -1534,7 +1534,7 @@ func (s *BackendTestSuite) TestEthBlockByNumber() {
 	}
 }
 
-func (s *BackendTestSuite) TestEthBlockFromTendermintBlock() {
+func (s *TestSuite) TestEthBlockFromTendermintBlock() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 

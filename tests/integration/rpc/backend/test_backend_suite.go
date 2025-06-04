@@ -31,7 +31,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type BackendTestSuite struct {
+type TestSuite struct {
 	suite.Suite
 
 	create  network.CreateEvmApp
@@ -42,8 +42,8 @@ type BackendTestSuite struct {
 	signer  keyring.Signer
 }
 
-func NewBackendTestSuite(create network.CreateEvmApp, options ...network.ConfigOption) *BackendTestSuite {
-	return &BackendTestSuite{
+func NewTestSuite(create network.CreateEvmApp, options ...network.ConfigOption) *TestSuite {
+	return &TestSuite{
 		create:  create,
 		options: options,
 	}
@@ -51,8 +51,8 @@ func NewBackendTestSuite(create network.CreateEvmApp, options ...network.ConfigO
 
 var ChainID = constants.ExampleChainID
 
-// SetupTest is executed before every BackendTestSuite test
-func (s *BackendTestSuite) SetupTest() {
+// SetupTest is executed before every TestSuite test
+func (s *TestSuite) SetupTest() {
 	ctx := server.NewDefaultContext()
 	ctx.Viper.Set("telemetry.global-labels", []interface{}{})
 	ctx.Viper.Set("evm.evm-chain-id", evmdconfig.EVMChainID)
@@ -106,7 +106,7 @@ func (s *BackendTestSuite) SetupTest() {
 }
 
 // buildEthereumTx returns an example legacy Ethereum transaction
-func (s *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byte) {
+func (s *TestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byte) {
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:  s.backend.EvmChainID,
 		Nonce:    uint64(0),
@@ -130,7 +130,7 @@ func (s *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byte) {
 }
 
 // buildEthereumTx returns an example legacy Ethereum transaction
-func (s *BackendTestSuite) buildEthereumTxWithChainID(eip155ChainID *big.Int) *evmtypes.MsgEthereumTx {
+func (s *TestSuite) buildEthereumTxWithChainID(eip155ChainID *big.Int) *evmtypes.MsgEthereumTx {
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:  eip155ChainID,
 		Nonce:    uint64(0),
@@ -152,7 +152,7 @@ func (s *BackendTestSuite) buildEthereumTxWithChainID(eip155ChainID *big.Int) *e
 }
 
 // buildFormattedBlock returns a formatted block for testing
-func (s *BackendTestSuite) buildFormattedBlock(
+func (s *TestSuite) buildFormattedBlock(
 	blockRes *cmtrpctypes.ResultBlockResults,
 	resBlock *cmtrpctypes.ResultBlock,
 	fullTx bool,
@@ -198,13 +198,13 @@ func (s *BackendTestSuite) buildFormattedBlock(
 	)
 }
 
-func (s *BackendTestSuite) generateTestKeyring(clientDir string) (keyring.Keyring, error) {
+func (s *TestSuite) generateTestKeyring(clientDir string) (keyring.Keyring, error) {
 	buf := bufio.NewReader(os.Stdin)
 	encCfg := encoding.MakeConfig(evmdconfig.EVMChainID)
 	return keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, encCfg.Codec, []keyring.Option{hd.EthSecp256k1Option()}...)
 }
 
-func (s *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
+func (s *TestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
 	from, priv := utiltx.NewAddrKey()
 	signer := utiltx.NewSigner(priv)
 

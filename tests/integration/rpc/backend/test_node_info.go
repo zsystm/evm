@@ -23,7 +23,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func (s *BackendTestSuite) TestRPCMinGasPrice() {
+func (s *TestSuite) TestRPCMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
@@ -59,7 +59,7 @@ func (s *BackendTestSuite) TestRPCMinGasPrice() {
 	}
 }
 
-func (s *BackendTestSuite) TestGenerateMinGasCoin() {
+func (s *TestSuite) TestGenerateMinGasCoin() {
 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
 	testCases := []struct {
 		name           string
@@ -102,7 +102,7 @@ func (s *BackendTestSuite) TestGenerateMinGasCoin() {
 }
 
 // TODO: Combine these 2 into one test since the code is identical
-func (s *BackendTestSuite) TestListAccounts() {
+func (s *TestSuite) TestListAccounts() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -134,7 +134,7 @@ func (s *BackendTestSuite) TestListAccounts() {
 	}
 }
 
-func (s *BackendTestSuite) TestAccounts() {
+func (s *TestSuite) TestAccounts() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -166,7 +166,7 @@ func (s *BackendTestSuite) TestAccounts() {
 	}
 }
 
-func (s *BackendTestSuite) TestSyncing() {
+func (s *TestSuite) TestSyncing() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -224,7 +224,7 @@ func (s *BackendTestSuite) TestSyncing() {
 	}
 }
 
-func (s *BackendTestSuite) TestSetEtherbase() {
+func (s *TestSuite) TestSetEtherbase() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -316,7 +316,7 @@ func (s *BackendTestSuite) TestSetEtherbase() {
 	}
 }
 
-func (s *BackendTestSuite) TestImportRawKey() {
+func (s *TestSuite) TestImportRawKey() {
 	priv, _ := ethsecp256k1.GenerateKey()
 	privHex := common.Bytes2Hex(priv.Bytes())
 	pubAddr := common.BytesToAddress(priv.PubKey().Address().Bytes())

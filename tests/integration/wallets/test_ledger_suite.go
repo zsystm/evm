@@ -45,14 +45,10 @@ func NewLedgerTestSuite(create network.CreateEvmApp, options ...network.ConfigOp
 	}
 }
 
-// Load encoding config for sign doc encoding/decoding
-// This is done on app instantiation.
-// We use the testutil network to load the encoding config
-//func init() {
-//	network.New()
-//}
-
 func (suite *LedgerTestSuite) SetupTest() {
+	// Load encoding config for sign doc encoding/decoding
+	// This is done on app instantiation.
+	// We use the testutil network to load the encoding config
 	network.New(suite.create, suite.options...)
 
 	suite.hrp = "cosmos"

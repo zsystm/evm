@@ -13,7 +13,7 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
-func (s *BackendTestSuite) TestGetLogs() {
+func (s *TestSuite) TestGetLogs() {
 	_, bz := s.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
 	logs := make([]*evmtypes.Log, 0, 1)
@@ -94,7 +94,7 @@ func (s *BackendTestSuite) TestGetLogs() {
 	}
 }
 
-func (s *BackendTestSuite) TestBloomStatus() {
+func (s *TestSuite) TestBloomStatus() {
 	testCases := []struct {
 		name         string
 		registerMock func()

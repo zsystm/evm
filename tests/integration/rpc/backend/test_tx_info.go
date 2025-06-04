@@ -23,7 +23,7 @@ import (
 	"cosmossdk.io/math"
 )
 
-func (s *BackendTestSuite) TestGetTransactionByHash() {
+func (s *TestSuite) TestGetTransactionByHash() {
 	msgEthereumTx, _ := s.buildEthereumTx()
 	txHash := msgEthereumTx.AsTransaction().Hash()
 
@@ -130,7 +130,7 @@ func (s *BackendTestSuite) TestGetTransactionByHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionsByHashPending() {
+func (s *TestSuite) TestGetTransactionsByHashPending() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 	rpcTransaction, _ := rpctypes.NewRPCTransaction(msgEthereumTx.AsTransaction(), common.Hash{}, 0, 0, big.NewInt(1), s.backend.EvmChainID)
 
@@ -190,7 +190,7 @@ func (s *BackendTestSuite) TestGetTransactionsByHashPending() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTxByEthHash() {
+func (s *TestSuite) TestGetTxByEthHash() {
 	msgEthereumTx, bz := s.buildEthereumTx()
 	rpcTransaction, _ := rpctypes.NewRPCTransaction(msgEthereumTx.AsTransaction(), common.Hash{}, 0, 0, big.NewInt(1), s.backend.EvmChainID)
 
@@ -232,7 +232,7 @@ func (s *BackendTestSuite) TestGetTxByEthHash() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionByBlockHashAndIndex() {
+func (s *TestSuite) TestGetTransactionByBlockHashAndIndex() {
 	_, bz := s.buildEthereumTx()
 
 	testCases := []struct {
@@ -283,7 +283,7 @@ func (s *BackendTestSuite) TestGetTransactionByBlockHashAndIndex() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
+func (s *TestSuite) TestGetTransactionByBlockAndIndex() {
 	msgEthTx, bz := s.buildEthereumTx()
 
 	defaultBlock := types.MakeBlock(1, []types.Tx{bz}, nil, nil)
@@ -398,7 +398,7 @@ func (s *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionByBlockNumberAndIndex() {
+func (s *TestSuite) TestGetTransactionByBlockNumberAndIndex() {
 	msgEthTx, bz := s.buildEthereumTx()
 	defaultBlock := types.MakeBlock(1, []types.Tx{bz}, nil, nil)
 	txFromMsg, _ := rpctypes.NewTransactionFromMsg(
@@ -462,7 +462,7 @@ func (s *BackendTestSuite) TestGetTransactionByBlockNumberAndIndex() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionByTxIndex() {
+func (s *TestSuite) TestGetTransactionByTxIndex() {
 	_, bz := s.buildEthereumTx()
 
 	testCases := []struct {
@@ -504,7 +504,7 @@ func (s *BackendTestSuite) TestGetTransactionByTxIndex() {
 	}
 }
 
-func (s *BackendTestSuite) TestQueryTendermintTxIndexer() {
+func (s *TestSuite) TestQueryTendermintTxIndexer() {
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -545,7 +545,7 @@ func (s *BackendTestSuite) TestQueryTendermintTxIndexer() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetTransactionReceipt() {
+func (s *TestSuite) TestGetTransactionReceipt() {
 	msgEthereumTx, _ := s.buildEthereumTx()
 	txHash := msgEthereumTx.AsTransaction().Hash()
 
@@ -615,7 +615,7 @@ func (s *BackendTestSuite) TestGetTransactionReceipt() {
 	}
 }
 
-func (s *BackendTestSuite) TestGetGasUsed() {
+func (s *TestSuite) TestGetGasUsed() {
 	origin := s.backend.Cfg.JSONRPC.FixRevertGasRefundHeight
 	testCases := []struct {
 		name                     string

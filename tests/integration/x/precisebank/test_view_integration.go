@@ -10,7 +10,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-func (s *KeeperIntegrationTestSuite) TestKeeper_SpendableCoin() {
+func (s *KeeperIntegrationTestSuite) TestKeeperSpendableCoin() {
 	tests := []struct {
 		name      string
 		giveDenom string // queried denom for balance
@@ -116,7 +116,7 @@ func (s *KeeperIntegrationTestSuite) TestKeeper_SpendableCoin() {
 	}
 }
 
-func (s *KeeperIntegrationTestSuite) TestKeeper_HiddenReserve() {
+func (s *KeeperIntegrationTestSuite) TestKeeperHiddenReserve() {
 	// Reserve balances should not be shown to consumers of x/precisebank, as it
 	// represents the fractional balances of accounts.
 

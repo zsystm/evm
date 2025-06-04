@@ -8,10 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" //nolint:ST1001 // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"    //nolint:ST1001 // dot imports are fine for Ginkgo
 
 	compiledcontracts "github.com/cosmos/evm/contracts"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
@@ -54,7 +52,7 @@ var (
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmApp, options ...network.ConfigOption) {
-	var _ = Describe("Calling staking precompile directly", func() {
+	_ = Describe("Calling staking precompile directly", func() {
 		// s is the precompile test suite to use for the tests
 		var s *PrecompileTestSuite
 
@@ -1194,7 +1192,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 				Expect(redelOut.PageResponse.NextKey).To(BeEmpty())
 				Expect(redelOut.PageResponse.Total).To(Equal(redelTotalCount))
 
-				Expect(redelOut.Response).To(HaveLen(int(redelTotalCount)), "expected two redelegations to be returned")
+				Expect(redelOut.Response).To(HaveLen(int(redelTotalCount)), "expected two redelegations to be returned") //#nosec G115 -- int overflow is not a concern here
 				// return order can change
 				redOrder := []int{0, 1}
 				if len(redelOut.Response[0].Entries) == 2 {
@@ -1339,7 +1337,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 			Expect(difference.Amount.Int64()).To(Equal(expDifference), "expected different total transaction cost")
 		})
 	})
-	var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
+	_ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 		var (
 			// s is the precompile test suite to use for the tests
 			s *PrecompileTestSuite
@@ -3085,7 +3083,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, create network.CreateEvmAp
 	//
 	// There are ERC20 tokens minted to the address of the deployed StakingCaller contract,
 	// which will transfer these to the message sender when successfully executed.
-	var _ = Describe("Batching cosmos and eth interactions", func() {
+	_ = Describe("Batching cosmos and eth interactions", func() {
 		const (
 			erc20Name     = "Test"
 			erc20Token    = "TTT"

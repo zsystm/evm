@@ -9,6 +9,6 @@ import (
 )
 
 func TestBackend(t *testing.T) {
-	s := backend.NewBackendTestSuite(CreateEvmd)
+	s := backend.NewTestSuite(CreateEvmd)
 	suite.Run(t, s)
 }
