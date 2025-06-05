@@ -1,7 +1,7 @@
 package erc20
 
 import (
-	erc21 "github.com/cosmos/evm/precompiles/erc20"
+	"github.com/cosmos/evm/precompiles/erc20"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
@@ -11,7 +11,7 @@ func (s *PrecompileTestSuite) TestBuildExecRevertedError() {
 	s.T().Skip("skipping until correctly implemented")
 
 	reason := "ERC20: transfer amount exceeds balance"
-	revErr, err := erc21.BuildExecRevertedErr(reason)
+	revErr, err := erc20.BuildExecRevertedErr(reason)
 	s.Require().NoError(err, "should not error when building revert error")
 
 	revertErr, ok := revErr.(*evmtypes.RevertError)

@@ -67,20 +67,20 @@ type TestParams struct {
 	memo          string
 }
 
-func (suite *TestSuite) SetupTest() {
-	nw := network.New(suite.create, suite.options...)
-	suite.config = nw.GetEncodingConfig()
-	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = evmtypes.GetEVMCoinDenom()
+func (s *TestSuite) SetupTest() {
+	nw := network.New(s.create, s.options...)
+	s.config = nw.GetEncodingConfig()
+	s.clientCtx = client.Context{}.WithTxConfig(s.config.TxConfig)
+	s.denom = evmtypes.GetEVMCoinDenom()
 
 	sdk.GetConfig().SetBech32PrefixForAccount(chainconfig.Bech32Prefix, "")
 }
 
 // createTestAddress creates random test addresses for messages
-func (suite *TestSuite) createTestAddress() sdk.AccAddress {
+func (s *TestSuite) createTestAddress() sdk.AccAddress {
 	privkey, _ := ethsecp256k1.GenerateKey()
 	key, err := privkey.ToECDSA()
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
@@ -88,20 +88,20 @@ func (suite *TestSuite) createTestAddress() sdk.AccAddress {
 }
 
 // createTestKeyPair creates a random keypair for signing and verification
-func (suite *TestSuite) createTestKeyPair() (*ethsecp256k1.PrivKey, *ethsecp256k1.PubKey) {
+func (s *TestSuite) createTestKeyPair() (*ethsecp256k1.PrivKey, *ethsecp256k1.PubKey) {
 	privKey, err := ethsecp256k1.GenerateKey()
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
 	pubKey := &ethsecp256k1.PubKey{
 		Key: privKey.PubKey().Bytes(),
 	}
-	suite.Require().Implements((*cryptotypes.PubKey)(nil), pubKey)
+	s.Require().Implements((*cryptotypes.PubKey)(nil), pubKey)
 
 	return privKey, pubKey
 }
 
 // makeCoins helps create an instance of sdk.Coins[] with single coin
-func (suite *TestSuite) makeCoins(denom string, amount math.Int) sdk.Coins {
+func (s *TestSuite) makeCoins(denom string, amount math.Int) sdk.Coins {
 	return sdk.NewCoins(
 		sdk.NewCoin(
 			denom,
@@ -110,8 +110,8 @@ func (suite *TestSuite) makeCoins(denom string, amount math.Int) sdk.Coins {
 	)
 }
 
-func (suite *TestSuite) TestEIP712() {
-	suite.SetupTest()
+func (s *TestSuite) TestEIP712() {
+	s.SetupTest()
 
 	signModes := []signing.SignMode{
 		signing.SignMode_SIGN_MODE_DIRECT,
@@ -120,10 +120,10 @@ func (suite *TestSuite) TestEIP712() {
 
 	params := TestParams{
 		fee: txtypes.Fee{
-			Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
+			Amount:   s.makeCoins(s.denom, math.NewInt(2000)),
 			GasLimit: 20000,
 		},
-		address:       suite.createTestAddress(),
+		address:       s.createTestAddress(),
 		accountNumber: 25,
 		sequence:      78,
 		memo:          "",
@@ -140,9 +140,9 @@ func (suite *TestSuite) TestEIP712() {
 			title: "Succeeds - Standard MsgSend",
 			msgs: []sdk.Msg{
 				banktypes.NewMsgSend(
-					suite.createTestAddress(),
-					suite.createTestAddress(),
-					suite.makeCoins(suite.denom, math.NewInt(1)),
+					s.createTestAddress(),
+					s.createTestAddress(),
+					s.makeCoins(s.denom, math.NewInt(1)),
 				),
 			},
 			expectSuccess: true,
@@ -151,7 +151,7 @@ func (suite *TestSuite) TestEIP712() {
 			title: "Succeeds - Standard MsgVote",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
-					suite.createTestAddress(),
+					s.createTestAddress(),
 					5,
 					govtypes.OptionNo,
 				),
@@ -162,9 +162,9 @@ func (suite *TestSuite) TestEIP712() {
 			title: "Succeeds - Standard MsgDelegate",
 			msgs: []sdk.Msg{
 				stakingtypes.NewMsgDelegate(
-					suite.createTestAddress().String(),
-					sdk.ValAddress(suite.createTestAddress()).String(),
-					suite.makeCoins(suite.denom, math.NewInt(1))[0],
+					s.createTestAddress().String(),
+					sdk.ValAddress(s.createTestAddress()).String(),
+					s.makeCoins(s.denom, math.NewInt(1))[0],
 				),
 			},
 			expectSuccess: true,
@@ -173,8 +173,8 @@ func (suite *TestSuite) TestEIP712() {
 			title: "Succeeds - Standard MsgWithdrawDelegationReward",
 			msgs: []sdk.Msg{
 				distributiontypes.NewMsgWithdrawDelegatorReward(
-					suite.createTestAddress().String(),
-					sdk.ValAddress(suite.createTestAddress()).String(),
+					s.createTestAddress().String(),
+					sdk.ValAddress(s.createTestAddress()).String(),
 				),
 			},
 			expectSuccess: true,
@@ -184,13 +184,13 @@ func (suite *TestSuite) TestEIP712() {
 			msgs: []sdk.Msg{
 				stakingtypes.NewMsgDelegate(
 					params.address.String(),
-					sdk.ValAddress(suite.createTestAddress()).String(),
-					suite.makeCoins(suite.denom, math.NewInt(1))[0],
+					sdk.ValAddress(s.createTestAddress()).String(),
+					s.makeCoins(s.denom, math.NewInt(1))[0],
 				),
 				stakingtypes.NewMsgDelegate(
 					params.address.String(),
-					sdk.ValAddress(suite.createTestAddress()).String(),
-					suite.makeCoins(suite.denom, math.NewInt(5))[0],
+					sdk.ValAddress(s.createTestAddress()).String(),
+					s.makeCoins(s.denom, math.NewInt(5))[0],
 				),
 			},
 			expectSuccess: true,
@@ -217,11 +217,11 @@ func (suite *TestSuite) TestEIP712() {
 				),
 				banktypes.NewMsgSend(
 					params.address,
-					suite.createTestAddress(),
-					suite.makeCoins(suite.denom, math.NewInt(50)),
+					s.createTestAddress(),
+					s.makeCoins(s.denom, math.NewInt(50)),
 				),
 			},
-			expectSuccess: !suite.useLegacyEIP712TypedData,
+			expectSuccess: !s.useLegacyEIP712TypedData,
 		},
 		{
 			title: "Succeeds - Single-Signer 2x MsgVoteV1 with Different Schemas",
@@ -239,18 +239,18 @@ func (suite *TestSuite) TestEIP712() {
 					"Has Metadata",
 				),
 			},
-			expectSuccess: !suite.useLegacyEIP712TypedData,
+			expectSuccess: !s.useLegacyEIP712TypedData,
 		},
 		{
 			title: "Fails - Two MsgVotes with Different Signers",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
-					suite.createTestAddress(),
+					s.createTestAddress(),
 					5,
 					govtypes.OptionNo,
 				),
 				govtypes.NewMsgVote(
-					suite.createTestAddress(),
+					s.createTestAddress(),
 					25,
 					govtypes.OptionAbstain,
 				),
@@ -266,7 +266,7 @@ func (suite *TestSuite) TestEIP712() {
 			title: "Fails - Includes TimeoutHeight",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
-					suite.createTestAddress(),
+					s.createTestAddress(),
 					5,
 					govtypes.OptionNo,
 				),
@@ -280,22 +280,22 @@ func (suite *TestSuite) TestEIP712() {
 				&banktypes.MsgMultiSend{
 					Inputs: []banktypes.Input{
 						banktypes.NewInput(
-							suite.createTestAddress(),
-							suite.makeCoins(suite.denom, math.NewInt(50)),
+							s.createTestAddress(),
+							s.makeCoins(s.denom, math.NewInt(50)),
 						),
 						banktypes.NewInput(
-							suite.createTestAddress(),
-							suite.makeCoins(suite.denom, math.NewInt(50)),
+							s.createTestAddress(),
+							s.makeCoins(s.denom, math.NewInt(50)),
 						),
 					},
 					Outputs: []banktypes.Output{
 						banktypes.NewOutput(
-							suite.createTestAddress(),
-							suite.makeCoins(suite.denom, math.NewInt(50)),
+							s.createTestAddress(),
+							s.makeCoins(s.denom, math.NewInt(50)),
 						),
 						banktypes.NewOutput(
-							suite.createTestAddress(),
-							suite.makeCoins(suite.denom, math.NewInt(50)),
+							s.createTestAddress(),
+							s.makeCoins(s.denom, math.NewInt(50)),
 						),
 					},
 				},
@@ -306,16 +306,16 @@ func (suite *TestSuite) TestEIP712() {
 
 	for _, tc := range testCases {
 		for _, signMode := range signModes {
-			suite.Run(tc.title, func() {
-				privKey, pubKey := suite.createTestKeyPair()
+			s.Run(tc.title, func() {
+				privKey, pubKey := s.createTestKeyPair()
 
-				txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
+				txBuilder := s.clientCtx.TxConfig.NewTxBuilder()
 
 				txBuilder.SetGasLimit(params.fee.GasLimit)
 				txBuilder.SetFeeAmount(params.fee.Amount)
 
 				err := txBuilder.SetMsgs(tc.msgs...)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				txBuilder.SetMemo(params.memo)
 
@@ -331,7 +331,7 @@ func (suite *TestSuite) TestEIP712() {
 				}
 
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				chainID := constants.ExampleChainID.ChainID
 				if tc.chainID != "" {
@@ -351,22 +351,22 @@ func (suite *TestSuite) TestEIP712() {
 				}
 
 				bz, err := authsigning.GetSignBytesAdapter(
-					suite.clientCtx.CmdContext,
-					suite.clientCtx.TxConfig.SignModeHandler(),
+					s.clientCtx.CmdContext,
+					s.clientCtx.TxConfig.SignModeHandler(),
 					signMode,
 					signerData,
 					txBuilder.GetTx(),
 				)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
-				suite.verifyEIP712SignatureVerification(tc.expectSuccess, *privKey, *pubKey, bz)
+				s.verifyEIP712SignatureVerification(tc.expectSuccess, *privKey, *pubKey, bz)
 
 				// Verify payload flattening only if the payload is in valid JSON format
 				if signMode == signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON {
-					suite.verifySignDocFlattening(bz)
+					s.verifySignDocFlattening(bz)
 
 					if tc.expectSuccess {
-						suite.verifyBasicTypedData(bz)
+						s.verifyBasicTypedData(bz)
 					}
 				}
 			})
@@ -375,31 +375,31 @@ func (suite *TestSuite) TestEIP712() {
 }
 
 // verifyEIP712SignatureVerification verifies that the payload passes signature verification if signed as its EIP-712 representation.
-func (suite *TestSuite) verifyEIP712SignatureVerification(expectedSuccess bool, privKey ethsecp256k1.PrivKey, pubKey ethsecp256k1.PubKey, signBytes []byte) {
+func (s *TestSuite) verifyEIP712SignatureVerification(expectedSuccess bool, privKey ethsecp256k1.PrivKey, pubKey ethsecp256k1.PubKey, signBytes []byte) {
 	eip712Bytes, err := eip712.GetEIP712BytesForMsg(signBytes)
 
-	if suite.useLegacyEIP712TypedData {
+	if s.useLegacyEIP712TypedData {
 		eip712Bytes, err = eip712.LegacyGetEIP712BytesForMsg(signBytes)
 	}
 
 	if !expectedSuccess {
-		suite.Require().Error(err)
+		s.Require().Error(err)
 		return
 	}
 
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
 	sig, err := privKey.Sign(eip712Bytes)
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
 	// Verify against original payload bytes. This should pass, even though it is not
 	// the original message that was signed.
 	res := pubKey.VerifySignature(signBytes, sig)
-	suite.Require().True(res)
+	s.Require().True(res)
 
 	// Verify against the signed EIP-712 bytes. This should pass, since it is the message signed.
 	res = pubKey.VerifySignature(eip712Bytes, sig)
-	suite.Require().True(res)
+	s.Require().True(res)
 
 	// Verify against random bytes to ensure it does not pass unexpectedly (sanity check).
 	randBytes := make([]byte, len(signBytes))
@@ -407,37 +407,37 @@ func (suite *TestSuite) verifyEIP712SignatureVerification(expectedSuccess bool, 
 	// Change the first element of signBytes to a different value
 	randBytes[0] = (signBytes[0] + 10) % 255
 	res = pubKey.VerifySignature(randBytes, sig)
-	suite.Require().False(res)
+	s.Require().False(res)
 }
 
 // verifySignDocFlattening tests the flattening algorithm against the sign doc's JSON payload,
 // using verifyPayloadAgainstFlattened.
-func (suite *TestSuite) verifySignDocFlattening(signDoc []byte) {
+func (s *TestSuite) verifySignDocFlattening(signDoc []byte) {
 	payload := gjson.ParseBytes(signDoc)
-	suite.Require().True(payload.IsObject())
+	s.Require().True(payload.IsObject())
 
 	flattened, _, err := eip712.FlattenPayloadMessages(payload)
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
-	suite.verifyPayloadAgainstFlattened(payload, flattened)
+	s.verifyPayloadAgainstFlattened(payload, flattened)
 }
 
 // verifyPayloadAgainstFlattened compares a payload against its flattened counterpart to ensure that
 // the flattening algorithm behaved as expected.
-func (suite *TestSuite) verifyPayloadAgainstFlattened(payload gjson.Result, flattened gjson.Result) {
+func (s *TestSuite) verifyPayloadAgainstFlattened(payload gjson.Result, flattened gjson.Result) {
 	payloadMap, ok := payload.Value().(map[string]interface{})
-	suite.Require().True(ok)
+	s.Require().True(ok)
 	flattenedMap, ok := flattened.Value().(map[string]interface{})
-	suite.Require().True(ok)
+	s.Require().True(ok)
 
-	suite.verifyPayloadMapAgainstFlattenedMap(payloadMap, flattenedMap)
+	s.verifyPayloadMapAgainstFlattenedMap(payloadMap, flattenedMap)
 }
 
 // verifyPayloadMapAgainstFlattenedMap directly compares two JSON maps in Go representations to
 // test flattening.
-func (suite *TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]interface{}, flattened map[string]interface{}) {
+func (s *TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]interface{}, flattened map[string]interface{}) {
 	interfaceMessages, ok := original[msgsFieldName]
-	suite.Require().True(ok)
+	s.Require().True(ok)
 
 	messages, ok := interfaceMessages.([]interface{})
 	// If passing an empty msgs array
@@ -447,18 +447,18 @@ func (suite *TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]
 		// Verify message contents
 		for i, msg := range messages {
 			flattenedMsg, ok := flattened[fmt.Sprintf("msg%d", i)]
-			suite.Require().True(ok)
+			s.Require().True(ok)
 
 			flattenedMsgJSON, ok := flattenedMsg.(map[string]interface{})
-			suite.Require().True(ok)
+			s.Require().True(ok)
 
-			suite.Require().Equal(flattenedMsgJSON, msg)
+			s.Require().Equal(flattenedMsgJSON, msg)
 		}
 	}
 
 	// Verify new payload does not have msgs field
 	_, ok = flattened[msgsFieldName]
-	suite.Require().False(ok)
+	s.Require().False(ok)
 
 	// Verify number of total keys
 	numKeysOriginal := len(original)
@@ -466,7 +466,7 @@ func (suite *TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]
 	numMessages := len(messages)
 
 	// + N keys, then -1 for msgs
-	suite.Require().Equal(numKeysFlattened, numKeysOriginal+numMessages-1)
+	s.Require().Equal(numKeysFlattened, numKeysOriginal+numMessages-1)
 
 	// Verify contents of remaining keys
 	for k, obj := range original {
@@ -475,66 +475,66 @@ func (suite *TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]
 		}
 
 		flattenedObj, ok := flattened[k]
-		suite.Require().True(ok)
+		s.Require().True(ok)
 
-		suite.Require().Equal(obj, flattenedObj)
+		s.Require().Equal(obj, flattenedObj)
 	}
 }
 
 // verifyBasicTypedData performs basic verification on the TypedData generation.
-func (suite *TestSuite) verifyBasicTypedData(signDoc []byte) {
+func (s *TestSuite) verifyBasicTypedData(signDoc []byte) {
 	typedData, err := eip712.GetEIP712TypedDataForMsg(signDoc)
 
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 
 	jsonPayload := gjson.ParseBytes(signDoc)
-	suite.Require().True(jsonPayload.IsObject())
+	s.Require().True(jsonPayload.IsObject())
 
 	flattened, _, err := eip712.FlattenPayloadMessages(jsonPayload)
-	suite.Require().NoError(err)
-	suite.Require().True(flattened.IsObject())
+	s.Require().NoError(err)
+	s.Require().True(flattened.IsObject())
 
 	flattenedMsgMap, ok := flattened.Value().(map[string]interface{})
-	suite.Require().True(ok)
+	s.Require().True(ok)
 
-	suite.Require().Equal(typedData.Message, flattenedMsgMap)
+	s.Require().Equal(typedData.Message, flattenedMsgMap)
 }
 
 // TestFlattenPayloadErrorHandling tests error handling in TypedData generation,
 // specifically regarding the payload.
-func (suite *TestSuite) TestFlattenPayloadErrorHandling() {
+func (s *TestSuite) TestFlattenPayloadErrorHandling() {
 	// No msgs
 	_, _, err := eip712.FlattenPayloadMessages(gjson.Parse(""))
-	suite.Require().ErrorContains(err, "no messages found")
+	s.Require().ErrorContains(err, "no messages found")
 
 	// Non-array Msgs
 	_, _, err = eip712.FlattenPayloadMessages(gjson.Parse(`{"msgs": 10}`))
-	suite.Require().ErrorContains(err, "array of messages")
+	s.Require().ErrorContains(err, "array of messages")
 
 	// Array with non-object items
 	_, _, err = eip712.FlattenPayloadMessages(gjson.Parse(`{"msgs": [10, 20]}`))
-	suite.Require().ErrorContains(err, "not valid JSON")
+	s.Require().ErrorContains(err, "not valid JSON")
 
 	// Malformed payload
-	malformed, err := sjson.Set(suite.generateRandomPayload(2).Raw, "msg0", 20)
-	suite.Require().NoError(err)
+	malformed, err := sjson.Set(s.generateRandomPayload(2).Raw, "msg0", 20)
+	s.Require().NoError(err)
 	_, _, err = eip712.FlattenPayloadMessages(gjson.Parse(malformed))
-	suite.Require().ErrorContains(err, "malformed payload")
+	s.Require().ErrorContains(err, "malformed payload")
 }
 
 // TestTypedDataErrorHandling tests error handling for TypedData generation
 // in the main algorithm.
-func (suite *TestSuite) TestTypedDataErrorHandling() {
+func (s *TestSuite) TestTypedDataErrorHandling() {
 	// Empty JSON
 	_, err := eip712.WrapTxToTypedData(0, make([]byte, 0))
-	suite.Require().ErrorContains(err, "invalid JSON")
+	s.Require().ErrorContains(err, "invalid JSON")
 
 	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": 10}`).Raw))
-	suite.Require().ErrorContains(err, "array of messages")
+	s.Require().ErrorContains(err, "array of messages")
 
 	// Invalid message 'type'
 	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": 10 }] }`).Raw))
-	suite.Require().ErrorContains(err, "message type value")
+	s.Require().ErrorContains(err, "message type value")
 
 	// Max duplicate type recursion depth
 	messagesArr := new(bytes.Buffer)
@@ -550,74 +550,74 @@ func (suite *TestSuite) TestTypedDataErrorHandling() {
 	messagesArr.WriteString("]")
 
 	_, err = eip712.WrapTxToTypedData(0, []byte(fmt.Sprintf(`{ "msgs": %v }`, messagesArr)))
-	suite.Require().ErrorContains(err, "maximum number of duplicates")
+	s.Require().ErrorContains(err, "maximum number of duplicates")
 }
 
 // TestTypedDataEdgeCases tests certain interesting edge cases to ensure that they work
 // (or don't work) as expected.
-func (suite *TestSuite) TestTypedDataEdgeCases() {
+func (s *TestSuite) TestTypedDataEdgeCases() {
 	// Type without '/' separator
 	typedData, err := eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": 10 } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types := typedData.Types["TypeMsgSend0"]
-	suite.Require().Greater(len(types), 0)
+	s.Require().Greater(len(types), 0)
 
 	// Null value
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": null } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
 	// Skip null type, since we don't expect any in the payload
-	suite.Require().Equal(len(types), 0)
+	s.Require().Equal(len(types), 0)
 
 	// Boolean value
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": true } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
-	suite.Require().Equal(len(types), 1)
-	suite.Require().Equal(types[0], apitypes.Type{
+	s.Require().Equal(len(types), 1)
+	s.Require().Equal(types[0], apitypes.Type{
 		Name: "field",
 		Type: "bool",
 	})
 
 	// Empty array
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": [] } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
-	suite.Require().Equal(types[0], apitypes.Type{
+	s.Require().Equal(types[0], apitypes.Type{
 		Name: "field",
 		Type: "string[]",
 	})
 
 	// Simple arrays
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [1, 2, 3] } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
-	suite.Require().Equal(len(types), 1)
-	suite.Require().Equal(types[0], apitypes.Type{
+	s.Require().Equal(len(types), 1)
+	s.Require().Equal(types[0], apitypes.Type{
 		Name: "array",
 		Type: "int64[]",
 	})
 
 	// Nested arrays (EIP-712 does not support nested arrays)
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [[1, 2, 3], [1, 2]] } }] }`).Raw))
-	suite.Require().NoError(err)
+	s.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
-	suite.Require().Equal(len(types), 0)
+	s.Require().Equal(len(types), 0)
 }
 
 // TestTypedDataGeneration tests certain qualities about the output Types representation.
-func (suite *TestSuite) TestTypedDataGeneration() {
+func (s *TestSuite) TestTypedDataGeneration() {
 	// Multiple messages with the same schema should share one type
 	payloadRaw := `{ "msgs": [{ "type": "msgType", "value": { "field1": 10 }}, { "type": "msgType", "value": { "field1": 20 }}] }`
 
 	typedData, err := eip712.WrapTxToTypedData(0, []byte(payloadRaw))
-	suite.Require().NoError(err)
-	suite.Require().True(typedData.Types["TypemsgType1"] == nil)
+	s.Require().NoError(err)
+	s.Require().True(typedData.Types["TypemsgType1"] == nil)
 
 	// Multiple messages with different schemas should have different types
 	payloadRaw = `{ "msgs": [{ "type": "msgType", "value": { "field1": 10 }}, { "type": "msgType", "value": { "field2": 20 }}] }`
 
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(payloadRaw))
-	suite.Require().NoError(err)
-	suite.Require().False(typedData.Types["TypemsgType1"] == nil)
+	s.Require().NoError(err)
+	s.Require().False(typedData.Types["TypemsgType1"] == nil)
 }
