@@ -20,15 +20,15 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
+func (s *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 	// Setup
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
@@ -45,11 +45,11 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			expectedError: errortypes.ErrInvalidType,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
-				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-				suite.Require().NoError(err)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+				s.Require().NoError(err)
 
 				statedbAccount.CodeHash = []byte("test")
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				return statedbAccount, txArgs
 			},
 		},
@@ -58,15 +58,15 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			expectedError: errortypes.ErrInsufficientFunds,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
-				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-				suite.Require().NoError(err)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+				s.Require().NoError(err)
 
 				// Make tx cost greater than balance
 				balanceResp, err := grpcHandler.GetBalanceFromEVM(senderKey.AccAddr)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				balance, ok := math.NewIntFromString(balanceResp.Balance)
-				suite.Require().True(ok)
+				s.Require().True(ok)
 				invalidAmount := balance.Add(math.NewInt(100))
 				txArgs.Amount = invalidAmount.BigInt()
 				return statedbAccount, txArgs
@@ -77,8 +77,8 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			expectedError: errortypes.ErrInvalidCoins,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
-				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-				suite.Require().NoError(err)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+				s.Require().NoError(err)
 
 				// Make tx cost negative. This has to be a big value because
 				// it has to be bigger than the fee for the full cost to be negative
@@ -91,8 +91,8 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			name:          "success: tx is successful and account is created if its nil",
 			expectedError: errortypes.ErrInsufficientFunds,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
-				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-				suite.Require().NoError(err)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+				s.Require().NoError(err)
 				return nil, txArgs
 			},
 		},
@@ -101,19 +101,19 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			expectedError: nil,
 			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
 				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
-				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-				suite.Require().NoError(err)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+				s.Require().NoError(err)
 				return statedbAccount, txArgs
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.EthTxType), suite.ChainID, tc.name), func() {
+		s.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(s.EthTxType), s.ChainID, tc.name), func() {
 			// Perform test logic
 			statedbAccount, txArgs := tc.generateAccountAndArgs()
 			txData, err := txArgs.ToTxData()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 
 			//  Function to be tested
 			err = evm.VerifyAccountBalance(
@@ -125,19 +125,19 @@ func (suite *EvmUnitAnteTestSuite) TestVerifyAccountBalance() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 			}
 			// Make sure the account is created either wa
 			acc, err := grpcHandler.GetAccount(senderKey.AccAddr.String())
-			suite.Require().NoError(err)
-			suite.Require().NotEmpty(acc)
+			s.Require().NoError(err)
+			s.Require().NotEmpty(acc)
 
 			// Clean block for next test
 			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		})
 	}
 }

@@ -24,7 +24,7 @@ type validateMsgParams struct {
 	txData    evmtypes.TxData
 }
 
-func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
+func (s *EvmUnitAnteTestSuite) TestValidateMsg() {
 	keyring := testkeyring.New(2)
 
 	testCases := []struct {
@@ -49,7 +49,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("transfer", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				return validateMsgParams{
 					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
@@ -63,7 +63,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("transfer", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
@@ -82,7 +82,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("call", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				return validateMsgParams{
 					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
@@ -96,7 +96,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("call", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
@@ -114,7 +114,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("call", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
@@ -132,7 +132,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("create", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				return validateMsgParams{
 					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
@@ -146,7 +146,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("create", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
@@ -164,7 +164,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			getFunctionParams: func() validateMsgParams {
 				txArgs := getTxByType("create", keyring.GetAddr(1))
 				txData, err := txArgs.ToTxData()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
@@ -179,7 +179,7 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			params := tc.getFunctionParams()
 
 			// Function under test
@@ -190,10 +190,10 @@ func (suite *EvmUnitAnteTestSuite) TestValidateMsg() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
@@ -220,7 +220,7 @@ func getTxByType(typeTx string, recipient common.Address) evmtypes.EvmTxArgs {
 	}
 }
 
-func (suite *EvmUnitAnteTestSuite) TestCheckTxFee() {
+func (s *EvmUnitAnteTestSuite) TestCheckTxFee() {
 	// amount represents 1 token in the 18 decimals representation.
 	amount := math.NewInt(1e18)
 	gasLimit := uint64(1e6)
@@ -250,12 +250,12 @@ func (suite *EvmUnitAnteTestSuite) TestCheckTxFee() {
 		testconstants.SixDecimalsChainID,
 	} {
 		for _, tc := range testCases {
-			suite.Run(fmt.Sprintf("%s, %s", chainID.ChainID, tc.name), func() {
+			s.Run(fmt.Sprintf("%s, %s", chainID.ChainID, tc.name), func() {
 				// Call the configurator to set the EVM coin required for the
 				// function to be tested.
 				configurator := evmtypes.NewEVMConfigurator()
 				configurator.ResetTestConfig()
-				suite.Require().NoError(configurator.WithEVMCoinInfo(testconstants.ExampleChainCoinInfo[chainID]).Configure())
+				s.Require().NoError(configurator.WithEVMCoinInfo(testconstants.ExampleChainCoinInfo[chainID]).Configure())
 
 				// If decimals is not 18 decimals, we have to convert txFeeInfo to original
 				// decimals representation.
@@ -273,10 +273,10 @@ func (suite *EvmUnitAnteTestSuite) TestCheckTxFee() {
 				err := evm.CheckTxFee(txFeeInfo, tc.txFee, tc.txGasLimit)
 
 				if tc.expError != nil {
-					suite.Require().Error(err)
-					suite.Contains(err.Error(), tc.expError.Error())
+					s.Require().Error(err)
+					s.Contains(err.Error(), tc.expError.Error())
 				} else {
-					suite.Require().NoError(err)
+					s.Require().NoError(err)
 				}
 			})
 		}

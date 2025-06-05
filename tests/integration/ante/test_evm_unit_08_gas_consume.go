@@ -18,13 +18,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestUpdateCumulativeGasWanted() {
+func (s *EvmUnitAnteTestSuite) TestUpdateCumulativeGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -80,7 +80,7 @@ func (suite *EvmUnitAnteTestSuite) TestUpdateCumulativeGasWanted() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			// Function under test
 			gasWanted := evmante.UpdateCumulativeGasWanted(
 				tc.getCtx(),
@@ -89,19 +89,19 @@ func (suite *EvmUnitAnteTestSuite) TestUpdateCumulativeGasWanted() {
 				tc.cumulativeGasWanted,
 			)
 
-			suite.Require().Equal(tc.expectedResponse, gasWanted)
+			s.Require().Equal(tc.expectedResponse, gasWanted)
 		})
 	}
 }
 
 // NOTE: claim rewards are not tested since there is an independent suite to test just that
-func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
+func (s *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -147,7 +147,7 @@ func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 						Amount:      sdktypes.Coins{sdktypes.NewCoin(unitNetwork.GetBaseDenom(), sdkmath.NewInt(500))},
 					}},
 				})
-				suite.Require().NoError(err, "failed to send funds to new key")
+				s.Require().NoError(err, "failed to send funds to new key")
 
 				return acc.AccAddr
 			},
@@ -155,13 +155,13 @@ func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.EthTxType), suite.ChainID, tc.name), func() {
+		s.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(s.EthTxType), s.ChainID, tc.name), func() {
 			sender := tc.getSender()
 
 			resp, err := grpcHandler.GetBalanceFromEVM(sender)
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			prevBalance, ok := sdkmath.NewIntFromString(resp.Balance)
-			suite.Require().True(ok)
+			s.Require().True(ok)
 
 			evmDecimals := evmtypes.GetEVMCoinDecimals()
 			feesAmt := tc.feesAmt.Mul(evmDecimals.ConversionFactor())
@@ -176,24 +176,24 @@ func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			)
 
 			if tc.expectedError != "" {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError)
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError)
 
 				// Check events are not present
 				events := unitNetwork.GetContext().EventManager().Events()
-				suite.Require().Zero(len(events), "required no events to be emitted")
+				s.Require().Zero(len(events), "required no events to be emitted")
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				// Check fees are deducted
 				resp, err := grpcHandler.GetBalanceFromEVM(sender)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				afterBalance, ok := sdkmath.NewIntFromString(resp.Balance)
-				suite.Require().True(ok)
+				s.Require().True(ok)
 
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				expectedBalance := prevBalance.Sub(feesAmt)
-				suite.Require().True(expectedBalance.Equal(afterBalance), "expected different balance after fees deduction")
+				s.Require().True(expectedBalance.Equal(afterBalance), "expected different balance after fees deduction")
 
 				// Event to be emitted
 				expectedEvent := sdktypes.NewEvent(
@@ -202,8 +202,8 @@ func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				)
 				// Check events are present
 				events := unitNetwork.GetContext().EventManager().Events()
-				suite.Require().NotZero(len(events))
-				suite.Require().Contains(
+				s.Require().NotZero(len(events))
+				s.Require().Contains(
 					events,
 					expectedEvent,
 					"expected different events after fees deduction",
@@ -212,7 +212,7 @@ func (suite *EvmUnitAnteTestSuite) TestConsumeGasAndEmitEvent() {
 
 			// Reset the context
 			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		})
 	}
 }

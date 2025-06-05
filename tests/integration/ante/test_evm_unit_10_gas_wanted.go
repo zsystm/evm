@@ -18,13 +18,13 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestCheckGasWanted() {
+func (s *EvmUnitAnteTestSuite) TestCheckGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -76,7 +76,7 @@ func (suite *EvmUnitAnteTestSuite) TestCheckGasWanted() {
 			getCtx: func() sdktypes.Context {
 				// Set basefee param to false
 				feeMarketParams, err := grpcHandler.GetFeeMarketParams()
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				feeMarketParams.Params.NoBaseFee = true
 				err = utils.UpdateFeeMarketParams(utils.UpdateParamsInput{
@@ -85,7 +85,7 @@ func (suite *EvmUnitAnteTestSuite) TestCheckGasWanted() {
 					Pk:      keyring.GetPrivKey(0),
 					Params:  feeMarketParams.Params,
 				})
-				suite.Require().NoError(err, "expected no error when updating fee market params")
+				s.Require().NoError(err, "expected no error when updating fee market params")
 
 				blockMeter := storetypes.NewGasMeter(commonGasLimit + 10_000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
@@ -96,16 +96,16 @@ func (suite *EvmUnitAnteTestSuite) TestCheckGasWanted() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.EthTxType), suite.ChainID, tc.name), func() {
+		s.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(s.EthTxType), s.ChainID, tc.name), func() {
 			sender := keyring.GetKey(0)
 			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(
 				sender.Addr,
-				suite.EthTxType,
+				s.EthTxType,
 			)
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			txArgs.GasLimit = commonGasLimit
 			tx, err := txFactory.GenerateSignedEthTx(sender.Priv, txArgs)
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 
 			ctx := tc.getCtx()
 
@@ -118,19 +118,19 @@ func (suite *EvmUnitAnteTestSuite) TestCheckGasWanted() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 				transientGasWanted := unitNetwork.App.GetFeeMarketKeeper().GetTransientGasWanted(
 					unitNetwork.GetContext(),
 				)
-				suite.Require().Equal(tc.expectedTransientGasWanted, transientGasWanted)
+				s.Require().Equal(tc.expectedTransientGasWanted, transientGasWanted)
 			}
 
 			// Start from a fresh block and ctx
 			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		})
 	}
 }

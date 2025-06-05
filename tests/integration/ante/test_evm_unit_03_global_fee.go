@@ -8,7 +8,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestGlobalFee() {
+func (s *EvmUnitAnteTestSuite) TestGlobalFee() {
 	testCases := []struct {
 		name              string
 		expectedError     error
@@ -41,7 +41,7 @@ func (suite *EvmUnitAnteTestSuite) TestGlobalFee() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			// Function under test
 			err := evm.CheckGlobalFee(
 				tc.txFee,
@@ -50,10 +50,10 @@ func (suite *EvmUnitAnteTestSuite) TestGlobalFee() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}

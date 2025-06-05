@@ -11,13 +11,13 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestIncrementSequence() {
+func (s *EvmUnitAnteTestSuite) TestIncrementSequence() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -46,9 +46,9 @@ func (suite *EvmUnitAnteTestSuite) TestIncrementSequence() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			account, err := grpcHandler.GetAccount(accAddr.String())
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			preSequence := account.GetSequence()
 
 			nonce := tc.malleate(account)
@@ -62,15 +62,15 @@ func (suite *EvmUnitAnteTestSuite) TestIncrementSequence() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
-				suite.Require().Equal(preSequence+1, account.GetSequence())
+				s.Require().Equal(preSequence+1, account.GetSequence())
 				updatedAccount, err := grpcHandler.GetAccount(accAddr.String())
-				suite.Require().NoError(err)
-				suite.Require().Equal(preSequence+1, updatedAccount.GetSequence())
+				s.Require().NoError(err)
+				s.Require().Equal(preSequence+1, updatedAccount.GetSequence())
 			}
 		})
 	}

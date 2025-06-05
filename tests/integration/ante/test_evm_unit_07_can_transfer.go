@@ -19,13 +19,13 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (suite *EvmUnitAnteTestSuite) TestCanTransfer() {
+func (s *EvmUnitAnteTestSuite) TestCanTransfer() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
-		suite.create,
+		s.create,
 		network.WithChainID(testconstants.ChainID{
-			ChainID:    suite.ChainID,
-			EVMChainID: suite.EvmChainID,
+			ChainID:    s.ChainID,
+			EVMChainID: s.EvmChainID,
 		}),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -53,10 +53,10 @@ func (suite *EvmUnitAnteTestSuite) TestCanTransfer() {
 			isLondon:      true,
 			malleate: func(txArgs *evmtypes.EvmTxArgs) {
 				balanceResp, err := grpcHandler.GetBalanceFromEVM(senderKey.AccAddr)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
 				balance, ok := math.NewIntFromString(balanceResp.Balance)
-				suite.Require().True(ok)
+				s.Require().True(ok)
 				invalidAmount := balance.Add(math.NewInt(1)).BigInt()
 				txArgs.Amount = invalidAmount
 			},
@@ -71,16 +71,16 @@ func (suite *EvmUnitAnteTestSuite) TestCanTransfer() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.EthTxType), suite.ChainID, tc.name), func() {
+		s.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(s.EthTxType), s.ChainID, tc.name), func() {
 			baseFeeResp, err := grpcHandler.GetEvmBaseFee()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			ethCfg := unitNetwork.GetEVMChainConfig()
 			evmParams, err := grpcHandler.GetEvmParams()
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			ctx := unitNetwork.GetContext()
 			signer := gethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()), uint64(ctx.BlockTime().Unix())) //#nosec G115 -- int overflow is not a concern here
-			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.EthTxType)
-			suite.Require().NoError(err)
+			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, s.EthTxType)
+			s.Require().NoError(err)
 			txArgs.Amount = big.NewInt(100)
 
 			tc.malleate(&txArgs)
@@ -88,9 +88,9 @@ func (suite *EvmUnitAnteTestSuite) TestCanTransfer() {
 			msg := evmtypes.NewTx(&txArgs)
 			msg.From = senderKey.Addr.String()
 			signMsg, err := txFactory.SignMsgEthereumTx(senderKey.Priv, *msg)
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			coreMsg, err := signMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 
 			// Function under test
 			err = evm.CanTransfer(
@@ -103,11 +103,11 @@ func (suite *EvmUnitAnteTestSuite) TestCanTransfer() {
 			)
 
 			if tc.expectedError != nil {
-				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
+				s.Require().Error(err)
+				s.Contains(err.Error(), tc.expectedError.Error())
 
 			} else {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
