@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/evm/ethereum/eip712"
 )
 
-type EIP712FuzzTestParams struct {
+type FuzzTestParams struct {
 	numTestObjects        int
 	maxNumFieldsPerObject int
 	minStringLength       int
@@ -38,7 +38,7 @@ const (
 	jsonObjectType = iota
 )
 
-var params = EIP712FuzzTestParams{
+var params = FuzzTestParams{
 	numTestObjects:        16,
 	maxNumFieldsPerObject: 16,
 	minStringLength:       16,

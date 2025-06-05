@@ -38,7 +38,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.precompile = &p256.Precompile{}
 }
 
-func signMsg(msg []byte, priv *ecdsa.PrivateKey) ([]byte, error) { //nolint:thelper
+func signMsg(msg []byte, priv *ecdsa.PrivateKey) ([]byte, error) {
 	hash := crypto.Sha256(msg)
 
 	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)

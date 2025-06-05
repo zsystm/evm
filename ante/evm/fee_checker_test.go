@@ -58,9 +58,9 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	//      with extension option
 	//      without extension option
 	//      london hardfork enableness
-	chainId := uint64(evmdconfig.EighteenDecimalsChainID)
-	encodingConfig := encoding.MakeConfig(chainId)
-	err := evmd.EvmAppOptions(chainId)
+	chainID := uint64(evmdconfig.EighteenDecimalsChainID)
+	encodingConfig := encoding.MakeConfig(chainID)
+	err := evmd.EvmAppOptions(chainID)
 	require.NoError(t, err)
 
 	evmDenom := evmtypes.GetEVMCoinDenom()
