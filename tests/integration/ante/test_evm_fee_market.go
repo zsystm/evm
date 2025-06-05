@@ -19,11 +19,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
-	suite.WithFeemarketEnabled(true)
-	suite.SetupTest()
-	ctx := suite.GetNetwork().GetContext()
-	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.GetEVMKeeper(), suite.GetNetwork().App.GetFeeMarketKeeper())
+func (s *EvmAnteTestSuite) TestGasWantedDecorator() {
+	s.WithFeemarketEnabled(true)
+	s.SetupTest()
+	ctx := s.GetNetwork().GetContext()
+	dec := evm.NewGasWantedDecorator(s.GetNetwork().App.GetEVMKeeper(), s.GetNetwork().App.GetFeeMarketKeeper())
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 	denom := evmtypes.GetEVMCoinDenom()
@@ -43,7 +43,7 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "cosmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -57,7 +57,7 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 					GasPrice: big.NewInt(0),
 					GasLimit: TestGasLimit,
 				}
-				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
+				return s.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},
@@ -72,7 +72,7 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 					GasLimit: TestGasLimit,
 					Accesses: &emptyAccessList,
 				}
-				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
+				return s.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},
@@ -89,7 +89,7 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 					GasTipCap: big.NewInt(50),
 					Accesses:  &emptyAccessList,
 				}
-				return suite.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
+				return s.CreateTxBuilder(fromPrivKey, txArgs).GetTx()
 			},
 			true,
 		},
@@ -99,11 +99,11 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 			func() sdk.Tx {
 				amount := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(20)))
 				gas := uint64(200000)
-				acc := suite.GetNetwork().App.GetAccountKeeper().NewAccountWithAddress(ctx, from.Bytes())
-				suite.Require().NoError(acc.SetSequence(1))
-				suite.GetNetwork().App.GetAccountKeeper().SetAccount(ctx, acc)
-				builder, err := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, ctx.ChainID(), config.DefaultEVMChainID, gas, amount)
-				suite.Require().NoError(err)
+				acc := s.GetNetwork().App.GetAccountKeeper().NewAccountWithAddress(ctx, from.Bytes())
+				s.Require().NoError(acc.SetSequence(1))
+				s.GetNetwork().App.GetAccountKeeper().SetAccount(ctx, acc)
+				builder, err := s.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, ctx.ChainID(), config.DefaultEVMChainID, gas, amount)
+				s.Require().NoError(err)
 				return builder.GetTx()
 			},
 			true,
@@ -118,7 +118,7 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "cosmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testconstants.ExampleAttoDenom, &testMsg)
+				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testconstants.ExampleAttoDenom, &testMsg)
 				limit := types.BlockGasLimit(ctx)
 				txBuilder.SetGasLimit(limit + 5)
 				return txBuilder.GetTx()
@@ -131,17 +131,17 @@ func (suite *EvmAnteTestSuite) TestGasWantedDecorator() {
 	var expectedGasWanted uint64
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		s.Run(tc.name, func() {
 			_, err := dec.AnteHandle(ctx, tc.malleate(), false, testutil.NoOpNextFn)
 			if tc.expPass {
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
-				gasWanted := suite.GetNetwork().App.GetFeeMarketKeeper().GetTransientGasWanted(ctx)
+				gasWanted := s.GetNetwork().App.GetFeeMarketKeeper().GetTransientGasWanted(ctx)
 				expectedGasWanted += tc.expectedGasWanted
-				suite.Require().Equal(expectedGasWanted, gasWanted)
+				s.Require().Equal(expectedGasWanted, gasWanted)
 			} else {
 				// TODO: check for specific error message
-				suite.Require().Error(err)
+				s.Require().Error(err)
 			}
 		})
 	}
