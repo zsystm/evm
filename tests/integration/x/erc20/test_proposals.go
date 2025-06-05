@@ -162,7 +162,7 @@ func (s *KeeperTestSuite) TestRegisterERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
 				mockEVMKeeper.On("CallEVM", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced CallEVM error"))

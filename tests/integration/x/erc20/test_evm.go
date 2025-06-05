@@ -121,7 +121,7 @@ func (s *KeeperTestSuite) TestBalanceOf() {
 			s.network.App.GetAccountKeeper(), s.network.App.GetBankKeeper(),
 			mockEVMKeeper, s.network.App.GetStakingKeeper(),
 			&transferKeeper)
-		s.network.App.SetErc20Keeper(&erc20Keeper)
+		s.network.App.SetErc20Keeper(erc20Keeper)
 
 		tc.malleate()
 
@@ -221,7 +221,7 @@ func (s *KeeperTestSuite) TestQueryERC20ForceFail() {
 			s.network.App.GetAccountKeeper(), s.network.App.GetBankKeeper(),
 			mockEVMKeeper, s.network.App.GetStakingKeeper(),
 			&transferKeeper)
-		s.network.App.SetErc20Keeper(&erc20Keeper)
+		s.network.App.SetErc20Keeper(erc20Keeper)
 
 		tc.malleate()
 

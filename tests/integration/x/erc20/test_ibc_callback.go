@@ -260,7 +260,7 @@ func (s *KeeperTestSuite) TestOnRecvPacket() {
 				s.network.App.GetStakingKeeper(),
 				&tranasferKeeper,
 			)
-			s.network.App.SetErc20Keeper(&erc20Keeper)
+			s.network.App.SetErc20Keeper(erc20Keeper)
 
 			// Fund receiver account with ATOM, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket

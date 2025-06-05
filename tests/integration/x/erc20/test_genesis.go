@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/cosmos/evm/x/erc20"
-	"github.com/cosmos/evm/x/erc20/keeper"
 	"github.com/cosmos/evm/x/erc20/types"
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 
@@ -200,11 +199,9 @@ func (s *GenesisTestSuite) TestErc20ExportGenesis() {
 
 	for _, tc := range testGenCases {
 		erc20Keeper := s.network.App.GetErc20Keeper()
-		impl, ok := erc20Keeper.(*keeper.Keeper)
-		s.Require().True(ok, "Erc20Keeper should implement Keeper interface")
-		erc20.InitGenesis(s.network.GetContext(), *impl, s.network.App.GetAccountKeeper(), tc.genesisState)
+		erc20.InitGenesis(s.network.GetContext(), *erc20Keeper, s.network.App.GetAccountKeeper(), tc.genesisState)
 		s.Require().NotPanics(func() {
-			genesisExported := erc20.ExportGenesis(s.network.GetContext(), *impl)
+			genesisExported := erc20.ExportGenesis(s.network.GetContext(), *erc20Keeper)
 			params := s.network.App.GetErc20Keeper().GetParams(s.network.GetContext())
 			s.Require().Equal(genesisExported.Params, params)
 

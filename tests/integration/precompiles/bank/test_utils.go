@@ -23,7 +23,7 @@ import (
 func (s *PrecompileTestSuite) setupBankPrecompile() *bank.Precompile {
 	precompile, err := bank.NewPrecompile(
 		s.network.App.GetBankKeeper(),
-		s.network.App.GetErc20Keeper(),
+		*s.network.App.GetErc20Keeper(),
 	)
 
 	s.Require().NoError(err, "failed to create bank precompile")
@@ -36,7 +36,7 @@ func (s *PrecompileTestSuite) setupBankPrecompile() *bank.Precompile {
 func (is *IntegrationTestSuite) setupBankPrecompile() *bank.Precompile {
 	precompile, err := bank.NewPrecompile(
 		is.network.App.GetBankKeeper(),
-		is.network.App.GetErc20Keeper(),
+		*is.network.App.GetErc20Keeper(),
 	)
 	Expect(err).ToNot(HaveOccurred(), "failed to create bank precompile")
 	return precompile

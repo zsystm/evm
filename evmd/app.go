@@ -19,7 +19,6 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/evm"
 	evmante "github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmosencoding "github.com/cosmos/evm/encoding"
@@ -1039,12 +1038,12 @@ func (app *EVMD) GetEVMKeeper() *evmkeeper.Keeper {
 	return app.EVMKeeper
 }
 
-func (app *EVMD) GetErc20Keeper() evm.Erc20Keeper {
+func (app *EVMD) GetErc20Keeper() *erc20keeper.Keeper {
 	return &app.Erc20Keeper
 }
 
-func (app *EVMD) SetErc20Keeper(erc20Keeper evm.Erc20Keeper) {
-	app.Erc20Keeper = *erc20Keeper.(*erc20keeper.Keeper)
+func (app *EVMD) SetErc20Keeper(erc20Keeper erc20keeper.Keeper) {
+	app.Erc20Keeper = erc20Keeper
 }
 
 func (app *EVMD) GetGovKeeper() govkeeper.Keeper {

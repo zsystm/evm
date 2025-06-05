@@ -135,7 +135,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -164,7 +164,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -192,7 +192,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -221,7 +221,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -250,7 +250,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					authtypes.NewModuleAddress(govtypes.ModuleName), s.network.App.GetAccountKeeper(),
 					mockBankKeeper, s.network.App.GetEVMKeeper(), s.network.App.GetStakingKeeper(),
 					&transferKeeper)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to mint")).AnyTimes()
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow")).AnyTimes()
@@ -275,7 +275,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					authtypes.NewModuleAddress(govtypes.ModuleName), s.network.App.GetAccountKeeper(),
 					mockBankKeeper, s.network.App.GetEVMKeeper(), s.network.App.GetStakingKeeper(),
 					&transferKeeper)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow"))
@@ -300,7 +300,7 @@ func (s *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					authtypes.NewModuleAddress(govtypes.ModuleName), s.network.App.GetAccountKeeper(),
 					mockBankKeeper, s.network.App.GetEVMKeeper(), s.network.App.GetStakingKeeper(),
 					&transferKeeper)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -434,7 +434,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -463,7 +463,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -491,7 +491,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -520,7 +520,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					s.network.App.GetBankKeeper(), mockEVMKeeper, s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				existingAcc := &statedb.Account{Nonce: uint64(1), Balance: uint256.NewInt(1)}
 				balance := make([]uint8, 32)
@@ -550,7 +550,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					mockBankKeeper, s.network.App.GetEVMKeeper(), s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to mint")).AnyTimes()
 				mockBankKeeper.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow")).AnyTimes()
@@ -576,7 +576,7 @@ func (s *KeeperTestSuite) TestConvertNativeERC20ToEVMERC20() {
 					mockBankKeeper, s.network.App.GetEVMKeeper(), s.network.App.GetStakingKeeper(),
 					&transferKeeper,
 				)
-				s.network.App.SetErc20Keeper(&erc20Keeper)
+				s.network.App.SetErc20Keeper(erc20Keeper)
 
 				mockBankKeeper.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().BurnCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to burn")).AnyTimes()

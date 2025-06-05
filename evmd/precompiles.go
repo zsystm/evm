@@ -84,7 +84,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
-	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, &erc20Keeper)
+	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
