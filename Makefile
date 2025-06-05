@@ -140,7 +140,7 @@ test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 test-unit-cover: run-tests
 	@echo "🔍 Running evm (root) coverage..."
 	@go test -tags=test $(COMMON_COVER_ARGS) -coverpkg=$(COVERPKG_ALL) -coverprofile=coverage.txt ./...
-	@echo "🔍 Running evmd coverage (evm 코어 로직만)..."
+	@echo "🔍 Running evmd coverage..."
 	@cd evmd && go test -tags=test $(COMMON_COVER_ARGS) -coverpkg=$(COVERPKG_ALL) -coverprofile=coverage_evmd.txt ./...
 	@echo "🔀 Merging evmd coverage into root coverage..."
 	@tail -n +2 evmd/coverage_evmd.txt >> coverage.txt
