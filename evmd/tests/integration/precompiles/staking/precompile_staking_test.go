@@ -1,6 +1,7 @@
-package integration
+package staking
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestStakingPrecompileTestSuite(t *testing.T) {
-	s := staking.NewPrecompileTestSuite(CreateEvmd)
+	s := staking.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestStakingPrecompileIntegrationTestSuite(t *testing.T) {
-	staking.TestPrecompileIntegrationTestSuite(t, CreateEvmd)
+	staking.TestPrecompileIntegrationTestSuite(t, integration.CreateEvmd)
 }

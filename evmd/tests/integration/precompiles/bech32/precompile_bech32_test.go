@@ -1,6 +1,7 @@
-package integration
+package bech32
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,6 +10,6 @@ import (
 )
 
 func TestBech32PrecompileTestSuite(t *testing.T) {
-	s := bech32.NewPrecompileTestSuite(CreateEvmd)
+	s := bech32.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }

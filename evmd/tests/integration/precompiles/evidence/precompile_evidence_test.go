@@ -1,6 +1,7 @@
-package integration
+package evidence
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,6 +10,6 @@ import (
 )
 
 func TestEvidencePrecompileTestSuite(t *testing.T) {
-	s := evidence.NewPrecompileTestSuite(CreateEvmd)
+	s := evidence.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }

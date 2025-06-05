@@ -1,6 +1,7 @@
-package integration
+package erc20
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestErc20PrecompileTestSuite(t *testing.T) {
-	s := erc21.NewPrecompileTestSuite(CreateEvmd)
+	s := erc21.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestErc20IntegrationTestSuite(t *testing.T) {
-	erc21.TestIntegrationTestSuite(t, CreateEvmd)
+	erc21.TestIntegrationTestSuite(t, integration.CreateEvmd)
 }

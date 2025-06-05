@@ -29,3 +29,7 @@ func TestVmAnteTestSuite(t *testing.T) {
 	s := vm.NewEvmAnteTestSuite(CreateEvmd)
 	suite.Run(t, s)
 }
+
+func TestIterateContracts(t *testing.T) {
+	vm.TestIterateContracts(t, CreateEvmd)
+}

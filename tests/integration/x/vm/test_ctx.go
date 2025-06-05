@@ -7,11 +7,11 @@ import (
 	storetypes "cosmossdk.io/store/types"
 )
 
-func (suite *EvmAnteTestSuite) TestBuildEvmExecutionCtx() {
-	network := network.New(suite.create, nil)
+func (s *EvmAnteTestSuite) TestBuildEvmExecutionCtx() {
+	network := network.New(s.create, s.options...)
 
 	ctx := evmante.BuildEvmExecutionCtx(network.GetContext())
 
-	suite.Equal(storetypes.GasConfig{}, ctx.KVGasConfig())
-	suite.Equal(storetypes.GasConfig{}, ctx.TransientKVGasConfig())
+	s.Equal(storetypes.GasConfig{}, ctx.KVGasConfig())
+	s.Equal(storetypes.GasConfig{}, ctx.TransientKVGasConfig())
 }

@@ -1,6 +1,7 @@
-package integration
+package gov
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestGovPrecompileTestSuite(t *testing.T) {
-	s := gov.NewPrecompileTestSuite(CreateEvmd)
+	s := gov.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestGovPrecompileIntegrationTestSuite(t *testing.T) {
-	gov.TestPrecompileIntegrationTestSuite(t, CreateEvmd)
+	gov.TestPrecompileIntegrationTestSuite(t, integration.CreateEvmd)
 }

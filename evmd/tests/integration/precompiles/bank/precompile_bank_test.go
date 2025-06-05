@@ -1,6 +1,7 @@
-package integration
+package bank
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestBankPrecompileTestSuite(t *testing.T) {
-	s := bank.NewPrecompileTestSuite(CreateEvmd)
+	s := bank.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestBankPrecompileIntegrationTestSuite(t *testing.T) {
-	bank.TestIntegrationSuite(t, CreateEvmd)
+	bank.TestIntegrationSuite(t, integration.CreateEvmd)
 }

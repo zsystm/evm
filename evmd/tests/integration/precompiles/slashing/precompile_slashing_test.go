@@ -1,6 +1,7 @@
-package integration
+package slashing
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,6 +10,6 @@ import (
 )
 
 func TestSlashingPrecompileTestSuite(t *testing.T) {
-	s := slashing.NewPrecompileTestSuite(CreateEvmd)
+	s := slashing.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }

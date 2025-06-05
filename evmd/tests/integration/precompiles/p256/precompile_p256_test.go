@@ -1,6 +1,7 @@
-package integration
+package p256
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestP256PrecompileTestSuite(t *testing.T) {
-	s := p256.NewPrecompileTestSuite(CreateEvmd)
+	s := p256.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestP256PrecompileIntegrationTestSuite(t *testing.T) {
-	p256.TestPrecompileIntegrationTestSuite(t, CreateEvmd)
+	p256.TestPrecompileIntegrationTestSuite(t, integration.CreateEvmd)
 }

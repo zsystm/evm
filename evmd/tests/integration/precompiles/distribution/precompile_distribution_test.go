@@ -1,6 +1,7 @@
-package integration
+package distribution
 
 import (
+	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -9,10 +10,10 @@ import (
 )
 
 func TestDistributionPrecompileTestSuite(t *testing.T) {
-	s := distribution.NewPrecompileTestSuite(CreateEvmd)
+	s := distribution.NewPrecompileTestSuite(integration.CreateEvmd)
 	suite.Run(t, s)
 }
 
 func TestDistributionPrecompileIntegrationTestSuite(t *testing.T) {
-	distribution.TestPrecompileIntegrationTestSuite(t, CreateEvmd)
+	distribution.TestPrecompileIntegrationTestSuite(t, integration.CreateEvmd)
 }
