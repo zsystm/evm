@@ -1,16 +1,16 @@
-package ante_test
+package cosmos_test
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
-	"cosmosevm.io/evmd/tests/integration"
 	"github.com/stretchr/testify/require"
 
-	cosmosante "github.com/cosmos/evm/ante/cosmos"
+	"github.com/cosmos/evm/ante/cosmos"
+	"github.com/cosmos/evm/encoding"
 	"github.com/cosmos/evm/testutil"
-	"github.com/cosmos/evm/testutil/integration/evm/network"
+	"github.com/cosmos/evm/testutil/constants"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,8 +21,12 @@ import (
 )
 
 func TestAuthzLimiterDecorator(t *testing.T) {
-	nw := network.New(integration.CreateEvmd)
-	txCfg := nw.GetEncodingConfig().TxConfig
+	evmConfigurator := evmtypes.NewEVMConfigurator().
+		WithEVMCoinInfo(constants.ExampleChainCoinInfo[constants.ExampleChainID])
+	err := evmConfigurator.Configure()
+
+	encodingCfg := encoding.MakeConfig(constants.ExampleChainID.EVMChainID)
+	txCfg := encodingCfg.TxConfig
 	testPrivKeys, testAddresses, err := testutil.GeneratePrivKeyAddressPairs(5)
 	require.NoError(t, err)
 
@@ -36,7 +40,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	stakingAuthUndelegate, err := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{validator}, nil, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_UNDELEGATE, nil)
 	require.NoError(t, err)
 
-	decorator := cosmosante.NewAuthzLimiterDecorator(
+	decorator := cosmos.NewAuthzLimiterDecorator(
 		sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 		sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 	)

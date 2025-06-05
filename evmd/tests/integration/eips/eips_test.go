@@ -1,8 +1,9 @@
 package eips
 
 import (
-	"cosmosevm.io/evmd/tests/integration"
 	"testing"
+
+	"cosmosevm.io/evmd/tests/integration"
 
 	"github.com/cosmos/evm/tests/integration/eips"
 )

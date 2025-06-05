@@ -1,9 +1,9 @@
 package gov
 
 import (
-	"cosmosevm.io/evmd/tests/integration"
 	"testing"
 
+	"cosmosevm.io/evmd/tests/integration"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/tests/integration/precompiles/gov"
