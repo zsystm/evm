@@ -23,7 +23,7 @@ type Precompile struct {
 	KvGasConfig          storetypes.GasConfig
 	TransientKVGasConfig storetypes.GasConfig
 	address              common.Address
-	balanceTracker       *BalanceHandler
+	balanceHandler       *BalanceHandler
 }
 
 // Operation is a type that defines if the precompile call
@@ -250,8 +250,8 @@ func (p Precompile) standardCallData(contract *vm.Contract) (method *abi.Method,
 }
 
 func (p *Precompile) GetBalanceHandler() *BalanceHandler {
-	if p.balanceTracker == nil {
-		p.balanceTracker = NewBalanceHandler()
+	if p.balanceHandler == nil {
+		p.balanceHandler = NewBalanceHandler()
 	}
-	return p.balanceTracker
+	return p.balanceHandler
 }
