@@ -23,7 +23,6 @@ type Precompile struct {
 	KvGasConfig          storetypes.GasConfig
 	TransientKVGasConfig storetypes.GasConfig
 	address              common.Address
-	journalEntries       []BalanceChangeEntry
 	balanceTracker       *BalanceHandler
 }
 
@@ -195,14 +194,6 @@ func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetype
 // This allows to revert the call changes within an evm tx
 func (p Precompile) AddJournalEntries(stateDB *statedb.StateDB, s Snapshot) error {
 	return stateDB.AddPrecompileFn(p.Address(), s.MultiStore, s.Events)
-}
-
-// SetBalanceChangeEntries sets the balanceChange entries
-// as the journalEntries field of the precompile.
-// These entries will be added to the stateDB's journal
-// when calling the AddJournalEntries function
-func (p *Precompile) SetBalanceChangeEntries(entries ...BalanceChangeEntry) {
-	p.journalEntries = entries
 }
 
 func (p Precompile) Address() common.Address {
