@@ -15,23 +15,28 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-// BalanceHandler wraps bank accesses and records differences automatically.
+// BalanceHandler is a struct that handles balance changes in the Cosmos SDK context.
 type BalanceHandler struct {
 	prevEventsLen int
 }
 
+// NewBalanceHandler creates a new BalanceHandler instance.
 func NewBalanceHandler() *BalanceHandler {
 	return &BalanceHandler{
 		prevEventsLen: 0,
 	}
 }
 
-// Begin records initial balances for the provided addresses.
+// BeforeBalanceChange is called before any balance changes by precompile methods.
+// It records the current number of events in the context to later process balance changes
+// using the recorded events.
 func (bh *BalanceHandler) BeforeBalanceChange(ctx sdk.Context) {
 	bh.prevEventsLen = len(ctx.EventManager().Events())
 }
 
-// End compares balances and populates the journal.
+// AfterBalanceChange processes the recorded events and updates the stateDB accordingly.
+// It handles the bank events for coin spent and coin received, updating the balances
+// of the spender and receiver addresses respectively.
 func (bh *BalanceHandler) AfterBalanceChange(ctx sdk.Context, stateDB *statedb.StateDB) error {
 	events := ctx.EventManager().Events()
 
