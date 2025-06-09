@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
@@ -239,15 +238,4 @@ func (p *Precompile) DepositValidatorRewardsPool(
 	}
 
 	return method.Outputs.Pack(true)
-}
-
-// getWithdrawerHexAddr is a helper function to get the hex address
-// of the withdrawer for the specified account address
-func (p Precompile) getWithdrawerHexAddr(ctx sdk.Context, delegatorAddr common.Address) (common.Address, error) {
-	withdrawerAccAddr, err := p.distributionKeeper.GetDelegatorWithdrawAddr(ctx, delegatorAddr.Bytes())
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	return common.BytesToAddress(withdrawerAccAddr), nil
 }
