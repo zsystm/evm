@@ -10,8 +10,8 @@ import (
 	"cosmosevm.io/evmd"
 	testifysuite "github.com/stretchr/testify/suite"
 
-	evmibctesting "github.com/cosmos/evm/ibc/testing"
 	"github.com/cosmos/evm/testutil"
+	evmibctesting "github.com/cosmos/evm/testutil/ibc"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	"github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/erc20/v2"

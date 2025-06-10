@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/cosmos/evm/contracts"
-	evmibctesting "github.com/cosmos/evm/ibc/testing"
+	evmibctesting "github.com/cosmos/evm/testutil/ibc"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 

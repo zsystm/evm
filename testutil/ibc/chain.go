@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmosevm.io/evmd"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
@@ -18,6 +17,7 @@ import (
 	cmttypes "github.com/cometbft/cometbft/types"
 	cmtversion "github.com/cometbft/cometbft/version"
 
+	"github.com/cosmos/evm"
 	"github.com/cosmos/evm/cmd/evmd/config"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/testutil/tx"
@@ -367,7 +367,7 @@ func (chain *TestChain) SendEvmTx(
 	amount *big.Int,
 	data []byte,
 ) (*abci.ExecTxResult, error) {
-	app, ok := chain.App.(*evmd.EVMD)
+	app, ok := chain.App.(evm.EvmApp)
 	require.True(chain.TB, ok)
 	ctx := chain.GetContext()
 
