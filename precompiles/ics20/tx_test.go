@@ -5,11 +5,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/evm/evmd"
 	evmibctesting "github.com/cosmos/evm/ibc/testing"
+	"github.com/cosmos/evm/testutil/tx"
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 )
+
+type testCase struct {
+	name               string
+	port               string
+	channelID          string
+	useDynamicChannel  bool
+	overrideSender     bool
+	receiver           string
+	expectErrSubstring string
+}
 
 func (s *PrecompileTestSuite) TestTransferErrors() {
 	evmAppA := s.chainA.App.(*evmd.EVMD)
@@ -18,59 +29,65 @@ func (s *PrecompileTestSuite) TestTransferErrors() {
 
 	timeoutHeight := clienttypes.NewHeight(1, 110)
 	amount := sdkmath.NewInt(1)
-	sourceAddr := common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes())
-	receiver := s.chainB.SenderAccount.GetAddress().String()
+	defaultSender := common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes())
+	defaultReceiver := s.chainB.SenderAccount.GetAddress().String()
 
-	tests := []struct {
-		name      string
-		port      string
-		channel   string
-		receiver  string
-		expErrMsg string
-	}{
+	tests := []testCase{
 		{
-			name:      "invalid source port",
-			port:      "invalid-port",
-			channel:   "channel-0",
-			receiver:  receiver,
-			expErrMsg: "invalid source port",
+			name:               "invalid source channel",
+			port:               transfertypes.PortID,
+			channelID:          "invalid/channel",
+			receiver:           defaultReceiver,
+			expectErrSubstring: "invalid source channel ID",
 		},
 		{
-			name:      "invalid source channel",
-			port:      transfertypes.PortID,
-			channel:   "invalid-channel",
-			receiver:  receiver,
-			expErrMsg: "invalid source port",
+			name:               "channel not found",
+			port:               transfertypes.PortID,
+			channelID:          "channel-9",
+			receiver:           defaultReceiver,
+			expectErrSubstring: "channel not found",
 		},
 		{
-			name:      "channel not found",
-			port:      transfertypes.PortID,
-			channel:   "channel-9",
-			receiver:  receiver,
-			expErrMsg: "channel not found",
+			name:               "invalid receiver",
+			port:               transfertypes.PortID,
+			useDynamicChannel:  true,
+			receiver:           "",
+			expectErrSubstring: "invalid address",
 		},
 		{
-			name:      "invalid receiver",
-			port:      transfertypes.PortID,
-			channel:   "channel-0",
-			receiver:  "invalidReceiver",
-			expErrMsg: "invalid receiver",
+			name:               "msg sender is not a contract caller",
+			port:               transfertypes.PortID,
+			useDynamicChannel:  true,
+			overrideSender:     true,
+			receiver:           defaultReceiver,
+			expectErrSubstring: "does not match the requester address",
 		},
 	}
 
 	for _, tc := range tests {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+
 			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
 			path.Setup()
+
+			channel := tc.channelID
+			if tc.useDynamicChannel {
+				channel = path.EndpointA.ChannelID
+			}
+
+			sender := defaultSender
+			if tc.overrideSender {
+				sender = tx.GenerateAddress()
+			}
 
 			data, err := s.chainAPrecompile.ABI.Pack(
 				"transfer",
 				tc.port,
-				tc.channel,
+				channel,
 				denom,
 				amount.BigInt(),
-				sourceAddr,
+				sender,
 				tc.receiver,
 				timeoutHeight,
 				uint64(0),
@@ -85,7 +102,7 @@ func (s *PrecompileTestSuite) TestTransferErrors() {
 				data,
 			)
 			s.Require().Error(err)
-			s.Require().Contains(err.Error(), tc.expErrMsg)
+			s.Require().Contains(err.Error(), tc.expectErrSubstring)
 		})
 	}
 }
