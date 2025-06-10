@@ -3,9 +3,7 @@ package ibctesting
 
 import (
 	"fmt"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/evm/x/vm/types"
-	"github.com/cosmos/gogoproto/proto"
 	"math/big"
 	"testing"
 	"time"
@@ -412,18 +410,12 @@ func (chain *TestChain) SendEvmTx(
 	require.Len(chain.TB, res.TxResults, 1)
 	txResult := res.TxResults[0]
 
-	var any codectypes.Any
-	if err = proto.Unmarshal(txResult.Data, &any); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal TxResult.Data: %w", err)
-	}
-
-	var msg types.MsgEthereumTxResponse
-	if err = app.AppCodec().UnpackAny(&any, &msg); err != nil {
-		return nil, fmt.Errorf("failed to unpack MsgEthereumTxResponse: %w", err)
-	}
-
 	if txResult.Code != 0 {
 		return txResult, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
+	}
+	ethRes, err := types.DecodeTxResponse(txResult.Data)
+	if ethRes.VmError != "" {
+		return txResult, errorsmod.Wrapf(types.ErrVMExecution, "vm error: %s", ethRes.VmError)
 	}
 
 	chain.Coordinator.IncrementTime()

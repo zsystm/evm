@@ -103,10 +103,12 @@ func (s *PrecompileTestSuite) TestTransfer() {
 	receiver := s.chainB.SenderAccount.GetAddress().String()
 	timeoutHeight := clienttypes.NewHeight(1, 110)
 
+	sourcePort := path.EndpointA.ChannelConfig.PortID
+	sourceChannel := path.EndpointA.ChannelID
 	data, err := s.chainAPrecompile.ABI.Pack(
 		"transfer",
-		path.EndpointA.ChannelConfig.PortID,
-		path.EndpointA.ChannelID,
+		sourcePort,
+		sourceChannel,
 		denom,
 		amount.BigInt(),
 		sourceAddr,
