@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
 TMVERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::')
 COMMIT := $(shell git log -1 --format='%H')
@@ -100,28 +101,15 @@ vulncheck:
 ###                           Tests & Simulation                            ###
 ###############################################################################
 
-test: test-unit
-test-all:
-	@echo "🔍 Running evm module tests..."
-	@go test -tags=test -mod=readonly -timeout=15m $(PACKAGES_NOSIMULATION)
-	@echo "🔍 Running evmd module tests..."
-	@cd evmd && go test -tags=test -mod=readonly -timeout=15m $(PACKAGES_EVMD)
+PACKAGES_UNIT := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation')
+PACKAGES_EVMD := $(shell cd evmd && go list ./... | grep -v '/simulation')
+COVERPKG_EVM  := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation' | paste -sd, -)
+COVERPKG_ALL  := $(COVERPKG_EVM)
+COMMON_COVER_ARGS := -timeout=15m -covermode=atomic
 
-
-# For unit tests we don't want to execute the upgrade tests in tests/e2e but
-# we want to include all unit tests in the subfolders (tests/e2e/*)
-PACKAGES_UNIT        := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation')
-PACKAGES_EVMD        := $(shell cd evmd && go list ./... | grep -v '/simulation')
-COVERPKG_EVM         := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation' | paste -sd, -)
-COVERPKG_ALL        := $(COVERPKG_EVM)
-COMMON_COVER_ARGS   := -timeout=15m -covermode=atomic
-
-TEST_PACKAGES=./...
+TEST_PACKAGES := ./...
 TEST_TARGETS := test-unit test-evmd test-unit-cover test-race
 
-# Test runs-specific rules. To add a new test target, just add
-# a new rule, customise ARGS or TEST_PACKAGES ad libitum, and
-# append the new rule to the TEST_TARGETS list.
 test-unit: ARGS=-timeout=15m
 test-unit: TEST_PACKAGES=$(PACKAGES_UNIT)
 test-unit: run-tests
@@ -131,7 +119,6 @@ test-race: TEST_PACKAGES=$(PACKAGES_UNIT)
 test-race: run-tests
 
 test-evmd: ARGS=-timeout=15m
-test-evmd: TEST_PACKAGES=$(PACKAGES_EVMD)
 test-evmd:
 	@cd evmd && go test -tags=test -mod=readonly $(ARGS) $(EXTRA_ARGS) $(PACKAGES_EVMD)
 
@@ -143,12 +130,17 @@ test-unit-cover: run-tests
 	@echo "🔍 Running evmd coverage..."
 	@cd evmd && go test -tags=test $(COMMON_COVER_ARGS) -coverpkg=$(COVERPKG_ALL) -coverprofile=coverage_evmd.txt ./...
 	@echo "🔀 Merging evmd coverage into root coverage..."
-	@tail -n +2 evmd/coverage_evmd.txt >> coverage.txt
-	@rm evmd/coverage_evmd.txt
-	@echo "🚫 Filtering ignored paths from coverage.txt..."
-	@grep -v -E '/cmd/|/client/|/proto/|/testutil/|/mocks/|/test_.*\.go:|\.pb\.go:|\.pb\.gw\.go:|/x/[^/]+/module\.go:|/scripts/|/ibc/testing/|/version/|\.md:|\.pulsar\.go:' coverage.txt > tmp_coverage.txt && mv tmp_coverage.txt coverage.txt
-	@echo "📊 Function-level coverage summary:"
+	@tail -n +2 evmd/coverage_evmd.txt >> coverage.txt && rm evmd/coverage_evmd.txt
+	@echo "📊 Coverage summary:"
 	@go tool cover -func=coverage.txt
+
+test: test-unit
+
+test-all:
+	@echo "🔍 Running evm module tests..."
+	@go test -tags=test -mod=readonly -timeout=15m $(PACKAGES_NOSIMULATION)
+	@echo "🔍 Running evmd module tests..."
+	@cd evmd && go test -tags=test -mod=readonly -timeout=15m $(PACKAGES_EVMD)
 
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
