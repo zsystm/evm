@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 
 	"github.com/cosmos/evm/cmd/evmd/cmd"
 	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"

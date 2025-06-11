@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/big"
 
-	exampleapp "cosmosevm.io/evmd"
+	exampleapp "github.com/cosmos/evm/evmd"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"

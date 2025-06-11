@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"

@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	exampleapp "cosmosevm.io/evmd"
+	exampleapp "github.com/cosmos/evm/evmd"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"

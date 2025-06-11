@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

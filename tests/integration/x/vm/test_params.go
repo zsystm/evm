@@ -1,7 +1,7 @@
 package vm
 
 import (
-	exampleapp "cosmosevm.io/evmd"
+	exampleapp "github.com/cosmos/evm/evmd"
 
 	"github.com/cosmos/evm/x/vm/types"
 )

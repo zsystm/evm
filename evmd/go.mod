@@ -1,4 +1,4 @@
-module cosmosevm.io/evmd
+module github.com/cosmos/evm/evmd
 
 go 1.23.8
 
@@ -265,7 +265,7 @@ require (
 )
 
 replace (
-	cosmosevm.io/evmd => ./evmd
+	github.com/cosmos/evm/evmd => ./evmd
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// Pin this pebble version to avoid breaking compilation of geth

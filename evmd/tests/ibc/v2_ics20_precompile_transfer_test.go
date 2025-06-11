@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 

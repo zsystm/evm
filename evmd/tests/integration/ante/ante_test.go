@@ -3,7 +3,7 @@ package ante
 import (
 	"testing"
 
-	"cosmosevm.io/evmd/tests/integration"
+	"github.com/cosmos/evm/evmd/tests/integration"
 
 	"github.com/cosmos/evm/tests/integration/ante"
 )

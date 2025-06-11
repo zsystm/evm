@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/stretchr/testify/require"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"

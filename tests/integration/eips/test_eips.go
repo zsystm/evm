@@ -5,8 +5,8 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmosevm.io/evmd/eips"
-	"cosmosevm.io/evmd/eips/testdata"
+	"github.com/cosmos/evm/evmd/eips"
+	"github.com/cosmos/evm/evmd/eips/testdata"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 

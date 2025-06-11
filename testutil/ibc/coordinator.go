@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/stretchr/testify/require"
 
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"

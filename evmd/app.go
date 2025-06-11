@@ -8,7 +8,7 @@ import (
 	"os"
 	"sort"
 
-	chainante "cosmosevm.io/evmd/ante"
+	chainante "github.com/cosmos/evm/evmd/ante"
 	corevm "github.com/ethereum/go-ethereum/core/vm"
 	"github.com/spf13/cast"
 

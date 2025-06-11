@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	testifysuite "github.com/stretchr/testify/suite"
 
 	evmibctesting "github.com/cosmos/evm/testutil/ibc"

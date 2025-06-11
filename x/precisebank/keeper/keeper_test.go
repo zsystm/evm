@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 
 	evmosencoding "github.com/cosmos/evm/encoding"
 	testconstants "github.com/cosmos/evm/testutil/constants"

@@ -3,7 +3,7 @@ package erc20
 import (
 	"fmt"
 
-	exampleapp "cosmosevm.io/evmd"
+	exampleapp "github.com/cosmos/evm/evmd"
 
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	utiltx "github.com/cosmos/evm/testutil/tx"

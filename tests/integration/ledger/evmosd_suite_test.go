@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	exampleapp "cosmosevm.io/evmd"
+	exampleapp "github.com/cosmos/evm/evmd"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"

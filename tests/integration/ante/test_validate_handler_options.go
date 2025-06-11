@@ -3,7 +3,7 @@ package ante
 import (
 	"testing"
 
-	chainante "cosmosevm.io/evmd/ante"
+	chainante "github.com/cosmos/evm/evmd/ante"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/evm/ante"

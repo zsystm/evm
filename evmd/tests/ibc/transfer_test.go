@@ -8,7 +8,7 @@ package ibc
 import (
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/stretchr/testify/suite"
 
 	evmibctesting "github.com/cosmos/evm/testutil/ibc"

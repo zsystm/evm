@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	testifysuite "github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/ibc"

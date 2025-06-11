@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"cosmosevm.io/evmd"
+	"github.com/cosmos/evm/evmd"
 	"github.com/stretchr/testify/require"
 
 	testconstants "github.com/cosmos/evm/testutil/constants"

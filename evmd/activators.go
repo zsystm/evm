@@ -1,7 +1,7 @@
 package evmd
 
 import (
-	"cosmosevm.io/evmd/eips"
+	"github.com/cosmos/evm/evmd/eips"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 

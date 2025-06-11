@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	chainante "cosmosevm.io/evmd/ante"
+	chainante "github.com/cosmos/evm/evmd/ante"
 
 	"github.com/cosmos/evm/ante"
 	ethante "github.com/cosmos/evm/ante/evm"
