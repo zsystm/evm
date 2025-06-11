@@ -1,6 +1,7 @@
 package ics20_test
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/evm/evmd"
 	evmibctesting "github.com/cosmos/evm/ibc/testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/cosmos/evm/testutil/integration/os/factory"
 	"github.com/cosmos/evm/testutil/tx"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+	"github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
@@ -28,7 +30,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 		return len(code) > 0
 	}
 
-	var _ = Describe("Calling ICS20 precompile from contract", func() {
+	var _ = Describe("Calling ICS20 precompile", func() {
 		s := new(PrecompileTestSuite)
 
 		var (
@@ -167,6 +169,65 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				input,
 			)
 			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
+		})
+
+		It("should successfully call the ICS20 precompile to transfer tokens", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			sourceChannelID := path.EndpointA.ChannelID
+			sourceBondDenom := s.chainABondDenom
+
+			// send some tokens to the conoract address
+			evmAppA := s.chainA.App.(*evmd.EVMD)
+			sendAmt := math.NewInt(1)
+			err := evmAppA.BankKeeper.SendCoins(
+				s.chainA.GetContext(),
+				s.chainA.SenderAccount.GetAddress(),
+				sdk.AccAddress(ics20CallerAddr.Bytes()),
+				sdk.NewCoins(sdk.NewCoin(sourceBondDenom, sendAmt)),
+			)
+			Expect(err).To(BeNil(), "Failed to send tokens to contract address")
+
+			callArgs := factory.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					sourceChannelID,
+					sourceBondDenom,
+					sendAmt.BigInt(),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().UTC().UnixNano()),
+					"",
+				},
+			}
+			input, err := factory.GenerateContractCallArgsInput(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderPrivKey,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+			)
+			Expect(err).To(BeNil(), "Failed to testTransfer")
+			// balance after transfer should be 0
+			contractBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				sdk.AccAddress(ics20CallerAddr.Bytes()),
+				sourceBondDenom,
+			)
+			Expect(contractBalance.Amount).To(Equal(math.ZeroInt()), "Contract balance should be 0 after transfer")
+			escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
+			escrowBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				sdk.AccAddress(escrowAddr),
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
 		})
 	})
 
