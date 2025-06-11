@@ -95,7 +95,7 @@ func (s *PrecompileTestSuite) TestTransferErrors() {
 			)
 			s.Require().NoError(err)
 
-			_, err = s.chainA.SendEvmTx(
+			_, _, _, err = s.chainA.SendEvmTx(
 				s.chainA.SenderPrivKey,
 				s.chainAPrecompile.Address(),
 				big.NewInt(0),
@@ -136,7 +136,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 	)
 	s.Require().NoError(err)
 
-	res, err := s.chainA.SendEvmTx(
+	res, _, _, err := s.chainA.SendEvmTx(
 		s.chainA.SenderPrivKey,
 		s.chainAPrecompile.Address(),
 		big.NewInt(0),

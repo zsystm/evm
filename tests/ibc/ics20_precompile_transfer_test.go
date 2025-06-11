@@ -164,7 +164,7 @@ func (suite *ICS20TransferTestSuite) TestHandleMsgTransfer() {
 			)
 			suite.Require().NoError(err)
 
-			res, err := suite.chainA.SendEvmTx(
+			res, _, _, err := suite.chainA.SendEvmTx(
 				suite.chainA.SenderPrivKey, suite.chainAPrecompile.Address(), big.NewInt(0), data)
 			suite.Require().NoError(err) // message committed
 

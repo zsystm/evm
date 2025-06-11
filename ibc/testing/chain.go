@@ -367,7 +367,7 @@ func (chain *TestChain) SendEvmTx(
 	to common.Address,
 	amount *big.Int,
 	data []byte,
-) (*abci.ExecTxResult, error) {
+) (*abci.ExecTxResult, *types.MsgEthereumTx, *types.MsgEthereumTxResponse, error) {
 	app, ok := chain.App.(*evmd.EVMD)
 	require.True(chain.TB, ok)
 	ctx := chain.GetContext()
@@ -382,7 +382,13 @@ func (chain *TestChain) SendEvmTx(
 		}
 	}()
 
-	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, to.Bytes(), amount, data, 0)
+	var dest []byte
+	if to == (common.Address{}) {
+		dest = nil
+	} else {
+		dest = to.Bytes()
+	}
+	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, dest, amount, data, 0)
 	require.NoError(chain.TB, err)
 
 	txConfig := app.GetTxConfig()
@@ -411,16 +417,16 @@ func (chain *TestChain) SendEvmTx(
 	txResult := res.TxResults[0]
 
 	if txResult.Code != 0 {
-		return txResult, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
+		return txResult, nil, nil, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
 	}
 	ethRes, err := types.DecodeTxResponse(txResult.Data)
 	if ethRes.VmError != "" {
-		return txResult, errorsmod.Wrapf(types.ErrVMExecution, "vm error: %s", ethRes.VmError)
+		return txResult, msgEthereumTx, ethRes, errorsmod.Wrapf(types.ErrVMExecution, "vm error: %s", ethRes.VmError)
 	}
 
 	chain.Coordinator.IncrementTime()
 
-	return txResult, nil
+	return txResult, msgEthereumTx, ethRes, nil
 }
 
 // SendMsgs delivers a transaction through the application using a predefined sender.
