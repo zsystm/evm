@@ -15,8 +15,10 @@ type PrecompileTestSuite struct {
 
 	chainA           *evmibctesting.TestChain
 	chainAPrecompile *ics20.Precompile
+	chainABondDenom  string
 	chainB           *evmibctesting.TestChain
 	chainBPrecompile *ics20.Precompile
+	chainBBondDenom  string
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
@@ -39,6 +41,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		evmAppA.IBCKeeper.ChannelKeeper,
 		evmAppA.EVMKeeper,
 	)
+	s.chainABondDenom, _ = evmAppA.StakingKeeper.BondDenom(s.chainA.GetContext())
 	evmAppB := s.chainB.App.(*evmd.EVMD)
 	s.chainBPrecompile, _ = ics20.NewPrecompile(
 		*evmAppB.StakingKeeper,
@@ -46,4 +49,5 @@ func (s *PrecompileTestSuite) SetupTest() {
 		evmAppB.IBCKeeper.ChannelKeeper,
 		evmAppB.EVMKeeper,
 	)
+	s.chainBBondDenom, _ = evmAppB.StakingKeeper.BondDenom(s.chainB.GetContext())
 }

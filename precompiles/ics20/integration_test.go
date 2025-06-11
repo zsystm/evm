@@ -1,14 +1,20 @@
 package ics20_test
 
 import (
-	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/evm/evmd"
+	evmibctesting "github.com/cosmos/evm/ibc/testing"
+	"github.com/cosmos/evm/precompiles/ics20"
 	"github.com/cosmos/evm/precompiles/testutil/contracts"
+	"github.com/cosmos/evm/testutil/integration/os/factory"
+	"github.com/cosmos/evm/testutil/tx"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"testing"
+	"time"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -16,18 +22,23 @@ import (
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {
+	isContractDeployed := func(ctx sdk.Context, evmApp *evmd.EVMD, contractAddr common.Address) bool {
+		codeHash := evmApp.EVMKeeper.GetCodeHash(ctx, contractAddr)
+		code := evmApp.EVMKeeper.GetCode(ctx, codeHash)
+		return len(code) > 0
+	}
+
 	var _ = Describe("Calling ICS20 precompile from contract", func() {
 		s := new(PrecompileTestSuite)
 
 		var (
 			ics20CallerContract evmtypes.CompiledContract
-			//contractAddr        common.Address
-			//callArgs            factory.CallArgs
-			//txArgs              evmtypes.EvmTxArgs
+			ics20CallerAddr     common.Address
 			//defaultLogCheck     testutil.LogCheckArgs
 			//execRevertedCheck   testutil.LogCheckArgs
-			//randomAccAddr       sdk.AccAddress
-			err error
+			randomAddr    common.Address
+			randomAccAddr sdk.AccAddress
+			err           error
 		)
 
 		BeforeEach(func() {
@@ -47,91 +58,116 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 			Expect(err).To(BeNil())
 			Expect(res.Code).To(BeZero(), "Failed to deploy ICS20 caller contract: %s", res.Log)
 
-			contractAddr := crypto.CreateAddress(common.Address(sender.Bytes()), sentEthTx.AsTransaction().Nonce())
+			ics20CallerAddr = crypto.CreateAddress(common.Address(sender.Bytes()), sentEthTx.AsTransaction().Nonce())
 			evmAppA := s.chainA.App.(*evmd.EVMD)
-			ctxA := s.chainA.GetContext()
-			codeHash := evmAppA.EVMKeeper.GetCodeHash(ctxA, contractAddr)
-			code := evmAppA.EVMKeeper.GetCode(ctxA, codeHash)
-			Expect(code).To(Equal(ics20CallerContract.Bin), "Deployed contract code does not match expected code")
+			Expect(isContractDeployed(s.chainA.GetContext(), evmAppA, ics20CallerAddr)).To(BeTrue(), "Contract was not deployed successfully")
 
-			//randomAccAddr = sdk.AccAddress(tx.GenerateAddress().Bytes())
+			randomAddr = tx.GenerateAddress()
+			randomAccAddr = sdk.AccAddress(randomAddr.Bytes())
 		})
 
-		It("test", func() {
-			fmt.Println("Random")
+		It("should fail if send is different from msg.sender (only direct call is allowed, not for proxy)", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			sourceChannelID := path.EndpointA.ChannelID
+			sourceBondDenom := s.chainABondDenom
+			sender := common.Address(s.chainA.SenderAccount.GetAddress().Bytes())
+
+			callArgs := factory.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					sourceChannelID,
+					sourceBondDenom,
+					big.NewInt(1),
+					sender,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().Add(time.Minute).Unix()),
+					"",
+				},
+			}
+			input, err := factory.GenerateContractCallArgsInput(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderPrivKey,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+			)
+			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
 		})
 
-		//It("should fail if sender is different from msg.sender", func() {
-		//	portID := transfertypes.PortID
-		//	channelID := "channel-0"
-		//	connectionID := "connection-0"
-		//	clientID := "07-tendermint"
-		//	version := transfertypes.V1
-		//	var connectionVersion *connectiontypes.Version
-		//
-		//	txSender := s.keyring.GetAccAddr(0)
-		//	txSenderKey := s.keyring.GetPrivKey(0)
-		//	// Set up the connection
-		//	msgConnectionOpenInit := connectiontypes.NewMsgConnectionOpenInit(
-		//		clientID, clientID,
-		//		commitmenttypes.NewMerklePrefix([]byte("storePrefixKey")),
-		//		connectionVersion, 500, txSender.String(),
-		//	)
-		//	resp, err := s.factory.ExecuteCosmosTx(txSenderKey, commonfactory.CosmosTxArgs{
-		//		Msgs: []sdk.Msg{msgConnectionOpenInit},
-		//	})
-		//	Expect(err).To(BeNil())
-		//	Expect(resp.Code).To(BeZero(), "Failed to open channel: %s", resp.Log)
-		//
-		//	// Set up the channel
-		//	msgChannelOpenInit := channeltypes.NewMsgChannelOpenInit(
-		//		portID, version, channeltypes.UNORDERED,
-		//		[]string{connectionID}, portID, txSender.String(),
-		//	)
-		//	resp, err = s.factory.ExecuteCosmosTx(txSenderKey, commonfactory.CosmosTxArgs{
-		//		Msgs: []sdk.Msg{msgChannelOpenInit},
-		//	})
-		//	Expect(err).To(BeNil())
-		//	Expect(resp.Code).To(BeZero(), "Failed to open channel: %s", resp.Log)
-		//
-		//	anotherAddr := s.keyring.GetAddr(1)
-		//	callArgs.MethodName = "testIbcTransfer"
-		//	callArgs.Args = []interface{}{
-		//		portID,
-		//		channelID,
-		//		s.bondDenom,
-		//		big.NewInt(1),
-		//		anotherAddr,
-		//		randomAccAddr.String(),
-		//		ics20.DefaultTimeoutHeight,
-		//		uint64(time.Now().Add(time.Minute).Unix()),
-		//		"",
-		//	}
-		//
-		//	check := defaultLogCheck.WithErrContains(
-		//		cmn.ErrRequesterIsNotMsgSender, contractAddr.String(), s.keyring.GetAddr(0).String(),
-		//	)
-		//	_, _, err = s.factory.CallContractAndCheckLogs(txSenderKey, txArgs, callArgs, check)
-		//	Expect(err).To(BeNil())
-		//})
-		//
-		//It("should fail if channel does not exist", func() {
-		//	callArgs.MethodName = "testIbcTransferFromContract"
-		//	callArgs.Args = []interface{}{
-		//		transfertypes.PortID,
-		//		"channel-0",
-		//		s.bondDenom,
-		//		big.NewInt(1),
-		//		s.keyring.GetAddr(0).String(),
-		//		ics20.DefaultTimeoutHeight,
-		//		uint64(time.Now().Add(time.Minute).Unix()),
-		//		"",
-		//	}
-		//
-		//	_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, execRevertedCheck)
-		//	Expect(err).To(BeNil())
-		//})
-		//
+		It("should fail if the v1 channel is not found", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			nonExistentChannelID := "channel-100"
+			sourceBondDenom := s.chainABondDenom
+
+			callArgs := factory.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					nonExistentChannelID,
+					sourceBondDenom,
+					big.NewInt(1),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().Add(time.Minute).Unix()),
+					"",
+				},
+			}
+			input, err := factory.GenerateContractCallArgsInput(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderPrivKey,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+			)
+			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
+		})
+
+		It("should fail if the v2 client id format is invalid", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			invalidV2ClientID := "v2"
+			sourceBondDenom := s.chainABondDenom
+
+			callArgs := factory.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					invalidV2ClientID,
+					sourceBondDenom,
+					big.NewInt(1),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().Add(time.Minute).Unix()),
+					"",
+				},
+			}
+			input, err := factory.GenerateContractCallArgsInput(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderPrivKey,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+			)
+			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
+		})
 	})
 
 	// Run Ginkgo integration tests
