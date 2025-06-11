@@ -114,9 +114,9 @@ func (s *AnteTestSuite) SetupTest() {
 	// get the denom and decimals set when initialized the chain
 	// to set them again
 	// when resetting the chain config
-	denom := evmtypes.GetEVMCoinDenom()                 //nolint:staticcheck
-	extendedDenom := evmtypes.GetEVMCoinExtendedDenom() //nolint:staticcheck
-	decimals := evmtypes.GetEVMCoinDecimals()           //nolint:staticcheck
+	denom := evmtypes.GetEVMCoinDenom()
+	extendedDenom := evmtypes.GetEVMCoinExtendedDenom()
+	decimals := evmtypes.GetEVMCoinDecimals()
 
 	configurator := evmtypes.NewEVMConfigurator()
 	configurator.ResetTestConfig()

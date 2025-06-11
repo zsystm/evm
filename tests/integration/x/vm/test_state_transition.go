@@ -350,7 +350,6 @@ func (s *KeeperTestSuite) TestGasToRefund() {
 
 			if tc.expPanic {
 				panicF := func() {
-					//nolint:staticcheck
 					keeper.GasToRefund(vmdb.GetRefund(), tc.gasconsumed, tc.refundQuotient)
 				}
 				s.Require().Panics(panicF)
