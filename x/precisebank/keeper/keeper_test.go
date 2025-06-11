@@ -3,9 +3,8 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/cosmos/evm/evmd"
-
 	evmosencoding "github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/evmd"
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/x/precisebank/keeper"
 	"github.com/cosmos/evm/x/precisebank/types"

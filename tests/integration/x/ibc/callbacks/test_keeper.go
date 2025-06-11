@@ -1,11 +1,11 @@
-package keeper_test
+package callbacks
 
 import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/x/ibc/callbacks/types"
 	cbtypes "github.com/cosmos/ibc-go/v10/modules/apps/callbacks/types"
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
@@ -16,7 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (suite *KeeperTestSuite) TestOnRecvPacket() {
+func (s *KeeperTestSuite) TestOnRecvPacket() {
 	var (
 		contract     common.Address
 		ctx          sdk.Context
@@ -64,10 +64,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
-		ctx = suite.network.GetContext()
+		s.SetupTest() // reset
+		ctx = s.network.GetContext()
 
-		senderKey = suite.keyring.GetKey(0)
+		senderKey = s.keyring.GetKey(0)
 		receiverBz := types.GenerateIsolatedAddress("channel-1", senderKey.AccAddr.String())
 		receiver = sdk.AccAddress(receiverBz.Bytes()).String()
 		contract = common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678") // Example contract address
@@ -95,16 +95,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 		tc.malleate()
 
-		err := suite.network.App.CallbackKeeper.IBCReceivePacketCallback(ctx, packet, ack, contract.Hex(), transfertypes.V1)
+		err := s.network.App.GetCallbackKeeper().IBCReceivePacketCallback(ctx, packet, ack, contract.Hex(), transfertypes.V1)
 		if tc.expErr != nil {
-			suite.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
+			s.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
 		} else {
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		}
 	}
 }
 
-func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
+func (s *KeeperTestSuite) TestOnAcknowledgementPacket() {
 	var (
 		contract     common.Address
 		ctx          sdk.Context
@@ -151,10 +151,10 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
-		ctx = suite.network.GetContext()
+		s.SetupTest() // reset
+		ctx = s.network.GetContext()
 
-		senderKey = suite.keyring.GetKey(0)
+		senderKey = s.keyring.GetKey(0)
 		receiver = types.GenerateIsolatedAddress("channel-1", senderKey.AccAddr.String()).String()
 
 		transferData = transfertypes.NewFungibleTokenPacketData(
@@ -180,18 +180,18 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 
 		tc.malleate()
 
-		err := suite.network.App.CallbackKeeper.IBCOnAcknowledgementPacketCallback(
+		err := s.network.App.GetCallbackKeeper().IBCOnAcknowledgementPacketCallback(
 			ctx, packet, ack.Acknowledgement(), senderKey.AccAddr, contract.Hex(), senderKey.AccAddr.String(), transfertypes.V1,
 		)
 		if tc.expErr != nil {
-			suite.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
+			s.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
 		} else {
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		}
 	}
 }
 
-func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
+func (s *KeeperTestSuite) TestOnTimeoutPacket() {
 	var (
 		contract     common.Address
 		ctx          sdk.Context
@@ -238,10 +238,10 @@ func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
-		ctx = suite.network.GetContext()
+		s.SetupTest() // reset
+		ctx = s.network.GetContext()
 
-		senderKey = suite.keyring.GetKey(0)
+		senderKey = s.keyring.GetKey(0)
 		receiver = types.GenerateIsolatedAddress("channel-1", senderKey.AccAddr.String()).String()
 
 		transferData = transfertypes.NewFungibleTokenPacketData(
@@ -266,13 +266,13 @@ func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
 
 		tc.malleate()
 
-		err := suite.network.App.CallbackKeeper.IBCOnTimeoutPacketCallback(
+		err := s.network.App.GetCallbackKeeper().IBCOnTimeoutPacketCallback(
 			ctx, packet, senderKey.AccAddr, contract.Hex(), senderKey.AccAddr.String(), transfertypes.V1,
 		)
 		if tc.expErr != nil {
-			suite.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
+			s.Require().Contains(err.Error(), tc.expErr.Error(), "expected error: %s, got: %s", tc.expErr.Error(), err.Error())
 		} else {
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 		}
 	}
 }

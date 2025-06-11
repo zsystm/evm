@@ -8,7 +8,6 @@ import (
 	"os"
 	"sort"
 
-	chainante "github.com/cosmos/evm/evmd/ante"
 	corevm "github.com/ethereum/go-ethereum/core/vm"
 	"github.com/spf13/cast"
 
@@ -22,6 +21,7 @@ import (
 	evmante "github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmosencoding "github.com/cosmos/evm/encoding"
+	chainante "github.com/cosmos/evm/evmd/ante"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
 	cosmosevmutils "github.com/cosmos/evm/utils"
@@ -1104,6 +1104,10 @@ func (app *EVMD) GetMintKeeper() mintkeeper.Keeper {
 
 func (app *EVMD) GetPreciseBankKeeper() *precisebankkeeper.Keeper {
 	return &app.PreciseBankKeeper
+}
+
+func (app *EVMD) GetCallbackKeeper() ibccallbackskeeper.ContractKeeper {
+	return app.CallbackKeeper
 }
 
 func (app *EVMD) GetTransferKeeper() transferkeeper.Keeper {

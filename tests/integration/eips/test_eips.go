@@ -5,8 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/evm/evmd/eips"
-	"github.com/cosmos/evm/evmd/eips/testdata"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 
@@ -15,6 +13,8 @@ import (
 	//nolint:revive,ST1001 // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
+	"github.com/cosmos/evm/evmd/eips"
+	"github.com/cosmos/evm/evmd/eips/testdata"
 	"github.com/cosmos/evm/testutil/integration/evm/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/grpc"
 	"github.com/cosmos/evm/testutil/integration/evm/network"

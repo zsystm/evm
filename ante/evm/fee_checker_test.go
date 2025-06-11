@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/evm/evmd"
 	"github.com/stretchr/testify/require"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -13,6 +12,7 @@ import (
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"
 	"github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/evmd"
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/types"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"

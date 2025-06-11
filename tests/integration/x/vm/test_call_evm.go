@@ -35,7 +35,7 @@ func (s *KeeperTestSuite) TestCallEVM() {
 
 		erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 		account := utiltx.GenerateAddress()
-		res, err := s.Network.App.GetEVMKeeper().CallEVM(s.Network.GetContext(), erc20, types.ModuleAddress, wcosmosEVMContract, false, tc.method, account)
+		res, err := s.Network.App.GetEVMKeeper().CallEVM(s.Network.GetContext(), erc20, types.ModuleAddress, wcosmosEVMContract, false, nil, tc.method, account)
 		if tc.expPass {
 			s.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			s.Require().NoError(err)
@@ -134,9 +134,9 @@ func (s *KeeperTestSuite) TestCallEVMWithData() {
 			var err error
 
 			if tc.deploy {
-				res, err = s.Network.App.GetEVMKeeper().CallEVMWithData(s.Network.GetContext(), tc.from, nil, data, true)
+				res, err = s.Network.App.GetEVMKeeper().CallEVMWithData(s.Network.GetContext(), tc.from, nil, data, true, nil)
 			} else {
-				res, err = s.Network.App.GetEVMKeeper().CallEVMWithData(s.Network.GetContext(), tc.from, &wcosmosEVMContract, data, false)
+				res, err = s.Network.App.GetEVMKeeper().CallEVMWithData(s.Network.GetContext(), tc.from, &wcosmosEVMContract, data, false, nil)
 			}
 
 			if tc.expPass {

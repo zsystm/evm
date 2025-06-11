@@ -11,8 +11,8 @@ import (
 
 	"github.com/cosmos/evm/contracts"
 	"github.com/cosmos/evm/evmd"
-	evmibctesting "github.com/cosmos/evm/ibc/testing"
-	"github.com/cosmos/evm/testutil/integration/os/factory"
+	evmibctesting "github.com/cosmos/evm/testutil/ibc"
+	testutiltypes "github.com/cosmos/evm/testutil/types"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
@@ -98,7 +98,7 @@ func SetupNativeErc20(t *testing.T, chain *evmibctesting.TestChain) *NativeErc20
 }
 
 // SetupNativeErc20 deploys, registers, and mints a native ERC20 token on an EVM-based chain.
-func DeployContract(t *testing.T, chain *evmibctesting.TestChain, deploymentData factory.ContractDeploymentData) (common.Address, error) {
+func DeployContract(t *testing.T, chain *evmibctesting.TestChain, deploymentData testutiltypes.ContractDeploymentData) (common.Address, error) {
 	t.Helper()
 
 	// Get account's nonce to create contract hash

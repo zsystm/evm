@@ -3,9 +3,9 @@ package erc20
 import (
 	"testing"
 
-	"github.com/cosmos/evm/evmd/tests/integration"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/evm/evmd/tests/integration"
 	erc21 "github.com/cosmos/evm/tests/integration/precompiles/erc20"
 )
 

@@ -13,9 +13,9 @@ import (
 	"github.com/cosmos/evm/contracts"
 	"github.com/cosmos/evm/evmd"
 	"github.com/cosmos/evm/ibc"
-	evmibctesting "github.com/cosmos/evm/ibc/testing"
 	"github.com/cosmos/evm/testutil"
-	"github.com/cosmos/evm/testutil/integration/os/factory"
+	evmibctesting "github.com/cosmos/evm/testutil/ibc"
+	testutiltypes "github.com/cosmos/evm/testutil/types"
 	"github.com/cosmos/evm/x/erc20"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	"github.com/cosmos/evm/x/erc20/types"
@@ -319,7 +319,7 @@ func (suite *MiddlewareTestSuite) TestOnRecvPacketWithCallback() {
 			contractData, err = testutil2.LoadCounterWithCallbacksContract()
 			suite.Require().NoError(err)
 
-			deploymentData := factory.ContractDeploymentData{
+			deploymentData := testutiltypes.ContractDeploymentData{
 				Contract:        contractData,
 				ConstructorArgs: nil,
 			}
@@ -627,7 +627,7 @@ func (suite *MiddlewareTestSuite) TestOnRecvPacketNativeErc20() {
 	contractData, err := testutil2.LoadCounterWithCallbacksContract()
 	suite.Require().NoError(err)
 
-	deploymentData := factory.ContractDeploymentData{
+	deploymentData := testutiltypes.ContractDeploymentData{
 		Contract:        contractData,
 		ConstructorArgs: nil,
 	}
@@ -950,7 +950,7 @@ func (suite *MiddlewareTestSuite) TestOnAcknowledgementPacketWithCallback() {
 			contractData, err = testutil2.LoadCounterWithCallbacksContract()
 			suite.Require().NoError(err)
 
-			deploymentData := factory.ContractDeploymentData{
+			deploymentData := testutiltypes.ContractDeploymentData{
 				Contract:        contractData,
 				ConstructorArgs: nil,
 			}
@@ -1731,7 +1731,7 @@ func (suite *MiddlewareTestSuite) TestOnTimeoutPacketWithCallback() {
 			contractData, err = testutil2.LoadCounterWithCallbacksContract()
 			suite.Require().NoError(err)
 
-			deploymentData := factory.ContractDeploymentData{
+			deploymentData := testutiltypes.ContractDeploymentData{
 				Contract:        contractData,
 				ConstructorArgs: nil,
 			}

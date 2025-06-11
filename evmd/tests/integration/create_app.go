@@ -1,10 +1,9 @@
 package integration
 
 import (
-	"github.com/cosmos/evm/evmd"
-
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/evm"
+	"github.com/cosmos/evm/evmd"
 
 	"cosmossdk.io/log"
 

@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/evm/evmd"
 	testifysuite "github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/evm/evmd"
 	"github.com/cosmos/evm/testutil"
 	evmibctesting "github.com/cosmos/evm/testutil/ibc"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"

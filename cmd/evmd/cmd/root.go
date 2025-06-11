@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/cosmos/evm/evmd"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,6 +16,7 @@ import (
 	cosmosevmcmd "github.com/cosmos/evm/client"
 	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"
 	cosmosevmkeyring "github.com/cosmos/evm/crypto/keyring"
+	"github.com/cosmos/evm/evmd"
 	cosmosevmserver "github.com/cosmos/evm/server"
 	cosmosevmserverconfig "github.com/cosmos/evm/server/config"
 	srvflags "github.com/cosmos/evm/server/flags"
