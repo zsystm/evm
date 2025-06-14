@@ -148,7 +148,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	}
 
 	return bz, nil
-
 }
 
 // IsTransaction returns true if the given method name correspond to a
