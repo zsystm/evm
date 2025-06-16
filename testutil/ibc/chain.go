@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/evm/cmd/evmd/config"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/testutil/tx"
+	"github.com/cosmos/evm/x/vm/types"
 	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v10/modules/core/23-commitment/types"
@@ -366,7 +367,8 @@ func (chain *TestChain) SendEvmTx(
 	to common.Address,
 	amount *big.Int,
 	data []byte,
-) (*abci.ExecTxResult, error) {
+	gasLimit uint64,
+) (*abci.ExecTxResult, *types.MsgEthereumTx, *types.MsgEthereumTxResponse, error) {
 	app, ok := chain.App.(evm.EvmApp)
 	require.True(chain.TB, ok)
 	ctx := chain.GetContext()
@@ -381,7 +383,13 @@ func (chain *TestChain) SendEvmTx(
 		}
 	}()
 
-	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, to.Bytes(), amount, data, 0)
+	var dest []byte
+	if to == (common.Address{}) {
+		dest = nil
+	} else {
+		dest = to.Bytes()
+	}
+	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, dest, amount, data, 0, gasLimit)
 	require.NoError(chain.TB, err)
 
 	txConfig := app.GetTxConfig()
@@ -410,12 +418,16 @@ func (chain *TestChain) SendEvmTx(
 	txResult := res.TxResults[0]
 
 	if txResult.Code != 0 {
-		return txResult, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
+		return txResult, nil, nil, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
+	}
+	ethRes, err := types.DecodeTxResponse(txResult.Data)
+	if ethRes.VmError != "" {
+		return txResult, msgEthereumTx, ethRes, errorsmod.Wrapf(types.ErrVMExecution, "vm error: %s", ethRes.VmError)
 	}
 
 	chain.Coordinator.IncrementTime()
 
-	return txResult, nil
+	return txResult, msgEthereumTx, ethRes, nil
 }
 
 // SendMsgs delivers a transaction through the application using a predefined sender.

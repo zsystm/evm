@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/evmd"
+	"github.com/cosmos/evm/evmd/tests/integration"
 	"github.com/cosmos/evm/precompiles/ics20"
 	evmibctesting "github.com/cosmos/evm/testutil/ibc"
 	evmante "github.com/cosmos/evm/x/vm/ante"
@@ -39,7 +40,7 @@ type ICS20TransferV2TestSuite struct {
 }
 
 func (suite *ICS20TransferV2TestSuite) SetupTest() {
-	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 2, 0)
+	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 2, 0, integration.SetupEvmd)
 	suite.chainA = suite.coordinator.GetChain(evmibctesting.GetEvmChainID(1))
 	suite.chainB = suite.coordinator.GetChain(evmibctesting.GetEvmChainID(2))
 
@@ -166,8 +167,7 @@ func (suite *ICS20TransferV2TestSuite) TestHandleMsgTransfer() {
 			)
 			suite.Require().NoError(err)
 
-			res, err := suite.chainA.SendEvmTx(
-				suite.chainA.SenderPrivKey, suite.chainAPrecompile.Address(), big.NewInt(0), data)
+			res, _, _, err := suite.chainA.SendEvmTx(suite.chainA.SenderPrivKey, suite.chainAPrecompile.Address(), big.NewInt(0), data, 0)
 			suite.Require().NoError(err) // message committed
 			packets, err := pathAToB.EndpointA.ParseV2PacketFromEvent(res.Events)
 			suite.Require().NoError(err)

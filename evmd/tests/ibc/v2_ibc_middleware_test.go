@@ -10,6 +10,7 @@ import (
 	testifysuite "github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/evmd"
+	"github.com/cosmos/evm/evmd/tests/integration"
 	"github.com/cosmos/evm/testutil"
 	evmibctesting "github.com/cosmos/evm/testutil/ibc"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
@@ -43,7 +44,7 @@ type MiddlewareV2TestSuite struct {
 }
 
 func (suite *MiddlewareV2TestSuite) SetupTest() {
-	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 1, 1)
+	suite.coordinator = evmibctesting.NewCoordinator(suite.T(), 1, 1, integration.SetupEvmd)
 	suite.evmChainA = suite.coordinator.GetChain(evmibctesting.GetEvmChainID(1))
 	suite.chainB = suite.coordinator.GetChain(evmibctesting.GetChainID(2))
 
