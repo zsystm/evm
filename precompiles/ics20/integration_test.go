@@ -32,15 +32,19 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 
 	var _ = Describe("Calling ICS20 precompile", func() {
 		s := new(PrecompileTestSuite)
+		// testCase is a struct used for cases of contracts calls that have some operation
+		// performed before and/or after the precompile call
+		type testCase struct {
+			before bool
+			after  bool
+		}
 
 		var (
 			ics20CallerContract evmtypes.CompiledContract
 			ics20CallerAddr     common.Address
-			//defaultLogCheck     testutil.LogCheckArgs
-			//execRevertedCheck   testutil.LogCheckArgs
-			randomAddr    common.Address
-			randomAccAddr sdk.AccAddress
-			err           error
+			randomAddr          common.Address
+			randomAccAddr       sdk.AccAddress
+			err                 error
 		)
 
 		BeforeEach(func() {
@@ -56,6 +60,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				common.Address{},
 				big.NewInt(0),
 				ics20CallerContract.Bin,
+				0,
 			)
 			Expect(err).To(BeNil())
 			Expect(res.Code).To(BeZero(), "Failed to deploy ICS20 caller contract: %s", res.Log)
@@ -66,6 +71,41 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 
 			randomAddr = tx.GenerateAddress()
 			randomAccAddr = sdk.AccAddress(randomAddr.Bytes())
+		})
+
+		It("should fail if the provided gas limit is too low", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			sourceChannelID := path.EndpointA.ChannelID
+			sourceBondDenom := s.chainABondDenom
+
+			callArgs := factory.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					sourceChannelID,
+					sourceBondDenom,
+					big.NewInt(1),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().Add(time.Minute).Unix()),
+					"",
+				},
+			}
+			input, err := factory.GenerateContractCallArgsInput(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderPrivKey,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+				30000, // intentionally low gas limit
+			)
+			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
 		})
 
 		It("should fail if send is different from msg.sender (only direct call is allowed, not for proxy)", func() {
@@ -99,6 +139,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
+				0,
 			)
 			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
 		})
@@ -133,6 +174,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
+				0,
 			)
 			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
 		})
@@ -167,6 +209,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
+				0,
 			)
 			Expect(err).NotTo(BeNil(), "Failed to testTransfer: %s", err.Error())
 		})
@@ -174,18 +217,25 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 		It("should successfully call the ICS20 precompile to transfer tokens", func() {
 			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
 			path.Setup()
+			evmAppA := s.chainA.App.(*evmd.EVMD)
 
 			sourcePortID := path.EndpointA.ChannelConfig.PortID
 			sourceChannelID := path.EndpointA.ChannelID
 			sourceBondDenom := s.chainABondDenom
+			escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
+			escrowBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				escrowAddr,
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()), "Escrow balance should be 0 before transfer")
 
-			// send some tokens to the conoract address
-			evmAppA := s.chainA.App.(*evmd.EVMD)
+			// send some tokens to the contract address
 			sendAmt := math.NewInt(1)
-			err := evmAppA.BankKeeper.SendCoins(
+			err = evmAppA.BankKeeper.SendCoins(
 				s.chainA.GetContext(),
 				s.chainA.SenderAccount.GetAddress(),
-				sdk.AccAddress(ics20CallerAddr.Bytes()),
+				(ics20CallerAddr.Bytes()),
 				sdk.NewCoins(sdk.NewCoin(sourceBondDenom, sendAmt)),
 			)
 			Expect(err).To(BeNil(), "Failed to send tokens to contract address")
@@ -212,23 +262,113 @@ func TestPrecompileIntegrationTestSuite(t *testing.T) {
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
+				0,
 			)
 			Expect(err).To(BeNil(), "Failed to testTransfer")
 			// balance after transfer should be 0
 			contractBalance := evmAppA.BankKeeper.GetBalance(
 				s.chainA.GetContext(),
-				sdk.AccAddress(ics20CallerAddr.Bytes()),
+				ics20CallerAddr.Bytes(),
 				sourceBondDenom,
 			)
 			Expect(contractBalance.Amount).To(Equal(math.ZeroInt()), "Contract balance should be 0 after transfer")
-			escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
-			escrowBalance := evmAppA.BankKeeper.GetBalance(
+			escrowBalance = evmAppA.BankKeeper.GetBalance(
 				s.chainA.GetContext(),
-				sdk.AccAddress(escrowAddr),
+				escrowAddr,
 				sourceBondDenom,
 			)
 			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
 		})
+
+		//DescribeTable("ICS20 transfer with trasnfer", func(tc testCase) {
+		//	path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+		//	path.Setup()
+		//	evmAppA := s.chainA.App.(*evmd.EVMD)
+		//
+		//	sourcePortID := path.EndpointA.ChannelConfig.PortID
+		//	sourceChannelID := path.EndpointA.ChannelID
+		//	sourceBondDenom := s.chainABondDenom
+		//	escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
+		//	escrowBalance := evmAppA.BankKeeper.GetBalance(
+		//		s.chainA.GetContext(),
+		//		escrowAddr,
+		//		sourceBondDenom,
+		//	)
+		//	Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()), "Escrow balance should be 0 before transfer")
+		//
+		//	// send some tokens to the conoract address
+		//	fundAmt := math.NewInt(100)
+		//	err := evmAppA.BankKeeper.SendCoins(
+		//		s.chainA.GetContext(),
+		//		s.chainA.SenderAccount.GetAddress(),
+		//		ics20CallerAddr.Bytes(),
+		//		sdk.NewCoins(sdk.NewCoin(sourceBondDenom, fundAmt)),
+		//	)
+		//	Expect(err).To(BeNil(), "Failed to send tokens to contract address")
+		//	// check contract balance
+		//	contractBalance := evmAppA.BankKeeper.GetBalance(
+		//		s.chainA.GetContext(),
+		//		ics20CallerAddr.Bytes(),
+		//		sourceBondDenom,
+		//	)
+		//	Expect(contractBalance.Amount).To(Equal(fundAmt), "Contract balance should be equal to the fund amount")
+		//
+		//	sendAmt := math.NewInt(1)
+		//	callArgs := factory.CallArgs{
+		//		ContractABI: ics20CallerContract.ABI,
+		//		MethodName:  "testIbcTransferWithTransfer",
+		//		Args: []interface{}{
+		//			sourcePortID,
+		//			sourceChannelID,
+		//			sourceBondDenom,
+		//			sendAmt.BigInt(),
+		//			ics20CallerAddr,
+		//			randomAccAddr.String(),
+		//			ics20.DefaultTimeoutHeight,
+		//			uint64(time.Now().UTC().UnixNano()),
+		//			"",
+		//			tc.before,
+		//			tc.after,
+		//		},
+		//	}
+		//	input, err := factory.GenerateContractCallArgsInput(callArgs)
+		//	Expect(err).To(BeNil(), "Failed to generate contract call args")
+		//	_, _, _, err = s.chainA.SendEvmTx(
+		//		s.chainA.SenderPrivKey,
+		//		ics20CallerAddr,
+		//		big.NewInt(0),
+		//		input,
+		//		0,
+		//	)
+		//	Expect(err).To(BeNil(), "Failed to testTransfer")
+		//	// balance after transfer should be 0
+		//	contractBalance = evmAppA.BankKeeper.GetBalance(
+		//		s.chainA.GetContext(),
+		//		ics20CallerAddr.Bytes(),
+		//		sourceBondDenom,
+		//	)
+		//	Expect(contractBalance.Amount).To(Equal(math.ZeroInt()), "Contract balance should be 0 after transfer")
+		//	escrowBalance = evmAppA.BankKeeper.GetBalance(
+		//		s.chainA.GetContext(),
+		//		escrowAddr,
+		//		sourceBondDenom,
+		//	)
+		//	Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
+		//
+		//},
+		//	Entry("before transfer", testCase{
+		//		before: true,
+		//		after:  false,
+		//	}),
+		//	Entry("after transfer", testCase{
+		//		before: false,
+		//		after:  true,
+		//	}),
+		//	Entry("before and after transfer", testCase{
+		//		before: true,
+		//		after:  true,
+		//	}),
+		//)
 	})
 
 	// Run Ginkgo integration tests

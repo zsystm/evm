@@ -98,6 +98,7 @@ func CreateEthTx(
 	amount *big.Int,
 	data []byte,
 	nonceIncrement int,
+	gasLimit uint64,
 ) (*evmtypes.MsgEthereumTx, error) {
 	var toAddr *common.Address
 	if len(dest) == 0 {
@@ -120,12 +121,15 @@ func CreateEthTx(
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
 	nonce := exampleApp.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //#nosec G115 -- will not exceed uint64
+	if gasLimit == 0 {
+		gasLimit = 5_000_000
+	}
 	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        toAddr,
 		Amount:    amount,
-		GasLimit:  5_000_000,
+		GasLimit:  gasLimit,
 		GasFeeCap: baseFee,
 		GasPrice:  big.NewInt(0),
 		GasTipCap: big.NewInt(0),

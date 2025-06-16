@@ -100,6 +100,7 @@ func (s *PrecompileTestSuite) TestTransferErrors() {
 				s.chainAPrecompile.Address(),
 				big.NewInt(0),
 				data,
+				0,
 			)
 			s.Require().Error(err)
 			s.Require().Contains(err.Error(), tc.expectErrSubstring)
@@ -141,6 +142,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		s.chainAPrecompile.Address(),
 		big.NewInt(0),
 		data,
+		0,
 	)
 	s.Require().NoError(err)
 

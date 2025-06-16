@@ -367,6 +367,7 @@ func (chain *TestChain) SendEvmTx(
 	to common.Address,
 	amount *big.Int,
 	data []byte,
+	gasLimit uint64,
 ) (*abci.ExecTxResult, *types.MsgEthereumTx, *types.MsgEthereumTxResponse, error) {
 	app, ok := chain.App.(*evmd.EVMD)
 	require.True(chain.TB, ok)
@@ -388,7 +389,7 @@ func (chain *TestChain) SendEvmTx(
 	} else {
 		dest = to.Bytes()
 	}
-	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, dest, amount, data, 0)
+	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, dest, amount, data, 0, gasLimit)
 	require.NoError(chain.TB, err)
 
 	txConfig := app.GetTxConfig()
