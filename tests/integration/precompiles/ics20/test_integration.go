@@ -36,7 +36,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 		return len(code) > 0
 	}
 
-	var _ = Describe("Calling ICS20 precompile", func() {
+	_ = Describe("Calling ICS20 precompile", func() {
 		s := new(PrecompileTestSuite)
 		// testCase is a struct used for cases of contracts calls that have some operation
 		// performed before and/or after the precompile call
@@ -375,7 +375,6 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 				sourceBondDenom,
 			)
 			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
-
 		},
 			Entry("before transfer", testCase{
 				before: true,
