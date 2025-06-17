@@ -363,7 +363,8 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 
 // Helper function to create and broadcast a ethereum transaction
 func (chain *TestChain) SendEvmTx(
-	priv cryptotypes.PrivKey,
+	senderAcc SenderAccount,
+	senderAccIdx int,
 	to common.Address,
 	amount *big.Int,
 	data []byte,
@@ -377,10 +378,14 @@ func (chain *TestChain) SendEvmTx(
 	chain.Coordinator.UpdateTimeForChain(chain)
 
 	defer func() {
-		err := chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+		// update nonce
+		acc := senderAcc.SenderAccount
+		newNonce := acc.GetSequence() + 1
+		err := acc.SetSequence(newNonce)
 		if err != nil {
 			panic(err)
 		}
+		chain.SenderAccounts[senderAccIdx].SenderAccount = acc
 	}()
 
 	var dest []byte
@@ -389,11 +394,11 @@ func (chain *TestChain) SendEvmTx(
 	} else {
 		dest = to.Bytes()
 	}
-	msgEthereumTx, err := tx.CreateEthTx(ctx, app, priv, dest, amount, data, 0, gasLimit)
+	msgEthereumTx, err := tx.CreateEthTx(ctx, app, senderAcc.SenderPrivKey, dest, amount, data, 0, gasLimit)
 	require.NoError(chain.TB, err)
 
 	txConfig := app.GetTxConfig()
-	tx, err := tx.PrepareEthTx(txConfig, priv, msgEthereumTx)
+	tx, err := tx.PrepareEthTx(txConfig, senderAcc.SenderPrivKey, msgEthereumTx)
 	require.NoError(chain.TB, err)
 
 	// bz are bytes to be broadcasted over the network

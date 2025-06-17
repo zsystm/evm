@@ -63,7 +63,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 
 			sender := s.chainA.SenderAccount.GetAddress()
 			res, sentEthTx, _, err := s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				common.Address{},
 				big.NewInt(0),
 				ics20CallerContract.Bin,
@@ -106,7 +107,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			input, err := factory.GenerateContractCallArgs(callArgs)
 			Expect(err).To(BeNil(), "Failed to generate contract call args")
 			_, _, _, err = s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
@@ -142,7 +144,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			input, err := factory.GenerateContractCallArgs(callArgs)
 			Expect(err).To(BeNil(), "Failed to generate contract call args")
 			_, _, _, err = s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
@@ -177,7 +180,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			input, err := factory.GenerateContractCallArgs(callArgs)
 			Expect(err).To(BeNil(), "Failed to generate contract call args")
 			_, _, _, err = s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
@@ -212,7 +216,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			input, err := factory.GenerateContractCallArgs(callArgs)
 			Expect(err).To(BeNil(), "Failed to generate contract call args")
 			_, _, _, err = s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
@@ -265,7 +270,8 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			input, err := factory.GenerateContractCallArgs(callArgs)
 			Expect(err).To(BeNil(), "Failed to generate contract call args")
 			_, _, _, err = s.chainA.SendEvmTx(
-				s.chainA.SenderPrivKey,
+				s.chainA.SenderAccounts[0],
+				0,
 				ics20CallerAddr,
 				big.NewInt(0),
 				input,
@@ -287,95 +293,103 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
 		})
 
-		//DescribeTable("ICS20 transfer with trasnfer", func(tc testCase) {
-		//	path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
-		//	path.Setup()
-		//	evmAppA := s.chainA.App.(*evmd.EVMD)
-		//
-		//	sourcePortID := path.EndpointA.ChannelConfig.PortID
-		//	sourceChannelID := path.EndpointA.ChannelID
-		//	sourceBondDenom := s.chainABondDenom
-		//	escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
-		//	escrowBalance := evmAppA.BankKeeper.GetBalance(
-		//		s.chainA.GetContext(),
-		//		escrowAddr,
-		//		sourceBondDenom,
-		//	)
-		//	Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()), "Escrow balance should be 0 before transfer")
-		//
-		//	// send some tokens to the conoract address
-		//	fundAmt := math.NewInt(100)
-		//	err := evmAppA.BankKeeper.SendCoins(
-		//		s.chainA.GetContext(),
-		//		s.chainA.SenderAccount.GetAddress(),
-		//		ics20CallerAddr.Bytes(),
-		//		sdk.NewCoins(sdk.NewCoin(sourceBondDenom, fundAmt)),
-		//	)
-		//	Expect(err).To(BeNil(), "Failed to send tokens to contract address")
-		//	// check contract balance
-		//	contractBalance := evmAppA.BankKeeper.GetBalance(
-		//		s.chainA.GetContext(),
-		//		ics20CallerAddr.Bytes(),
-		//		sourceBondDenom,
-		//	)
-		//	Expect(contractBalance.Amount).To(Equal(fundAmt), "Contract balance should be equal to the fund amount")
-		//
-		//	sendAmt := math.NewInt(1)
-		//	callArgs := testutiltypes.CallArgs{
-		//		ContractABI: ics20CallerContract.ABI,
-		//		MethodName:  "testIbcTransferWithTransfer",
-		//		Args: []interface{}{
-		//			sourcePortID,
-		//			sourceChannelID,
-		//			sourceBondDenom,
-		//			sendAmt.BigInt(),
-		//			ics20CallerAddr,
-		//			randomAccAddr.String(),
-		//			ics20.DefaultTimeoutHeight,
-		//			uint64(time.Now().UTC().UnixNano()),
-		//			"",
-		//			tc.before,
-		//			tc.after,
-		//		},
-		//	}
-		//	input, err := factory.GenerateContractCallArgs(callArgs)
-		//	Expect(err).To(BeNil(), "Failed to generate contract call args")
-		//	_, _, _, err = s.chainA.SendEvmTx(
-		//		s.chainA.SenderPrivKey,
-		//		ics20CallerAddr,
-		//		big.NewInt(0),
-		//		input,
-		//		0,
-		//	)
-		//	Expect(err).To(BeNil(), "Failed to testTransfer")
-		//	// balance after transfer should be 0
-		//	contractBalance = evmAppA.BankKeeper.GetBalance(
-		//		s.chainA.GetContext(),
-		//		ics20CallerAddr.Bytes(),
-		//		sourceBondDenom,
-		//	)
-		//	Expect(contractBalance.Amount).To(Equal(math.ZeroInt()), "Contract balance should be 0 after transfer")
-		//	escrowBalance = evmAppA.BankKeeper.GetBalance(
-		//		s.chainA.GetContext(),
-		//		escrowAddr,
-		//		sourceBondDenom,
-		//	)
-		//	Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
-		//
-		//},
-		//	Entry("before transfer", testCase{
-		//		before: true,
-		//		after:  false,
-		//	}),
-		//	Entry("after transfer", testCase{
-		//		before: false,
-		//		after:  true,
-		//	}),
-		//	Entry("before and after transfer", testCase{
-		//		before: true,
-		//		after:  true,
-		//	}),
-		//)
+		DescribeTable("ICS20 transfer with trasnfer", func(tc testCase) {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+			evmAppA := s.chainA.App.(*evmd.EVMD)
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			sourceChannelID := path.EndpointA.ChannelID
+			sourceBondDenom := s.chainABondDenom
+			escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
+			escrowBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				escrowAddr,
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()), "Escrow balance should be 0 before transfer")
+
+			// send some tokens to the conoract address
+			fundAmt := math.NewInt(100)
+			err = evmAppA.BankKeeper.SendCoins(
+				s.chainA.GetContext(),
+				s.chainA.SenderAccount.GetAddress(),
+				ics20CallerAddr.Bytes(),
+				sdk.NewCoins(sdk.NewCoin(sourceBondDenom, fundAmt)),
+			)
+			Expect(err).To(BeNil(), "Failed to send tokens to contract address")
+			// check contract balance
+			contractBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				ics20CallerAddr.Bytes(),
+				sourceBondDenom,
+			)
+			Expect(contractBalance.Amount).To(Equal(fundAmt), "Contract balance should be equal to the fund amount")
+
+			sendAmt := math.NewInt(1)
+			callArgs := testutiltypes.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testIbcTransferWithTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					sourceChannelID,
+					sourceBondDenom,
+					sendAmt.BigInt(),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().UTC().UnixNano()),
+					"",
+					tc.before,
+					tc.after,
+				},
+			}
+			input, err := factory.GenerateContractCallArgs(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderAccounts[0],
+				0,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+				0,
+			)
+			Expect(err).To(BeNil(), "Failed to testTransfer")
+			expectedContractBalance := fundAmt.Sub(sendAmt)
+			if tc.before {
+				expectedContractBalance = expectedContractBalance.Sub(math.NewInt(15))
+			}
+			if tc.after {
+				expectedContractBalance = expectedContractBalance.Sub(math.NewInt(15))
+			}
+			// balance after transfer should be 0
+			contractBalance = evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				ics20CallerAddr.Bytes(),
+				sourceBondDenom,
+			)
+			Expect(contractBalance.Amount).To(Equal(expectedContractBalance), "Contract balance should be equal to the expected amount after transfer")
+			escrowBalance = evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				escrowAddr,
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
+
+		},
+			Entry("before transfer", testCase{
+				before: true,
+				after:  false,
+			}),
+			Entry("after transfer", testCase{
+				before: false,
+				after:  true,
+			}),
+			Entry("before and after transfer", testCase{
+				before: true,
+				after:  true,
+			}),
+		)
 	})
 
 	// Run Ginkgo integration tests

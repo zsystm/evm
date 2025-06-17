@@ -5,6 +5,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/evm"
+	"github.com/cosmos/evm/cmd/evmd/config"
 	"github.com/cosmos/evm/evmd"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // CreateEvmd creates an evmos app
@@ -53,6 +56,12 @@ func SetupEvmd() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	fmGen := feemarkettypes.DefaultGenesisState()
 	fmGen.Params.NoBaseFee = true
 	genesisState[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(fmGen)
+	stakingGen := stakingtypes.DefaultGenesisState()
+	stakingGen.Params.BondDenom = config.ExampleChainDenom
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGen)
+	mintGen := minttypes.DefaultGenesisState()
+	mintGen.Params.MintDenom = config.ExampleChainDenom
+	genesisState[minttypes.ModuleName] = app.AppCodec().MustMarshalJSON(mintGen)
 
 	return app, genesisState
 }
