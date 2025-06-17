@@ -390,6 +390,88 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 				after:  true,
 			}),
 		)
+
+		It("should revert the transfer but continue execution after try catch", func() {
+			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
+			path.Setup()
+			evmAppA := s.chainA.App.(*evmd.EVMD)
+
+			sourcePortID := path.EndpointA.ChannelConfig.PortID
+			sourceChannelID := path.EndpointA.ChannelID
+			sourceBondDenom := s.chainABondDenom
+			escrowAddr := types.GetEscrowAddress(sourcePortID, sourceChannelID)
+			escrowBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				escrowAddr,
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()), "Escrow balance should be 0 before transfer")
+
+			// send some tokens to the contract address
+			fundAmt := math.NewInt(100)
+			err = evmAppA.BankKeeper.SendCoins(
+				s.chainA.GetContext(),
+				s.chainA.SenderAccount.GetAddress(),
+				ics20CallerAddr.Bytes(),
+				sdk.NewCoins(sdk.NewCoin(sourceBondDenom, fundAmt)),
+			)
+			Expect(err).To(BeNil(), "Failed to send tokens to contract address")
+			contractBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				ics20CallerAddr.Bytes(),
+				sourceBondDenom,
+			)
+			// check contract balance
+			Expect(contractBalance.Amount).To(Equal(fundAmt), "Contract balance should be equal to the fund amount")
+
+			sendAmt := math.NewInt(1)
+			callArgs := testutiltypes.CallArgs{
+				ContractABI: ics20CallerContract.ABI,
+				MethodName:  "testRevertIbcTransfer",
+				Args: []interface{}{
+					sourcePortID,
+					sourceChannelID,
+					sourceBondDenom,
+					sendAmt.BigInt(),
+					ics20CallerAddr,
+					randomAccAddr.String(),
+					common.BytesToAddress(randomAccAddr.Bytes()),
+					ics20.DefaultTimeoutHeight,
+					uint64(time.Now().UTC().UnixNano()),
+					"",
+					true,
+				},
+			}
+			input, err := factory.GenerateContractCallArgs(callArgs)
+			Expect(err).To(BeNil(), "Failed to generate contract call args")
+			_, _, _, err = s.chainA.SendEvmTx(
+				s.chainA.SenderAccounts[0],
+				0,
+				ics20CallerAddr,
+				big.NewInt(0),
+				input,
+				0,
+			)
+			Expect(err).To(BeNil(), "Failed to testTransfer")
+			contractBalanceAfter := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				ics20CallerAddr.Bytes(),
+				sourceBondDenom,
+			)
+			Expect(contractBalanceAfter.Amount).To(Equal(contractBalance.Amount.Sub(math.NewInt(15))))
+			escrowBalance = evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				escrowAddr,
+				sourceBondDenom,
+			)
+			Expect(escrowBalance.Amount).To(Equal(math.ZeroInt()))
+			randomAccBalance := evmAppA.BankKeeper.GetBalance(
+				s.chainA.GetContext(),
+				randomAccAddr,
+				sourceBondDenom,
+			)
+			Expect(randomAccBalance.Amount).To(Equal(math.NewInt(15)))
+		})
 	})
 
 	// Run Ginkgo integration tests

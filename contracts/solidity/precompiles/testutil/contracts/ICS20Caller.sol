@@ -100,6 +100,7 @@ contract ICS20Caller {
         uint256 _amount,
         address _sender,
         string memory _receiver,
+        address _receiverAddr,
         types.Height memory _timeoutHeight,
         uint64 _timeoutTimestamp,
         string memory _memo,
@@ -120,7 +121,7 @@ contract ICS20Caller {
         {} catch {}
         if (_after) {
             counter++;
-            (bool sent, ) = _sender.call{value: 15}("");
+            (bool sent, ) = _receiverAddr.call{value: 15}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }
