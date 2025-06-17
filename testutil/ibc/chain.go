@@ -426,6 +426,9 @@ func (chain *TestChain) SendEvmTx(
 		return txResult, nil, nil, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
 	}
 	ethRes, err := types.DecodeTxResponse(txResult.Data)
+	if err != nil {
+		return txResult, nil, nil, err
+	}
 	if ethRes.VmError != "" {
 		return txResult, msgEthereumTx, ethRes, errorsmod.Wrapf(types.ErrVMExecution, "vm error: %s", ethRes.VmError)
 	}

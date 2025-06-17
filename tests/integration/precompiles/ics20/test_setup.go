@@ -25,6 +25,7 @@ type PrecompileTestSuite struct {
 	chainBBondDenom  string
 }
 
+//nolint:thelper // NewPrecompileTestSuite is not a helper function; it's an instantiation function for the test suite.
 func NewPrecompileTestSuite(t *testing.T, create ibctesting.AppCreator) *PrecompileTestSuite {
 	return &PrecompileTestSuite{
 		internalT: t,

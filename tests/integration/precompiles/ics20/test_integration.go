@@ -100,7 +100,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					ics20CallerAddr,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().Add(time.Minute).Unix()),
+					uint64(time.Now().Add(time.Minute).Unix()), //#nosec G115 -- int overflow is not a concern here
 					"",
 				},
 			}
@@ -137,7 +137,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					sender,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().Add(time.Minute).Unix()),
+					uint64(time.Now().Add(time.Minute).Unix()), //#nosec G115 -- int overflow is not a concern here
 					"",
 				},
 			}
@@ -173,7 +173,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					ics20CallerAddr,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().Add(time.Minute).Unix()),
+					uint64(time.Now().Add(time.Minute).Unix()), //#nosec G115 -- int overflow is not a concern here
 					"",
 				},
 			}
@@ -209,7 +209,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					ics20CallerAddr,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().Add(time.Minute).Unix()),
+					uint64(time.Now().Add(time.Minute).Unix()), //#nosec G115 -- int overflow is not a concern here
 					"",
 				},
 			}
@@ -263,7 +263,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					ics20CallerAddr,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().UTC().UnixNano()),
+					uint64(time.Now().UTC().UnixNano()), //#nosec G115 -- int overflow is not a concern here
 					"",
 				},
 			}
@@ -293,7 +293,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 			Expect(escrowBalance.Amount).To(Equal(sendAmt), "Escrow balance should be equal to the sent amount after transfer")
 		})
 
-		DescribeTable("ICS20 transfer with trasnfer", func(tc testCase) {
+		DescribeTable("ICS20 transfer with transfer", func(tc testCase) {
 			path := evmibctesting.NewTransferPath(s.chainA, s.chainB)
 			path.Setup()
 			evmAppA := s.chainA.App.(*evmd.EVMD)
@@ -338,7 +338,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					ics20CallerAddr,
 					randomAccAddr.String(),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().UTC().UnixNano()),
+					uint64(time.Now().UTC().UnixNano()), //#nosec G115 -- int overflow is not a concern here
 					"",
 					tc.before,
 					tc.after,
@@ -437,7 +437,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 					randomAccAddr.String(),
 					common.BytesToAddress(randomAccAddr.Bytes()),
 					ics20.DefaultTimeoutHeight,
-					uint64(time.Now().UTC().UnixNano()),
+					uint64(time.Now().UTC().UnixNano()), //#nosec G115 -- int overflow is not a concern here
 					"",
 					true,
 				},
