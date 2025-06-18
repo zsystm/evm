@@ -7,7 +7,6 @@ import (
 
 	"github.com/cosmos/evm/ante"
 	ethante "github.com/cosmos/evm/ante/evm"
-	chainante "github.com/cosmos/evm/evmd/ante"
 	basefactory "github.com/cosmos/evm/testutil/integration/base/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/grpc"
@@ -81,7 +80,7 @@ func RunBenchmarkAnteHandler(b *testing.B, create network.CreateEvmApp, options 
 		}
 
 		handlerOptions := suite.generateHandlerOptions()
-		ante := chainante.NewAnteHandler(handlerOptions)
+		ante := ante.NewAnteHandler(handlerOptions)
 		b.StartTimer()
 
 		b.Run(fmt.Sprintf("tx_type_%v", v.name), func(b *testing.B) {
@@ -141,9 +140,9 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 	}
 }
 
-func (s *benchmarkSuite) generateHandlerOptions() chainante.HandlerOptions {
+func (s *benchmarkSuite) generateHandlerOptions() ante.HandlerOptions {
 	encCfg := s.network.GetEncodingConfig()
-	return chainante.HandlerOptions{
+	return ante.HandlerOptions{
 		Cdc:                    s.network.App.AppCodec(),
 		AccountKeeper:          s.network.App.GetAccountKeeper(),
 		BankKeeper:             s.network.App.GetBankKeeper(),

@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/encoding"
-	"github.com/cosmos/evm/evmd"
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	utiltx "github.com/cosmos/evm/testutil/tx"
 	"github.com/cosmos/evm/x/vm/types"
@@ -57,7 +57,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig(suite.chainID.Uint64())
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	err := evmd.EvmAppOptions(9001)
+	err := config.EvmAppOptions(9001)
 	suite.Require().NoError(err)
 }
 

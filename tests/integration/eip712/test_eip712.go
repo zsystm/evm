@@ -10,7 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
-	chainconfig "github.com/cosmos/evm/cmd/evmd/config"
+	chainconfig "github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/ethereum/eip712"
 	"github.com/cosmos/evm/testutil/constants"

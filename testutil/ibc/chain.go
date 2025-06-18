@@ -18,7 +18,7 @@ import (
 	cmtversion "github.com/cometbft/cometbft/version"
 
 	"github.com/cosmos/evm"
-	"github.com/cosmos/evm/cmd/evmd/config"
+	"github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/testutil/tx"
 	"github.com/cosmos/evm/x/vm/types"

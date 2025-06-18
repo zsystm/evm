@@ -13,7 +13,7 @@ import (
 	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
 	dbm "github.com/cosmos/cosmos-db"
-	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"
+	evmdconfig "github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/crypto/hd"
 	"github.com/cosmos/evm/encoding"
 	"github.com/cosmos/evm/indexer"

@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/cosmos/evm/config"
 	evmosencoding "github.com/cosmos/evm/encoding"
-	"github.com/cosmos/evm/evmd"
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/x/precisebank/keeper"
 	"github.com/cosmos/evm/x/precisebank/types"
@@ -44,7 +44,7 @@ func newMockedTestData(t *testing.T) testData {
 	cfg := evmosencoding.MakeConfig(chainID)
 	cdc := cfg.Codec
 	k := keeper.NewKeeper(cdc, storeKey, bk, ak)
-	err := evmd.EvmAppOptions(chainID)
+	err := config.EvmAppOptions(chainID)
 	if err != nil {
 		return testData{}
 	}

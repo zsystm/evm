@@ -11,7 +11,7 @@ import (
 	"github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"
+	evmdconfig "github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/rpc/backend/mocks"
 	rpc "github.com/cosmos/evm/rpc/types"
 	utiltx "github.com/cosmos/evm/testutil/tx"

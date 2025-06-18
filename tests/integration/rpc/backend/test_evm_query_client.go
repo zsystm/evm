@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	evmdconfig "github.com/cosmos/evm/cmd/evmd/config"
+	evmdconfig "github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/rpc/backend/mocks"
 	rpc "github.com/cosmos/evm/rpc/types"
 	utiltx "github.com/cosmos/evm/testutil/tx"

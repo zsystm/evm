@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/evm/evmd"
+	"github.com/cosmos/evm/config"
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/x/precisebank/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
@@ -78,7 +78,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccountMatchingErr
 	// we only are testing the errors/panics specific to the method and
 	// remaining logic is the same as SendCoins.
 
-	blockedMacAddrs := evmd.BlockedAddresses()
+	blockedMacAddrs := config.BlockedAddresses()
 	precisebankAddr := s.network.App.GetAccountKeeper().GetModuleAddress(types.ModuleName)
 
 	var blockedAddr sdk.AccAddress
@@ -99,7 +99,7 @@ func (s *KeeperIntegrationTestSuite) TestSendCoinsFromModuleToAccountMatchingErr
 	// x/precisebank is blocked from use with SendCoinsFromModuleToAccount as we
 	// don't want external modules to modify x/precisebank balances.
 	var senderModuleName string
-	macPerms := evmd.GetMaccPerms()
+	macPerms := config.GetMaccPerms()
 	for moduleName := range macPerms {
 		if moduleName != types.ModuleName && moduleName != stakingtypes.BondedPoolName {
 			senderModuleName = moduleName
