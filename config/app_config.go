@@ -32,24 +32,22 @@ func MustGetDefaultNodeHome() string {
 	return defaultNodeHome
 }
 
-var (
-	// module account permissions
-	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		minttypes.ModuleName:           {authtypes.Minter},
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
+// module account permissions
+var maccPerms = map[string][]string{
+	authtypes.FeeCollectorName:     nil,
+	distrtypes.ModuleName:          nil,
+	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+	minttypes.ModuleName:           {authtypes.Minter},
+	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+	govtypes.ModuleName:            {authtypes.Burner},
 
-		// Cosmos EVM modules
-		evmtypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-		feemarkettypes.ModuleName:   nil,
-		erc20types.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		precisebanktypes.ModuleName: {authtypes.Minter, authtypes.Burner},
-	}
-)
+	// Cosmos EVM modules
+	evmtypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
+	feemarkettypes.ModuleName:   nil,
+	erc20types.ModuleName:       {authtypes.Minter, authtypes.Burner},
+	precisebanktypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+}
 
 // BlockedAddresses returns all the app's blocked account addresses.
 //
