@@ -11,7 +11,7 @@ import (
 	cmttypes "github.com/cometbft/cometbft/types"
 
 	dbm "github.com/cosmos/cosmos-db"
-	config2 "github.com/cosmos/evm/config"
+	evmconfig "github.com/cosmos/evm/config"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
@@ -43,23 +43,23 @@ func init() {
 
 	// Set the global SDK config for the tests
 	cfg := sdk.GetConfig()
-	config2.SetBech32Prefixes(cfg)
-	config2.SetBip44CoinType(cfg)
+	evmconfig.SetBech32Prefixes(cfg)
+	evmconfig.SetBip44CoinType(cfg)
 }
 
-func setup(withGenesis bool, invCheckPeriod uint, chainID string, evmChainID uint64) (*EVMD, config2.GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint, chainID string, evmChainID uint64) (*EVMD, evmconfig.GenesisState) {
 	db := dbm.NewMemDB()
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = defaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, evmChainID, config2.EvmAppOptions, baseapp.SetChainID(chainID))
+	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, evmChainID, evmconfig.EvmAppOptions, baseapp.SetChainID(chainID))
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
 
-	return app, config2.GenesisState{}
+	return app, evmconfig.GenesisState{}
 }
 
 // Setup initializes a new EVMD. A Nop logger is set in EVMD.
@@ -131,7 +131,7 @@ func SetupTestingApp(chainID string, evmChainID uint64) func() (ibctesting.Testi
 			db, nil, true,
 			simtestutil.NewAppOptionsWithFlagHome(defaultNodeHome),
 			evmChainID,
-			config2.EvmAppOptions,
+			evmconfig.EvmAppOptions,
 			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()
