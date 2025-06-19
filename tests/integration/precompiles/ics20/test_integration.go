@@ -36,7 +36,7 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 		return len(code) > 0
 	}
 
-	_ = Describe("Calling ICS20 precompile", func() {
+	_ = Describe("Calling ICS20 precompile from callerContract", func() {
 		s := new(PrecompileTestSuite)
 		// testCase is a struct used for cases of contracts calls that have some operation
 		// performed before and/or after the precompile call
@@ -473,7 +473,9 @@ func TestPrecompileIntegrationTestSuite(t *testing.T, evmAppCreator ibctesting.A
 		})
 	})
 
+	// TODO: Add tests for calling ICS20 precompile from EoA
+
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Distribution Precompile Suite")
+	RunSpecs(t, "ICS20 Precompile Test Suite")
 }
