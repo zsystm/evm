@@ -17,8 +17,8 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	evmante "github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
-	evmconfig "github.com/cosmos/evm/config"
 	evmosencoding "github.com/cosmos/evm/encoding"
+	evmdconfig "github.com/cosmos/evm/evmd/cmd/evmd/config"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
 	"github.com/cosmos/evm/x/erc20"
@@ -134,7 +134,7 @@ func init() {
 	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
 	sdk.DefaultPowerReduction = cosmosevmtypes.AttoPowerReduction
 
-	defaultNodeHome = evmconfig.MustGetDefaultNodeHome()
+	defaultNodeHome = evmdconfig.MustGetDefaultNodeHome()
 }
 
 const appName = "evmd"
@@ -209,7 +209,7 @@ func NewExampleApp(
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
 	evmChainID uint64,
-	evmAppOptions evmconfig.EVMOptionsFn,
+	evmAppOptions evmdconfig.EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *EVMD {
 	encodingConfig := evmosencoding.MakeConfig(evmChainID)
@@ -314,7 +314,7 @@ func NewExampleApp(
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, runtime.NewKVStoreService(keys[authtypes.StoreKey]),
-		authtypes.ProtoBaseAccount, evmconfig.GetMaccPerms(),
+		authtypes.ProtoBaseAccount, evmdconfig.GetMaccPerms(),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
@@ -324,7 +324,7 @@ func NewExampleApp(
 		appCodec,
 		runtime.NewKVStoreService(keys[banktypes.StoreKey]),
 		app.AccountKeeper,
-		evmconfig.BlockedAddresses(),
+		evmdconfig.BlockedAddresses(),
 		authAddr,
 		logger,
 	)
@@ -911,15 +911,15 @@ func (app *EVMD) TxConfig() client.TxConfig {
 func (app *EVMD) DefaultGenesis() map[string]json.RawMessage {
 	genesis := app.BasicModuleManager.DefaultGenesis(app.appCodec)
 
-	mintGenState := evmconfig.NewMintGenesisState()
+	mintGenState := NewMintGenesisState()
 	genesis[minttypes.ModuleName] = app.appCodec.MustMarshalJSON(mintGenState)
 
-	evmGenState := evmconfig.NewEVMGenesisState()
+	evmGenState := NewEVMGenesisState()
 	genesis[evmtypes.ModuleName] = app.appCodec.MustMarshalJSON(evmGenState)
 
 	// NOTE: for the example chain implementation we are also adding a default token pair,
 	// which is the base denomination of the chain (i.e. the WEVMOS contract)
-	erc20GenState := evmconfig.NewErc20GenesisState()
+	erc20GenState := NewErc20GenesisState()
 	genesis[erc20types.ModuleName] = app.appCodec.MustMarshalJSON(erc20GenState)
 
 	return genesis

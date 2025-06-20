@@ -1,7 +1,7 @@
 package vm
 
 import (
-	"github.com/cosmos/evm/config"
+	"github.com/cosmos/evm/testutil/config"
 	"github.com/cosmos/evm/x/vm/types"
 )
 

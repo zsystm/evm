@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	evmdconfig "github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/evmd/cmd/evmd/cmd"
+	evmdconfig "github.com/cosmos/evm/evmd/cmd/evmd/config"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	sdk "github.com/cosmos/cosmos-sdk/types"

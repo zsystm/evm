@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/evm/config"
+	"github.com/cosmos/evm/testutil/config"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 )
 

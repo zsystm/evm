@@ -5,11 +5,12 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/evm"
-	"github.com/cosmos/evm/config"
 	"github.com/cosmos/evm/evmd"
+	"github.com/cosmos/evm/evmd/cmd/evmd/config"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
+	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -20,11 +21,15 @@ import (
 
 // CreateEvmd creates an evmos app
 func CreateEvmd(chainID string, evmChainID uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
+	defaultNodeHome, err := clienthelpers.GetNodeHomeDirectory(".evmd")
+	if err != nil {
+		panic(err)
+	}
 	// create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
-	appOptions := simutils.NewAppOptionsWithFlagHome(config.MustGetDefaultNodeHome())
+	appOptions := simutils.NewAppOptionsWithFlagHome(defaultNodeHome)
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:gocritic
 
 	return evmd.NewExampleApp(

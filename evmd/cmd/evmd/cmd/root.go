@@ -14,9 +14,9 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	cosmosevmcmd "github.com/cosmos/evm/client"
-	"github.com/cosmos/evm/config"
 	cosmosevmkeyring "github.com/cosmos/evm/crypto/keyring"
 	"github.com/cosmos/evm/evmd"
+	evmdconfig "github.com/cosmos/evm/evmd/cmd/evmd/config"
 	cosmosevmserver "github.com/cosmos/evm/server"
 	srvflags "github.com/cosmos/evm/server/flags"
 
@@ -63,7 +63,7 @@ func NewRootCmd() *cobra.Command {
 		nil,
 		true,
 		simtestutil.EmptyAppOptions{},
-		config.EVMChainID,
+		evmdconfig.EVMChainID,
 		noOpEvmAppOptions,
 	)
 
@@ -82,7 +82,7 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
 		WithBroadcastMode(flags.FlagBroadcastMode).
-		WithHomeDir(config.MustGetDefaultNodeHome()).
+		WithHomeDir(evmdconfig.MustGetDefaultNodeHome()).
 		WithViper(""). // In simapp, we don't use any prefix for env variables.
 		// Cosmos EVM specific setup
 		WithKeyringOptions(cosmosevmkeyring.Option()).
@@ -131,7 +131,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := config.InitAppConfig(config.BaseDenom, config.EVMChainID)
+			customAppTemplate, customAppConfig := evmdconfig.InitAppConfig(evmdconfig.BaseDenom, evmdconfig.EVMChainID)
 			customTMConfig := initTendermintConfig()
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
@@ -149,7 +149,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	if initClientCtx.ChainID != "" {
-		if err := config.EvmAppOptions(config.EVMChainID); err != nil {
+		if err := evmdconfig.EvmAppOptions(evmdconfig.EVMChainID); err != nil {
 			panic(err)
 		}
 	}
@@ -173,7 +173,7 @@ func initRootCmd(rootCmd *cobra.Command, osApp *evmd.EVMD) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
-	defaultNodeHome := config.MustGetDefaultNodeHome()
+	defaultNodeHome := evmdconfig.MustGetDefaultNodeHome()
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(osApp.BasicModuleManager, defaultNodeHome),
 		genutilcli.Commands(osApp.TxConfig(), osApp.BasicModuleManager, defaultNodeHome),
@@ -326,8 +326,8 @@ func newApp(
 	return evmd.NewExampleApp(
 		logger, db, traceStore, true,
 		appOpts,
-		config.EVMChainID,
-		config.EvmAppOptions,
+		evmdconfig.EVMChainID,
+		evmdconfig.EvmAppOptions,
 		baseappOptions...,
 	)
 }
@@ -368,13 +368,13 @@ func appExport(
 	}
 
 	if height != -1 {
-		exampleApp = evmd.NewExampleApp(logger, db, traceStore, false, appOpts, config.EVMChainID, config.EvmAppOptions, baseapp.SetChainID(chainID))
+		exampleApp = evmd.NewExampleApp(logger, db, traceStore, false, appOpts, evmdconfig.EVMChainID, evmdconfig.EvmAppOptions, baseapp.SetChainID(chainID))
 
 		if err := exampleApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		exampleApp = evmd.NewExampleApp(logger, db, traceStore, true, appOpts, config.EVMChainID, config.EvmAppOptions, baseapp.SetChainID(chainID))
+		exampleApp = evmd.NewExampleApp(logger, db, traceStore, true, appOpts, evmdconfig.EVMChainID, evmdconfig.EvmAppOptions, baseapp.SetChainID(chainID))
 	}
 
 	return exampleApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
@@ -389,7 +389,7 @@ func getChainIDFromOpts(appOpts servertypes.AppOptions) (chainID string, err err
 	if chainID == "" {
 		// If not available load from home
 		homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
-		chainID, err = config.GetChainIDFromHome(homeDir)
+		chainID, err = evmdconfig.GetChainIDFromHome(homeDir)
 		if err != nil {
 			return "", err
 		}
