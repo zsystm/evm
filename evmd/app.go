@@ -18,6 +18,7 @@ import (
 	evmante "github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmosencoding "github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/evmd/ante"
 	evmdconfig "github.com/cosmos/evm/evmd/cmd/evmd/config"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
@@ -805,7 +806,7 @@ func NewExampleApp(
 }
 
 func (app *EVMD) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
-	options := evmante.HandlerOptions{
+	options := ante.HandlerOptions{
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -823,7 +824,7 @@ func (app *EVMD) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 		panic(err)
 	}
 
-	app.SetAnteHandler(evmante.NewAnteHandler(options))
+	app.SetAnteHandler(ante.NewAnteHandler(options))
 }
 
 func (app *EVMD) setPostHandler() {

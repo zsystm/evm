@@ -1,4 +1,4 @@
-package ante
+package ante_test
 
 import (
 	"testing"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/cosmos/evm/ante"
 	ethante "github.com/cosmos/evm/ante/evm"
+	evmdante "github.com/cosmos/evm/evmd/ante"
+	"github.com/cosmos/evm/evmd/tests/integration"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 	"github.com/cosmos/evm/types"
 )
@@ -16,17 +18,17 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 	nw := network.NewUnitTestNetwork(create, options...)
 	cases := []struct {
 		name    string
-		options ante.HandlerOptions
+		options evmdante.HandlerOptions
 		expPass bool
 	}{
 		{
 			"fail - empty options",
-			ante.HandlerOptions{},
+			evmdante.HandlerOptions{},
 			false,
 		},
 		{
 			"fail - empty account keeper",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:           nw.App.AppCodec(),
 				AccountKeeper: nil,
 			},
@@ -34,7 +36,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty bank keeper",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:           nw.App.AppCodec(),
 				AccountKeeper: nw.App.GetAccountKeeper(),
 				BankKeeper:    nil,
@@ -43,7 +45,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty IBC keeper",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:           nw.App.AppCodec(),
 				AccountKeeper: nw.App.GetAccountKeeper(),
 				BankKeeper:    nw.App.GetBankKeeper(),
@@ -53,7 +55,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty fee market keeper",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:             nw.App.AppCodec(),
 				AccountKeeper:   nw.App.GetAccountKeeper(),
 				BankKeeper:      nw.App.GetBankKeeper(),
@@ -64,7 +66,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty EVM keeper",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:             nw.App.AppCodec(),
 				AccountKeeper:   nw.App.GetAccountKeeper(),
 				BankKeeper:      nw.App.GetBankKeeper(),
@@ -76,7 +78,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty signature gas consumer",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:             nw.App.AppCodec(),
 				AccountKeeper:   nw.App.GetAccountKeeper(),
 				BankKeeper:      nw.App.GetBankKeeper(),
@@ -89,7 +91,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty signature mode handler",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:             nw.App.AppCodec(),
 				AccountKeeper:   nw.App.GetAccountKeeper(),
 				BankKeeper:      nw.App.GetBankKeeper(),
@@ -103,7 +105,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"fail - empty tx fee checker",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:             nw.App.AppCodec(),
 				AccountKeeper:   nw.App.GetAccountKeeper(),
 				BankKeeper:      nw.App.GetBankKeeper(),
@@ -118,7 +120,7 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 		},
 		{
 			"success - default app options",
-			ante.HandlerOptions{
+			evmdante.HandlerOptions{
 				Cdc:                    nw.App.AppCodec(),
 				AccountKeeper:          nw.App.GetAccountKeeper(),
 				BankKeeper:             nw.App.GetBankKeeper(),
@@ -144,4 +146,8 @@ func RunValidateHandlerOptionsTest(t *testing.T, create network.CreateEvmApp, op
 			require.Error(t, err, tc.name)
 		}
 	}
+}
+
+func TestValidateHandlerOptions(t *testing.T) {
+	RunValidateHandlerOptionsTest(t, integration.CreateEvmd)
 }

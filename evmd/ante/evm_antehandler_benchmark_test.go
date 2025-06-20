@@ -1,4 +1,4 @@
-package ante
+package ante_test
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/cosmos/evm/ante"
 	ethante "github.com/cosmos/evm/ante/evm"
+	evmdante "github.com/cosmos/evm/evmd/ante"
+	"github.com/cosmos/evm/evmd/tests/integration"
 	basefactory "github.com/cosmos/evm/testutil/integration/base/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/factory"
 	"github.com/cosmos/evm/testutil/integration/evm/grpc"
@@ -80,7 +82,7 @@ func RunBenchmarkAnteHandler(b *testing.B, create network.CreateEvmApp, options 
 		}
 
 		handlerOptions := suite.generateHandlerOptions()
-		ante := ante.NewAnteHandler(handlerOptions)
+		ante := evmdante.NewAnteHandler(handlerOptions)
 		b.StartTimer()
 
 		b.Run(fmt.Sprintf("tx_type_%v", v.name), func(b *testing.B) {
@@ -140,9 +142,9 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 	}
 }
 
-func (s *benchmarkSuite) generateHandlerOptions() ante.HandlerOptions {
+func (s *benchmarkSuite) generateHandlerOptions() evmdante.HandlerOptions {
 	encCfg := s.network.GetEncodingConfig()
-	return ante.HandlerOptions{
+	return evmdante.HandlerOptions{
 		Cdc:                    s.network.App.AppCodec(),
 		AccountKeeper:          s.network.App.GetAccountKeeper(),
 		BankKeeper:             s.network.App.GetBankKeeper(),
@@ -156,4 +158,9 @@ func (s *benchmarkSuite) generateHandlerOptions() ante.HandlerOptions {
 		MaxTxGasWanted:         1_000_000_000,
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(s.network.App.GetFeeMarketKeeper()),
 	}
+}
+
+func BenchmarkAnteHandler(b *testing.B) {
+	// Run the benchmark with a mock EVM app
+	RunBenchmarkAnteHandler(b, integration.CreateEvmd)
 }
