@@ -1,0 +1,5 @@
+[profile.default]
+src = 'tests/precompile-e2e/src'
+out = 'tests/precompile-e2e/out'
+
+fs_permissions = [{ access = "read", path = "./" }]

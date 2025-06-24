@@ -1,0 +1,1 @@
+{"id":"ff04ac1f07b4872c1459e67bc33a7694","source_id_to_path":{"0":"precompiles/common/Types.sol","1":"precompiles/staking/StakingI.sol","2":"tests/precompile-e2e/script/StakingEoA.s.sol","3":"tests/precompile-e2e/src/harness/StakingHarness.sol","4":"tests/precompile-e2e/src/utils/Script.sol","5":"tests/precompile-e2e/src/utils/Vm.sol"},"language":"Solidity"}
