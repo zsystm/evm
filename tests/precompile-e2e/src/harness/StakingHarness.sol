@@ -12,9 +12,10 @@ contract StakingHarness {
     }
 
     /// @dev delegate tokens on behalf of this contract
-    function delegateFromSelf(string calldata validator, uint256 amount) external {
-        STAKING_CONTRACT.delegate(address(this), validator, amount);
-        emit Done("delegate");
+    function delegateFromSelf(string memory validator, uint256 amount) external returns (bool) {
+        bool ok = STAKING_CONTRACT.delegate(address(this), validator, amount);
+        require(ok, "delegate failed");
+        return ok;
     }
 
     function delegation(address delegator, string calldata validator) external view returns (uint256 shares, Coin memory balance) {
