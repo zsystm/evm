@@ -4,6 +4,7 @@ pragma solidity >=0.8.17;
 import "../src/utils/Script.sol";
 import "../src/harness/StakingHarness.sol";
 import {Coin} from "../../../../precompiles/common/Types.sol";
+import {MockStakingPrecompile} from "./MockStakingPrecompile.sol";
 
 contract StakingContract is Script {
     string constant VALIDATOR = "cosmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pw4xyrql";
@@ -14,6 +15,8 @@ contract StakingContract is Script {
     function run() external {
         uint256 pk = vm.envUint("TEST_PRIVATE_KEY");
 
+        MockStakingPrecompile mock = new MockStakingPrecompile();
+        vm.etch(0x0000000000000000000000000000000000000800, address(mock).code);
         vm.startBroadcast(pk);
         StakingHarness harness = new StakingHarness();
         harness.deposit{value: AMOUNT}();
