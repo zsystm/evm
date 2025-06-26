@@ -102,10 +102,7 @@ func (suite *StateDBTestSuite) TestAccount() {
 			// and cleared in keeper too
 			keeper := db.Keeper().(*testutil.MockKeeper)
 			keeper.ForEachStorage(ctx, address, func(key, value common.Hash) bool {
-				if len(value) != 0 {
-					return false
-				}
-				return true
+				return len(value) == 0
 			})
 		}},
 	}

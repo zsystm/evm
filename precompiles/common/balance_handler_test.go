@@ -14,6 +14,7 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	storetypes "cosmossdk.io/store/types"
+
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
