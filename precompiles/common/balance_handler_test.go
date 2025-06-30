@@ -12,6 +12,7 @@ import (
 	testconstants "github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/x/vm/statedb"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+	"github.com/cosmos/evm/x/vm/types/mocks"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -80,7 +81,7 @@ func TestAfterBalanceChange(t *testing.T) {
 	tKey := storetypes.NewTransientStoreKey("test_t")
 	ctx := sdktestutil.DefaultContext(storeKey, tKey)
 
-	stateDB := statedb.New(ctx, testutil.NewMockKeeper(), statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
+	stateDB := statedb.New(ctx, mocks.NewEVMKeeper(), statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
 
 	_, addrs, err := testutil.GeneratePrivKeyAddressPairs(2)
 	require.NoError(t, err)
@@ -114,7 +115,7 @@ func TestAfterBalanceChangeErrors(t *testing.T) {
 	storeKey := storetypes.NewKVStoreKey("test")
 	tKey := storetypes.NewTransientStoreKey("test_t")
 	ctx := sdktestutil.DefaultContext(storeKey, tKey)
-	stateDB := statedb.New(ctx, testutil.NewMockKeeper(), statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
+	stateDB := statedb.New(ctx, mocks.NewEVMKeeper(), statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
 
 	_, addrs, err := testutil.GeneratePrivKeyAddressPairs(1)
 	require.NoError(t, err)
