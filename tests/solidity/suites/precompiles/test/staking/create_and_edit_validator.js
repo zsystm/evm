@@ -106,5 +106,44 @@ describe('StakingI – createValidator with Bech32 operator address', function (
     expect(info.unbondingTime).to.equal(0n)
     expect(info.commission).to.equal(commissionRates.rate)
     expect(info.minSelfDelegation).to.equal(BigInt(minSelfDelegation))
+
+    // --- editValidator ---
+
+    // prepare edit parameters: only update 'details'
+    const updatedDetails    = 'updated unit-test validator'
+    const editDescription   = {
+      moniker:         '[do-not-modify]',
+      identity:        '[do-not-modify]',
+      website:         '[do-not-modify]',
+      securityContact: '[do-not-modify]',
+      details:         updatedDetails,
+    }
+    const DO_NOT_MODIFY = -1
+
+    // send editValidator tx
+    const editTx = await staking.connect(signer).editValidator(
+        editDescription,
+        signer.address,
+        DO_NOT_MODIFY,    // leave commissionRate unchanged
+        DO_NOT_MODIFY     // leave minSelfDelegation unchanged
+    )
+    const editReceipt = await editTx.wait(2)
+    console.log('EditValidator tx hash:', editTx.hash)
+
+    // parse EditValidator event
+    const editEvt = editReceipt.logs
+        .map(log => {
+          try { return staking.interface.parseLog(log) }
+          catch { return null }
+        })
+        .find(evt => evt && evt.name === 'EditValidator')
+    expect(editEvt, 'EditValidator event must be emitted').to.exist
+    expect(editEvt.args.validatorAddress).to.equal(signer.address)
+    expect(editEvt.args.commissionRate).to.equal(DO_NOT_MODIFY)
+    expect(editEvt.args.minSelfDelegation).to.equal(DO_NOT_MODIFY)
+
+    // verify on-chain state after edit
+    const updatedInfo = parseValidator(await staking.validator(signer.address))
+    expect(updatedInfo.description).to.equal(updatedDetails)
   })
 })
