@@ -70,7 +70,7 @@ describe('StakingI – createValidator with Bech32 operator address', function (
 
     // Wait for 2 confirmations and log the transaction hash
     const receipt = await tx.wait(2)
-    console.log('Transaction hash:', receipt.transactionHash)
+    console.log('Transaction hash:', receipt.hash)
 
     // Find and parse the CreateValidator event from the transaction logs
     const parsed = receipt.logs

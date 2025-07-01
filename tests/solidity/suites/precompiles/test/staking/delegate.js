@@ -40,7 +40,7 @@ describe('Staking – delegate with event assertion (gte & precision)', function
         .connect(signer)
         .delegate(signer.address, valBech32, stakeAmount)
     const receipt = await tx.wait(2)
-    console.log('Delegate tx hash:', receipt.transactionHash, 'gas used:', receipt.gasUsed.toString())
+    console.log('Delegate tx hash:', receipt.hash, 'gas used:', receipt.gasUsed.toString())
 
     // parse the Delegate event from logs
     const delegateEvt = receipt.logs
