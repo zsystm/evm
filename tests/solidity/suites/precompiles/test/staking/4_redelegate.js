@@ -120,9 +120,9 @@ describe('Staking – redelegate with event and state assertions', function () {
         )
         expect(responses.length).to.be.gte(1, 'redelegations() should return at least one response')
         // check first response matches singular result
-        const first = responses[0]
-        const redelegation = first[0]
-        const entries = first[1]
+        const response = responses[0]
+        const redelegation = response[0]
+        const entries = response[1]
 
         // the 'redelegation' field is a Redelegation struct
         expect(redelegation.delegatorAddress).to.equal(afterR.delegatorAddress)
