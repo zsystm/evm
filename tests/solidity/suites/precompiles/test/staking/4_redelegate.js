@@ -48,6 +48,7 @@ describe('Staking – redelegate with event and state assertions', function () {
     })
 
     it('should redelegate tokens and emit Redelegate event', async function () {
+        const signerBech32 = 'cosmos1cml96vmptgw99syqrrz8az79xer2pcgp95srxm'
         const srcValBech32 = 'cosmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pw4xyrql'
         const dstValBech32 = 'cosmosvaloper1cml96vmptgw99syqrrz8az79xer2pcgpqqyk2g'
 
@@ -93,6 +94,7 @@ describe('Staking – redelegate with event and state assertions', function () {
         // 5) query redelegation state after
         const afterRaw = await staking.redelegation(signer.address, srcValBech32, dstValBech32)
         const afterR = formatRedelegation(afterRaw)
+        console.log('After redelegation:', afterR)
         const entriesAfter = afterR.entries.length
 
         // Assert that a new redelegation entry was created
@@ -101,9 +103,47 @@ describe('Staking – redelegate with event and state assertions', function () {
             'Number of redelegation entries should increase by 1'
         )
         // Assert that the latest entry initialBalance matches the redelegated amount
+        expect(afterR.delegatorAddress).to.equal(signerBech32)
+        expect(afterR.validatorSrcAddress).to.equal(srcValBech32)
+        expect(afterR.validatorDstAddress).to.equal(dstValBech32)
         expect(afterR.entries[0].initialBalance).to.equal(
             BigInt(amount.toString()),
             'Redelegation entry initialBalance should match redelegated amount'
+        )
+
+        const pageRequest = {key: '0x', offset: 0, limit: 10, countTotal: true, reverse: false}
+        const [responses, _] = await staking.redelegations(
+            signer.address,
+            srcValBech32,
+            dstValBech32,
+            pageRequest
+        )
+        expect(responses.length).to.be.gte(1, 'redelegations() should return at least one response')
+        // check first response matches singular result
+        const first = responses[0]
+        const redelegation = first[0]
+        const entries = first[1]
+
+        // the 'redelegation' field is a Redelegation struct
+        expect(redelegation.delegatorAddress).to.equal(afterR.delegatorAddress)
+        expect(redelegation.validatorSrcAddress).to.equal(afterR.validatorSrcAddress)
+        expect(redelegation.validatorDstAddress).to.equal(afterR.validatorDstAddress)
+        // the 'entries' field is RedelegationEntryResponse[]
+        expect(entries.length).to.equal(entriesAfter)
+        const entryResp = entries[0]
+        // check RedelegationEntryResponse.redelegationEntry.initialBalance
+        expect(
+            BigInt(entryResp.redelegationEntry.initialBalance.toString())
+        ).to.equal(
+            afterR.entries[0].initialBalance,
+            'list entry initialBalance should match singular result'
+        )
+        // check RedelegationEntryResponse.balance
+        expect(
+            BigInt(entryResp.balance.toString())
+        ).to.equal(
+            afterR.entries[0].initialBalance,
+            'list entry balance should match singular result'
         )
     })
 })
