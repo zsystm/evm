@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const {expect} = require('chai');
 const hre = require('hardhat');
 
 describe('Bech32', function () {

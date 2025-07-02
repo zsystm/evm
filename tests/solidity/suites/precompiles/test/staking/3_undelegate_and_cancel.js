@@ -1,4 +1,4 @@
-const { expect } = require('chai')
+const {expect} = require('chai')
 const hre = require('hardhat')
 
 function formatUnbondingDelegation(res) {
@@ -17,11 +17,11 @@ function formatUnbondingDelegation(res) {
         ] = entry
 
         return {
-            creationHeight:          Number(creationHeight),
-            completionTime:          Number(completionTime),
-            initialBalance:          BigInt(initialBalance.toString()),
-            balance:                 BigInt(balance.toString()),
-            unbondingId:             Number(unbondingId),
+            creationHeight: Number(creationHeight),
+            completionTime: Number(completionTime),
+            initialBalance: BigInt(initialBalance.toString()),
+            balance: BigInt(balance.toString()),
+            unbondingId: Number(unbondingId),
             unbondingOnHoldRefCount: Number(unbondingOnHoldRefCount),
         }
     })
@@ -46,18 +46,21 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
 
     it('should delegate, undelegate, then cancel unbonding and emit correct events', async function () {
         const valBech32 = 'cosmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pw4xyrql'
-        const amount    = hre.ethers.parseEther('0.001')
+        const amount = hre.ethers.parseEther('0.001')
 
         // DELEGATE
-        const delegateTx      = await staking.connect(signer).delegate(signer.address, valBech32, amount)
+        const delegateTx = await staking.connect(signer).delegate(signer.address, valBech32, amount)
         const delegateReceipt = await delegateTx.wait(2)
         console.log('Delegate tx hash:', delegateTx.hash, 'gas used:', delegateReceipt.gasUsed.toString())
 
         const hexValAddr = '0x7cB61D4117AE31a12E393a1Cfa3BaC666481D02E'
         const delegateEvt = delegateReceipt.logs
             .map(log => {
-                try { return staking.interface.parseLog(log) }
-                catch { return null }
+                try {
+                    return staking.interface.parseLog(log)
+                } catch {
+                    return null
+                }
             })
             .find(evt => evt && evt.name === 'Delegate')
         expect(delegateEvt, 'Delegate event should be emitted').to.exist
@@ -66,18 +69,21 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         expect(delegateEvt.args.amount).to.equal(amount)
 
         // COUNT UNBONDING ENTRIES BEFORE
-        const beforeRaw       = await staking.unbondingDelegation(signer.address, valBech32)
-        const entriesBefore   = formatUnbondingDelegation(beforeRaw).entries.length
+        const beforeRaw = await staking.unbondingDelegation(signer.address, valBech32)
+        const entriesBefore = formatUnbondingDelegation(beforeRaw).entries.length
 
         // UNDELEGATE
-        const undelegateTx      = await staking.connect(signer).undelegate(signer.address, valBech32, amount)
+        const undelegateTx = await staking.connect(signer).undelegate(signer.address, valBech32, amount)
         const undelegateReceipt = await undelegateTx.wait(2)
         console.log('Undelegate tx hash:', undelegateTx.hash, 'gas used:', undelegateReceipt.gasUsed.toString())
 
         const unbondEvt = undelegateReceipt.logs
             .map(log => {
-                try { return staking.interface.parseLog(log) }
-                catch { return null }
+                try {
+                    return staking.interface.parseLog(log)
+                } catch {
+                    return null
+                }
             })
             .find(evt => evt && evt.name === 'Unbond')
         expect(unbondEvt, 'Unbond event should be emitted').to.exist
@@ -88,10 +94,10 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         expect(completionTime > 0n, 'completionTime should be positive').to.be.true
 
         // COUNT UNBONDING ENTRIES AFTER
-        const afterRaw       = await staking.unbondingDelegation(signer.address, valBech32)
+        const afterRaw = await staking.unbondingDelegation(signer.address, valBech32)
         const afterUnbonding = formatUnbondingDelegation(afterRaw)
         console.log('Unbonding Delegation:', afterUnbonding)
-        const entriesAfter   = afterUnbonding.entries.length
+        const entriesAfter = afterUnbonding.entries.length
 
         expect(entriesAfter).to.equal(
             entriesBefore + 1,
@@ -104,7 +110,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
 
         // CANCEL UNBONDING DELEGATION
         const entryToCancel = afterUnbonding.entries[0]
-        const cancelTx      = await staking.connect(signer).cancelUnbondingDelegation(
+        const cancelTx = await staking.connect(signer).cancelUnbondingDelegation(
             signer.address,
             valBech32,
             amount,
@@ -115,8 +121,11 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
 
         const cancelEvt = cancelReceipt.logs
             .map(log => {
-                try { return staking.interface.parseLog(log) }
-                catch { return null }
+                try {
+                    return staking.interface.parseLog(log)
+                } catch {
+                    return null
+                }
             })
             .find(evt => evt && evt.name === 'CancelUnbondingDelegation')
         expect(cancelEvt, 'CancelUnbondingDelegation event should be emitted').to.exist
@@ -126,7 +135,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         expect(cancelEvt.args.creationHeight).to.equal(entryToCancel.creationHeight)
 
         // VERIFY ENTRY REMOVAL
-        const finalRaw     = await staking.unbondingDelegation(signer.address, valBech32)
+        const finalRaw = await staking.unbondingDelegation(signer.address, valBech32)
         const finalEntries = formatUnbondingDelegation(finalRaw).entries.length
         console.log('Unbonding Delegation after cancel:', finalRaw)
         expect(finalEntries).to.equal(
