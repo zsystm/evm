@@ -4,6 +4,7 @@ const hre = require('hardhat')
 describe('Staking – delegate with event assertion (gte & precision)', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
     const BECH32_ADDRESS = '0x0000000000000000000000000000000000000400'
+    const gasLimit = 1_000_000 // skip gas estimation for simplicity
 
     let staking, bech32, signer
 
@@ -38,7 +39,7 @@ describe('Staking – delegate with event assertion (gte & precision)', function
         // Send the delegate tx
         const tx = await staking
             .connect(signer)
-            .delegate(signer.address, valBech32, stakeAmount)
+            .delegate(signer.address, valBech32, stakeAmount, {gasLimit: gasLimit})
         const receipt = await tx.wait(2)
         console.log('Delegate tx hash:', receipt.hash, 'gas used:', receipt.gasUsed.toString())
 

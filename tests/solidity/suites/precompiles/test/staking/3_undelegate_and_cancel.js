@@ -35,6 +35,7 @@ function formatUnbondingDelegation(res) {
 
 describe('Staking – delegate, undelegate & cancelUnbondingDelegation with event assertions', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
+    const gasLimit = 1_000_000 // skip gas estimation for simplicity
 
     let staking, signer
 
@@ -49,7 +50,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         const amount = hre.ethers.parseEther('0.001')
 
         // DELEGATE
-        const delegateTx = await staking.connect(signer).delegate(signer.address, valBech32, amount)
+        const delegateTx = await staking.connect(signer).delegate(signer.address, valBech32, amount, {gasLimit: gasLimit})
         const delegateReceipt = await delegateTx.wait(2)
         console.log('Delegate tx hash:', delegateTx.hash, 'gas used:', delegateReceipt.gasUsed.toString())
 
@@ -73,7 +74,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         const entriesBefore = formatUnbondingDelegation(beforeRaw).entries.length
 
         // UNDELEGATE
-        const undelegateTx = await staking.connect(signer).undelegate(signer.address, valBech32, amount)
+        const undelegateTx = await staking.connect(signer).undelegate(signer.address, valBech32, amount, {gasLimit: gasLimit})
         const undelegateReceipt = await undelegateTx.wait(2)
         console.log('Undelegate tx hash:', undelegateTx.hash, 'gas used:', undelegateReceipt.gasUsed.toString())
 
@@ -114,7 +115,8 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
             signer.address,
             valBech32,
             amount,
-            entryToCancel.creationHeight
+            entryToCancel.creationHeight,
+            {gasLimit: gasLimit}
         )
         const cancelReceipt = await cancelTx.wait(2)
         console.log('CancelUnbondingDelegation tx hash:', cancelTx.hash, 'gas used:', cancelReceipt.gasUsed.toString())

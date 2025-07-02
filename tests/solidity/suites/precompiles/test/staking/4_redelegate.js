@@ -37,6 +37,7 @@ function formatRedelegation(res) {
 
 describe('Staking – redelegate with event and state assertions', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
+    const gasLimit = 1_000_000 // skip gas estimation for simplicity
 
     let staking, bech32, signer
 
@@ -67,7 +68,7 @@ describe('Staking – redelegate with event and state assertions', function () {
         // 3) send the redelegate transaction
         const tx = await staking
             .connect(signer)
-            .redelegate(signer.address, srcValBech32, dstValBech32, amount)
+            .redelegate(signer.address, srcValBech32, dstValBech32, amount, {gasLimit: gasLimit})
         const receipt = await tx.wait(2)
         console.log('Redelegate tx hash:', tx.hash, 'gas used:', receipt.gasUsed.toString())
 
