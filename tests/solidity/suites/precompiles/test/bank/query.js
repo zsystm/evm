@@ -1,5 +1,5 @@
 const hre = require('hardhat');
-const { expect } = require('chai');
+const {expect} = require('chai');
 
 describe('Bank', function () {
     it('query account balances', async function () {
