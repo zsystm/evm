@@ -33,30 +33,27 @@ function formatUnbondingDelegation(res) {
     }
 }
 
-describe('Staking – delegate and undelegate with event assertions', function () {
+describe('Staking – delegate, undelegate & cancelUnbondingDelegation with event assertions', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
 
     let staking, signer
 
     before(async () => {
         [signer] = await hre.ethers.getSigners()
-
-        // Instantiate precompile contracts
+        // Instantiate the StakingI precompile contract
         staking = await hre.ethers.getContractAt('StakingI', STAKING_ADDRESS)
     })
 
-    it('should delegate then undelegate and emit correct events', async function () {
+    it('should delegate, undelegate, then cancel unbonding and emit correct events', async function () {
         const valBech32 = 'cosmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pw4xyrql'
         const amount    = hre.ethers.parseEther('0.001')
 
         // DELEGATE
         const delegateTx      = await staking.connect(signer).delegate(signer.address, valBech32, amount)
         const delegateReceipt = await delegateTx.wait(2)
-        console.log('Delegate tx hash:', delegateReceipt.hash, 'gas used:', delegateReceipt.gasUsed.toString())
+        console.log('Delegate tx hash:', delegateTx.hash, 'gas used:', delegateReceipt.gasUsed.toString())
 
         const hexValAddr = '0x7cB61D4117AE31a12E393a1Cfa3BaC666481D02E'
-
-        // Parse and assert the Delegate event
         const delegateEvt = delegateReceipt.logs
             .map(log => {
                 try { return staking.interface.parseLog(log) }
@@ -69,16 +66,14 @@ describe('Staking – delegate and undelegate with event assertions', function (
         expect(delegateEvt.args.amount).to.equal(amount)
 
         // COUNT UNBONDING ENTRIES BEFORE
-        const beforeRaw        = await staking.unbondingDelegation(signer.address, valBech32)
-        const beforeUnbonding  = formatUnbondingDelegation(beforeRaw)
-        const entriesBefore    = beforeUnbonding.entries.length
+        const beforeRaw       = await staking.unbondingDelegation(signer.address, valBech32)
+        const entriesBefore   = formatUnbondingDelegation(beforeRaw).entries.length
 
         // UNDELEGATE
         const undelegateTx      = await staking.connect(signer).undelegate(signer.address, valBech32, amount)
         const undelegateReceipt = await undelegateTx.wait(2)
-        console.log('Undelegate tx hash:', undelegateReceipt.hash, 'gas used:', undelegateReceipt.gasUsed.toString())
+        console.log('Undelegate tx hash:', undelegateTx.hash, 'gas used:', undelegateReceipt.gasUsed.toString())
 
-        // Parse and assert the Unbond event
         const unbondEvt = undelegateReceipt.logs
             .map(log => {
                 try { return staking.interface.parseLog(log) }
@@ -89,14 +84,13 @@ describe('Staking – delegate and undelegate with event assertions', function (
         expect(unbondEvt.args.delegatorAddress).to.equal(signer.address)
         expect(unbondEvt.args.validatorAddress).to.equal(hexValAddr)
         expect(unbondEvt.args.amount).to.equal(amount)
-
-        // Assert that completionTime is a positive BigInt
         const completionTime = BigInt(unbondEvt.args.completionTime.toString())
         expect(completionTime > 0n, 'completionTime should be positive').to.be.true
 
         // COUNT UNBONDING ENTRIES AFTER
         const afterRaw       = await staking.unbondingDelegation(signer.address, valBech32)
         const afterUnbonding = formatUnbondingDelegation(afterRaw)
+        console.log('Unbonding Delegation:', afterUnbonding)
         const entriesAfter   = afterUnbonding.entries.length
 
         expect(entriesAfter).to.equal(
@@ -106,6 +100,38 @@ describe('Staking – delegate and undelegate with event assertions', function (
         expect(afterUnbonding.entries[0].balance).to.equal(
             BigInt(amount.toString()),
             'Unbonding entry balance should match undelegated amount'
+        )
+
+        // CANCEL UNBONDING DELEGATION
+        const entryToCancel = afterUnbonding.entries[0]
+        const cancelTx      = await staking.connect(signer).cancelUnbondingDelegation(
+            signer.address,
+            valBech32,
+            amount,
+            entryToCancel.creationHeight
+        )
+        const cancelReceipt = await cancelTx.wait(2)
+        console.log('CancelUnbondingDelegation tx hash:', cancelTx.hash, 'gas used:', cancelReceipt.gasUsed.toString())
+
+        const cancelEvt = cancelReceipt.logs
+            .map(log => {
+                try { return staking.interface.parseLog(log) }
+                catch { return null }
+            })
+            .find(evt => evt && evt.name === 'CancelUnbondingDelegation')
+        expect(cancelEvt, 'CancelUnbondingDelegation event should be emitted').to.exist
+        expect(cancelEvt.args.delegatorAddress).to.equal(signer.address)
+        expect(cancelEvt.args.validatorAddress).to.equal(hexValAddr)
+        expect(cancelEvt.args.amount).to.equal(amount)
+        expect(cancelEvt.args.creationHeight).to.equal(entryToCancel.creationHeight)
+
+        // VERIFY ENTRY REMOVAL
+        const finalRaw     = await staking.unbondingDelegation(signer.address, valBech32)
+        const finalEntries = formatUnbondingDelegation(finalRaw).entries.length
+        console.log('Unbonding Delegation after cancel:', finalRaw)
+        expect(finalEntries).to.equal(
+            entriesBefore,
+            'Number of unbonding entries should return to original count after cancellation'
         )
     })
 })
