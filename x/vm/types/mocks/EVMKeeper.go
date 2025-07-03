@@ -11,6 +11,8 @@ import (
 	"github.com/cosmos/evm/x/vm/statedb"
 	"github.com/cosmos/evm/x/vm/types"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,14 +28,16 @@ type Account struct {
 }
 
 type EVMKeeper struct {
-	accounts map[common.Address]Account
-	codes    map[common.Hash][]byte
+	accounts  map[common.Address]Account
+	codes     map[common.Hash][]byte
+	storeKeys map[string]*storetypes.KVStoreKey
 }
 
 func NewEVMKeeper() *EVMKeeper {
 	return &EVMKeeper{
-		accounts: make(map[common.Address]Account),
-		codes:    make(map[common.Hash][]byte),
+		accounts:  make(map[common.Address]Account),
+		codes:     make(map[common.Hash][]byte),
+		storeKeys: make(map[string]*storetypes.KVStoreKey),
 	}
 }
 
@@ -113,5 +117,10 @@ func (k EVMKeeper) DeleteAccount(_ sdk.Context, addr common.Address) error {
 func (k EVMKeeper) Clone() *EVMKeeper {
 	accounts := maps.Clone(k.accounts)
 	codes := maps.Clone(k.codes)
-	return &EVMKeeper{accounts, codes}
+	storeKeys := maps.Clone(k.storeKeys)
+	return &EVMKeeper{accounts, codes, storeKeys}
+}
+
+func (k EVMKeeper) KVStoreKeys() map[string]*storetypes.KVStoreKey {
+	return k.storeKeys
 }
