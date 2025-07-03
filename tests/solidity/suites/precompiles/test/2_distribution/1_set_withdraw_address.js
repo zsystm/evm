@@ -13,7 +13,6 @@ describe('Distribution – set withdraw address', function () {
     });
 
     it('should set withdraw address and emit SetWithdrawerAddress event', async function () {
-        const signerBech32 = 'cosmos1cml96vmptgw99syqrrz8az79xer2pcgp95srxm'
         const newWithdrawAddress = 'cosmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6pzezqh';
         const tx = await distribution
             .connect(signer)
