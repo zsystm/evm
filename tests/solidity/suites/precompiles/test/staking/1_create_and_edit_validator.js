@@ -151,5 +151,11 @@ describe('StakingI – createValidator with Bech32 operator address', function (
         // verify on-chain state after edit
         const updatedInfo = parseValidator(await staking.validator(signer.address))
         expect(updatedInfo.description).to.equal(updatedDetails)
+
+        const pageReq = { key: '0x', offset: 0, limit: 100, countTotal: false, reverse: false }
+        const out = await staking.validators('', pageReq)
+        const validators = out.validators.map(parseValidator)
+        expect(validators.length).to.be.gte(2)
+        expect(validators[1].operatorAddress.toLowerCase()).to.equal(signer.address.toLowerCase())
     })
 })
