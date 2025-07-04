@@ -95,6 +95,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	evmd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
 
 	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | cosmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
+	# myKey's private key: 0xe9b1d63e8acd7fe676acb43afb390d4b0202dab61abec9cf2a561e4becb147de # gitleaks:allow
 	VAL_KEY="mykey"
 	VAL_MNEMONIC="gesture inject test cycle original hollow east ridge hen combine junk child bacon zero hope comfort vacuum milk pitch cage oppose unhappy lunar seat"
 

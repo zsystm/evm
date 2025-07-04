@@ -72,6 +72,5 @@ describe('DistributionI – claimRewards', function () {
         const beforeTotal = totalRewards.reduce((acc, c) => acc + c.amount, 0n)
         const afterTotal  = postTotal.reduce((acc, c) => acc + c.amount, 0n)
         expect(afterTotal).to.lessThan(beforeTotal)
-
     });
 });
