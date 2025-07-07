@@ -30,6 +30,7 @@ import (
 	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibccallbackskeeper "github.com/cosmos/evm/x/ibc/callbacks/keeper"
+
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/cosmos/evm/x/ibc/transfer"
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
@@ -447,15 +448,6 @@ func NewExampleApp(
 		runtime.ProvideCometInfoService(),
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
-	// Note: The evidence precompile allows evidence to be submitted through an EVM transaction.
-	// If you implement a custom evidence handler in the router that changes token balances (e.g. penalizing
-	// addresses, deducting fees, etc.), be aware that the precompile logic (e.g. SetBalanceChangeEntries)
-	// must be properly integrated to reflect these balance changes in the EVM state. Otherwise, there is a risk
-	// of desynchronization between the Cosmos SDK state and the EVM state when evidence is submitted via the EVM.
-	//
-	// For example, if your custom evidence handler deducts tokens from a user’s account, ensure that the evidence
-	// precompile also applies these deductions through the EVM’s balance tracking. Failing to do so may cause
-	// inconsistencies in reported balances and break state synchronization.
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Cosmos EVM keepers
@@ -481,7 +473,7 @@ func NewExampleApp(
 	// NOTE: it's required to set up the EVM keeper before the ERC-20 keeper, because it is used in its instantiation.
 	app.EVMKeeper = evmkeeper.NewKeeper(
 		// TODO: check why this is not adjusted to use the runtime module methods like SDK native keepers
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], keys,
 		authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper,
 		app.PreciseBankKeeper,
