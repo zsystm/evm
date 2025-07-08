@@ -127,7 +127,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	echo "$USER4_MNEMONIC" | evmd keys add "$USER4_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
 
 	# Set moniker and chain-id for the example chain (Moniker can be anything, chain-id must be an integer)
-	evmd init $MONIKER -o --chain-id "$CHAINID" --home "$CHAINDIR"
+	echo "$VAL_MNEMONIC" | evmd init $MONIKER -o --chain-id "$CHAINID" --home "$CHAINDIR" --recover
 
 	# Change parameter token denominations to desired value
 	jq '.app_state["staking"]["params"]["bond_denom"]="atest"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"

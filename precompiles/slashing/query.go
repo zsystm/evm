@@ -34,7 +34,10 @@ func (p *Precompile) GetSigningInfo(
 		return nil, err
 	}
 
-	out := new(SigningInfoOutput).FromResponse(res)
+	out, err := new(SigningInfoOutput).FromResponse(res)
+	if err != nil {
+		return nil, err
+	}
 	return method.Outputs.Pack(out.SigningInfo)
 }
 
@@ -55,7 +58,10 @@ func (p *Precompile) GetSigningInfos(
 		return nil, err
 	}
 
-	out := new(SigningInfosOutput).FromResponse(res)
+	out, err := new(SigningInfosOutput).FromResponse(res)
+	if err != nil {
+		return nil, err
+	}
 	return method.Outputs.Pack(out.SigningInfos, out.PageResponse)
 }
 
