@@ -4,7 +4,7 @@ const hre = require('hardhat')
 describe('StakingI – createValidator with Bech32 operator address', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
     const BECH32_ADDRESS = '0x0000000000000000000000000000000000000400'
-    const gasLimit = 1_000_000 // skip gas estimation for simplicity
+    const GAS_LIMIT = 1_000_000 // skip gas estimation for simplicity
 
     let staking, bech32, signer
 
@@ -67,7 +67,7 @@ describe('StakingI – createValidator with Bech32 operator address', function (
             signer.address,
             pubkey,
             deposit,
-            {gasLimit: gasLimit}
+            {gasLimit: GAS_LIMIT}
         )
 
         // Wait for 2 confirmations and log the transaction hash
@@ -128,7 +128,7 @@ describe('StakingI – createValidator with Bech32 operator address', function (
             signer.address,
             DO_NOT_MODIFY,    // leave commissionRate unchanged
             DO_NOT_MODIFY,    // leave minSelfDelegation unchanged
-            {gasLimit: gasLimit}
+            {gasLimit: GAS_LIMIT}
         )
         const editReceipt = await editTx.wait(2)
         console.log('EditValidator tx hash:', editTx.hash)

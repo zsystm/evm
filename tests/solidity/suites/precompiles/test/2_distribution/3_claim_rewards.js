@@ -27,7 +27,7 @@ function formatTotalRewards([delegationRewardsRaw, totalRaw]) {
 
 describe('DistributionI – claimRewards', function () {
     const DISTRIBUTION_ADDRESS = '0x0000000000000000000000000000000000000801';
-    const gasLimit = 1_000_000;
+    const GAS_LIMIT = 1_000_000;
 
     let distribution, signer;
 
@@ -46,7 +46,7 @@ describe('DistributionI – claimRewards', function () {
 
         const tx = await distribution
             .connect(signer)
-            .claimRewards(signer.address, 5, { gasLimit });
+            .claimRewards(signer.address, 5, { gasLimit: GAS_LIMIT });
         const receipt = await tx.wait(2);
         console.log('ClaimRewards tx hash:', receipt.hash, 'gas used:', receipt.gasUsed.toString());
 

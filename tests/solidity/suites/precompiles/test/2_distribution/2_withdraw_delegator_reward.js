@@ -4,7 +4,7 @@ const hre = require('hardhat');
 describe('Distribution – withdraw delegator reward', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801';
-    const gasLimit = 1_000_000;
+    const GAS_LIMIT = 1_000_000;
 
     let staking, distribution, signer;
 
@@ -24,7 +24,7 @@ describe('Distribution – withdraw delegator reward', function () {
         // Delegate to the validator first
         const delegateTx = await staking
             .connect(signer)
-            .delegate(signer.address, valBech32, stakeAmount, {gasLimit: gasLimit})
+            .delegate(signer.address, valBech32, stakeAmount, {gasLimit: GAS_LIMIT})
         const delegateReceipt = await delegateTx.wait(2)
         console.log('Delegate tx hash:', delegateReceipt.hash, 'gas used:', delegateReceipt.gasUsed.toString())
 
@@ -38,7 +38,7 @@ describe('Distribution – withdraw delegator reward', function () {
 
         const tx = await distribution
             .connect(signer)
-            .withdrawDelegatorRewards(signer.address, valBech32, {gasLimit});
+            .withdrawDelegatorRewards(signer.address, valBech32, {gasLimit: GAS_LIMIT});
         const receipt = await tx.wait(2);
         console.log('WithdrawDelegatorRewards tx hash:', receipt.hash);
 

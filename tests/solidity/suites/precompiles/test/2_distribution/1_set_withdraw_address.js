@@ -3,7 +3,7 @@ const hre = require('hardhat');
 
 describe('Distribution – set withdraw address', function () {
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801';
-    const gasLimit = 1_000_000;
+    const GAS_LIMIT = 1_000_000;
 
     let distribution, signer;
 
@@ -16,7 +16,7 @@ describe('Distribution – set withdraw address', function () {
         const newWithdrawAddress = 'cosmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6pzezqh';
         const tx = await distribution
             .connect(signer)
-            .setWithdrawAddress(signer.address, newWithdrawAddress, {gasLimit});
+            .setWithdrawAddress(signer.address, newWithdrawAddress, {gasLimit: GAS_LIMIT});
         const receipt = await tx.wait(2);
         console.log('SetWithdrawAddress tx hash:', receipt.hash);
 
