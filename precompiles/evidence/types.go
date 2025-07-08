@@ -2,6 +2,7 @@ package evidence
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -71,13 +72,28 @@ func NewMsgSubmitEvidence(args []interface{}) (*evidencetypes.MsgSubmitEvidence,
 		return nil, emptyAddr, fmt.Errorf("invalid submitter address")
 	}
 
-	equivocation, ok := args[1].(EquivocationData)
-	if !ok {
-		return nil, emptyAddr, fmt.Errorf("invalid equivocation evidence")
+	// ORIGINAL LOGIC
+	//equivocation, ok := args[1].(EquivocationData)
+	//if !ok {
+	//	return nil, emptyAddr, fmt.Errorf("invalid equivocation evidence")
+	// }
+
+	var evData EquivocationData
+	rv := reflect.ValueOf(args[1])
+	if rv.Kind() == reflect.Struct {
+		// assuming fields are in order: Height, Time, Power, ConsensusAddress
+		evData = EquivocationData{
+			Height:           rv.FieldByName("Height").Int(),
+			Time:             rv.FieldByName("Time").Int(),
+			Power:            rv.FieldByName("Power").Int(),
+			ConsensusAddress: rv.FieldByName("ConsensusAddress").String(),
+		}
+	} else {
+		return nil, emptyAddr, fmt.Errorf("cannot handle arg1 of type %T", args[1])
 	}
 
 	// Convert the EquivocationData to a types.Equivocation
-	evidence := equivocation.ToEquivocation()
+	evidence := evData.ToEquivocation()
 
 	// Create the MsgSubmitEvidence using the SDK msg builder
 	msg, err := evidencetypes.NewMsgSubmitEvidence(
