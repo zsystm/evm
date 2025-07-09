@@ -31,7 +31,7 @@ describe('Evidence Precompile', function () {
     // note: submitEvidence takes only the Equivocation struct
     const tx      = await evidence
         .connect(signer)
-        .submitEvidence(equivocation, { gasLimit: GAS_LIMIT })
+        .submitEvidence(signer.address, equivocation, { gasLimit: GAS_LIMIT })
     const receipt = await tx.wait(1)
 
     // find and validate the event

@@ -31,9 +31,11 @@ interface IEvidence {
     event SubmitEvidence(address indexed submitter, bytes hash);
 
     /// @dev Submit evidence of misbehavior (equivocation)
+    /// @param submitter The address of the submitter
     /// @param equivocation The evidence of misbehavior
     /// @return success True if the evidence was submitted successfully
     function submitEvidence(
+        address submitter,
         Equivocation calldata equivocation
     ) external returns (bool success);
 

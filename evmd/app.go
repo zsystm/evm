@@ -447,6 +447,10 @@ func NewExampleApp(
 		app.AccountKeeper.AddressCodec(),
 		runtime.ProvideCometInfoService(),
 	)
+	// Set the router for the evidence keeper even if we don't have handlers yet.
+	// This is required to avoid panics when we check there are routers for evidences or not.
+	router := evidencetypes.NewRouter()
+	evidenceKeeper.SetRouter(router)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 

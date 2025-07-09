@@ -66,20 +66,35 @@ func (e EquivocationData) ToEquivocation() *evidencetypes.Equivocation {
 // NewMsgSubmitEvidence creates a new MsgSubmitEvidence instance.
 func NewMsgSubmitEvidence(method *abi.Method, args []interface{}) (*evidencetypes.MsgSubmitEvidence, common.Address, error) {
 	emptyAddr := common.Address{}
-	if len(args) != 1 {
+	if len(args) != 2 {
 		return nil, emptyAddr, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
-	//submitterAddress, ok := args[0].(common.Address)
-	//if !ok {
-	//	return nil, emptyAddr, fmt.Errorf("invalid submitter address")
-	//}
-	//args = args[1:]
+	submitterAddress, ok := args[0].(common.Address)
+	if !ok {
+		return nil, emptyAddr, fmt.Errorf("invalid submitter address")
+	}
 
+	inputs := method.Inputs
+	inputs = method.Inputs[1:] // Skip the first input which is the submitter address
+	args = args[1:]
 	var input SubmitEquivocationInput
-	if err := method.Inputs.Copy(&input, args); err != nil {
+	if err := inputs.Copy(&input, args); err != nil {
 		return nil, emptyAddr, fmt.Errorf("failed to copy inputs: %w", err)
 	}
 
-	return nil, emptyAddr, nil
+	equivocation := input.Equivocation.ToEquivocation()
+	if equivocation == nil {
+		return nil, emptyAddr, fmt.Errorf("invalid equivocation evidence")
+	}
+
+	msg, err := evidencetypes.NewMsgSubmitEvidence(
+		submitterAddress.Bytes(),
+		equivocation,
+	)
+	if err != nil {
+		return nil, emptyAddr, fmt.Errorf("failed to create evidence message: %w", err)
+	}
+
+	return msg, submitterAddress, nil
 }
