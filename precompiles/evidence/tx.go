@@ -26,6 +26,14 @@ func (p Precompile) SubmitEvidence(
 		return nil, err
 	}
 
+	handler, err := p.evidenceKeeper.GetEvidenceHandler(msg.GetEvidence().Route())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get evidence handler: %w", err)
+	}
+	if handler == nil {
+		return nil, fmt.Errorf("no evidence handler found for route: %s", msg.GetEvidence().Route())
+	}
+
 	msgSender := contract.Caller()
 	if msgSender != submitterHexAddr {
 		return nil, fmt.Errorf(cmn.ErrRequesterIsNotMsgSender, msgSender.String(), submitterHexAddr.String())

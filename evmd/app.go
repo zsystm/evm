@@ -447,6 +447,11 @@ func NewExampleApp(
 		app.AccountKeeper.AddressCodec(),
 		runtime.ProvideCometInfoService(),
 	)
+	// Initialize an empty router for the evidence keeper.
+	// This prevents panics when validating evidence routes in the absence of handlers.
+	// See precompiles/evidence/tx.go how to use the evidence keeper.
+	router := evidencetypes.NewRouter()
+	evidenceKeeper.SetRouter(router)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 

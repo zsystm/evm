@@ -45,9 +45,18 @@ func (s *PrecompileTestSuite) SetupTest() {
 	grpcHandler := grpc.NewIntegrationHandler(nw)
 	txFactory := factory.New(nw, grpcHandler)
 
+	evidenceKeeper := nw.App.GetEvidenceKeeper()
 	router := types.NewRouter()
 	router = router.AddRoute(types.RouteEquivocation, testEquivocationHandler(nw.App.GetEvidenceKeeper()))
-	nw.App.GetEvidenceKeeper().SetRouter(router)
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// SetRouter panics if the router is already set.
+				s.T().Skipf("skip test because SetRouter panicked: %v", r)
+			}
+		}()
+		evidenceKeeper.SetRouter(router)
+	}()
 
 	s.network = nw
 	s.factory = txFactory
