@@ -2,7 +2,7 @@ package evidence
 
 import (
 	"fmt"
-	"reflect"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -11,7 +11,6 @@ import (
 
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
@@ -50,6 +49,10 @@ type EquivocationData struct {
 	ConsensusAddress string `abi:"consensusAddress"`
 }
 
+type SubmitEquivocationInput struct {
+	Equivocation EquivocationData
+}
+
 // ToEquivocation converts the EquivocationData to a types.Equivocation
 func (e EquivocationData) ToEquivocation() *evidencetypes.Equivocation {
 	return &evidencetypes.Equivocation{
@@ -61,48 +64,22 @@ func (e EquivocationData) ToEquivocation() *evidencetypes.Equivocation {
 }
 
 // NewMsgSubmitEvidence creates a new MsgSubmitEvidence instance.
-func NewMsgSubmitEvidence(args []interface{}) (*evidencetypes.MsgSubmitEvidence, common.Address, error) {
+func NewMsgSubmitEvidence(method *abi.Method, args []interface{}) (*evidencetypes.MsgSubmitEvidence, common.Address, error) {
 	emptyAddr := common.Address{}
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return nil, emptyAddr, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
-	submitterAddress, ok := args[0].(common.Address)
-	if !ok {
-		return nil, emptyAddr, fmt.Errorf("invalid submitter address")
-	}
-
-	// ORIGINAL LOGIC
-	//equivocation, ok := args[1].(EquivocationData)
+	//submitterAddress, ok := args[0].(common.Address)
 	//if !ok {
-	//	return nil, emptyAddr, fmt.Errorf("invalid equivocation evidence")
-	// }
+	//	return nil, emptyAddr, fmt.Errorf("invalid submitter address")
+	//}
+	//args = args[1:]
 
-	var evData EquivocationData
-	rv := reflect.ValueOf(args[1])
-	if rv.Kind() == reflect.Struct {
-		// assuming fields are in order: Height, Time, Power, ConsensusAddress
-		evData = EquivocationData{
-			Height:           rv.FieldByName("Height").Int(),
-			Time:             rv.FieldByName("Time").Int(),
-			Power:            rv.FieldByName("Power").Int(),
-			ConsensusAddress: rv.FieldByName("ConsensusAddress").String(),
-		}
-	} else {
-		return nil, emptyAddr, fmt.Errorf("cannot handle arg1 of type %T", args[1])
+	var input SubmitEquivocationInput
+	if err := method.Inputs.Copy(&input, args); err != nil {
+		return nil, emptyAddr, fmt.Errorf("failed to copy inputs: %w", err)
 	}
 
-	// Convert the EquivocationData to a types.Equivocation
-	evidence := evData.ToEquivocation()
-
-	// Create the MsgSubmitEvidence using the SDK msg builder
-	msg, err := evidencetypes.NewMsgSubmitEvidence(
-		sdk.AccAddress(submitterAddress.Bytes()),
-		evidence,
-	)
-	if err != nil {
-		return nil, emptyAddr, fmt.Errorf("failed to create evidence message: %w", err)
-	}
-
-	return msg, submitterAddress, nil
+	return nil, emptyAddr, nil
 }

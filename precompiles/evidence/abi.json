@@ -151,11 +151,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "submitterAddress",
-          "type": "address"
-        },
-        {
           "components": [
             {
               "internalType": "int64",
@@ -179,7 +174,7 @@
             }
           ],
           "internalType": "struct Equivocation",
-          "name": "evidence",
+          "name": "equivocation",
           "type": "tuple"
         }
       ],
