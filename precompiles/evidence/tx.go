@@ -21,7 +21,7 @@ func (p Precompile) SubmitEvidence(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, submitterHexAddr, err := NewMsgSubmitEvidence(args)
+	msg, submitterHexAddr, err := NewMsgSubmitEvidence(method, args)
 	if err != nil {
 		return nil, err
 	}
