@@ -2,9 +2,9 @@ package evidence
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
@@ -75,8 +75,7 @@ func NewMsgSubmitEvidence(method *abi.Method, args []interface{}) (*evidencetype
 		return nil, emptyAddr, fmt.Errorf("invalid submitter address")
 	}
 
-	inputs := method.Inputs
-	inputs = method.Inputs[1:] // Skip the first input which is the submitter address
+	inputs := method.Inputs[1:] // Skip the first input which is the submitter address
 	args = args[1:]
 	var input SubmitEquivocationInput
 	if err := inputs.Copy(&input, args); err != nil {
