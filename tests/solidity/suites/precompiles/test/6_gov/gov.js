@@ -9,11 +9,31 @@ describe('Gov Precompile', function () {
     const COSMOS_ADDR = 'cosmos1cml96vmptgw99syqrrz8az79xer2pcgp95srxm'
     const GOV_MODULE_ADDR = 'cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn'
 
-    let gov, signer
+    let gov, signer, globalProposalId
 
     before(async () => {
         [signer] = await hre.ethers.getSigners()
         gov = await hre.ethers.getContractAt('IGov', GOV_ADDRESS)
+        
+        // Create a single proposal to be reused across tests
+        const jsonProposal = buildProposal(COSMOS_ADDR)
+        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('1') }
+
+        const tx = await gov
+            .connect(signer)
+            .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
+        const receipt = await tx.wait(2)
+
+        const evt = receipt.logs
+            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
+            .find(e => e && e.name === 'SubmitProposal')
+        
+        if (!evt) {
+            throw new Error('SubmitProposal event not found in receipt')
+        }
+        
+        globalProposalId = evt.args.proposalId
+        console.log('Global proposal ID created:', globalProposalId.toString())
     })
 
     // helper to craft a minimal bank send proposal in proto-json format
@@ -36,63 +56,66 @@ describe('Gov Precompile', function () {
         return Buffer.from(JSON.stringify(prop))
     }
 
-    it('submits a proposal and queries it', async function () {
-        const jsonProposal = buildProposal(COSMOS_ADDR)
-        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('0.1') }
-
-        const tx = await gov
-            .connect(signer)
-            .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
-        const receipt = await tx.wait(2)
-
-        const evt = receipt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'SubmitProposal')
-        expect(evt, 'SubmitProposal event must be emitted').to.exist
-        expect(evt.args.proposer).to.equal(signer.address)
-
-        const proposalId = evt.args.proposalId
-        const proposal = await gov.getProposal(proposalId)
-        expect(proposal.id).to.equal(proposalId)
+    it('queries the global proposal', async function () {
+        const proposal = await gov.getProposal(globalProposalId)
+        expect(proposal.id).to.equal(globalProposalId)
         expect(proposal.proposer).to.equal(signer.address)
+        expect(proposal.title).to.equal('test prop')
+        expect(proposal.summary).to.equal('test prop')
+        expect(proposal.metadata).to.equal('ipfs://CID')
     })
 
-    it('deposits and votes on a proposal', async function () {
-        const jsonProposal = buildProposal(COSMOS_ADDR)
-        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('1') }
-
-        const submitTx = await gov
-            .connect(signer)
-            .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
-        const submitRcpt = await submitTx.wait(2)
-        const submitEvt = submitRcpt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'SubmitProposal')
-        const propId = submitEvt.args.proposalId
+    it('deposits on the global proposal', async function () {
+        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('0.5') }
 
         const depTx = await gov
             .connect(signer)
-            .deposit(signer.address, propId, [deposit], { gasLimit: GAS_LIMIT })
+            .deposit(signer.address, globalProposalId, [deposit], { gasLimit: GAS_LIMIT })
         const depRcpt = await depTx.wait(2)
         const depEvt = depRcpt.logs
             .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
             .find(e => e && e.name === 'Deposit')
         expect(depEvt, 'Deposit event must be emitted').to.exist
-        expect(depEvt.args.proposalId).to.equal(propId)
+        expect(depEvt.args.proposalId).to.equal(globalProposalId)
+        expect(depEvt.args.depositor).to.equal(signer.address)
+    })
 
+    it('votes on the global proposal', async function () {
         const voteTx = await gov
             .connect(signer)
-            .vote(signer.address, propId, 1, '', { gasLimit: GAS_LIMIT })
+            .vote(signer.address, globalProposalId, 1, 'simple vote', { gasLimit: GAS_LIMIT })
         const voteRcpt = await voteTx.wait(2)
         const voteEvt = voteRcpt.logs
             .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
             .find(e => e && e.name === 'Vote')
         expect(voteEvt, 'Vote event must be emitted').to.exist
         expect(voteEvt.args.option).to.equal(1)
+        expect(voteEvt.args.proposalId).to.equal(globalProposalId)
+        expect(voteEvt.args.voter).to.equal(signer.address)
+    })
 
-        const vote = await gov.getVote(propId, signer.address)
-        expect(vote.proposalId).to.equal(propId)
-        expect(vote.options[0].option).to.equal(1)
+    it('votes with weighted options on the global proposal', async function () {
+        const weightedOptions = [
+            { option: 1, weight: '0.6' }, // Yes: 60%
+            { option: 2, weight: '0.4' }  // Abstain: 40%
+        ]
+
+        const tx = await gov
+            .connect(signer)
+            .voteWeighted(signer.address, globalProposalId, weightedOptions, 'weighted vote', { gasLimit: GAS_LIMIT })
+        const receipt = await tx.wait(2)
+
+        const evt = receipt.logs
+            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
+            .find(e => e && e.name === 'VoteWeighted')
+        expect(evt, 'VoteWeighted event must be emitted').to.exist
+        expect(evt.args.voter).to.equal(signer.address)
+        expect(evt.args.proposalId).to.equal(globalProposalId)
+        expect(evt.args.options.length).to.equal(2)
+        expect(evt.args.options[0].option).to.equal(1)
+        expect(evt.args.options[0].weight).to.equal('0.6')
+        expect(evt.args.options[1].option).to.equal(2)
+        expect(evt.args.options[1].weight).to.equal('0.4')
     })
 
     it('queries params and constitution', async function () {
@@ -102,5 +125,106 @@ describe('Gov Precompile', function () {
 
         const constitution = await gov.getConstitution()
         expect(constitution).to.be.a('string')
+    })
+
+    it('queries votes for the global proposal', async function () {
+        const pagination = { key: new Uint8Array(), offset: 0, limit: 10, countTotal: true, reverse: false }
+        const votesResult = await gov.getVotes(globalProposalId, pagination)
+        
+        expect(votesResult.votes.length).to.be.greaterThan(0)
+        expect(votesResult.votes[0].proposalId).to.equal(globalProposalId)
+        expect(votesResult.votes[0].voter).to.equal(signer.address)
+        expect(votesResult.pageResponse.total).to.be.greaterThan(0)
+    })
+
+    it('queries specific vote for the global proposal', async function () {
+        const vote = await gov.getVote(globalProposalId, signer.address)
+        expect(vote.proposalId).to.equal(globalProposalId)
+        expect(vote.voter).to.equal(signer.address)
+        expect(vote.options.length).to.be.greaterThan(0)
+        expect(vote.metadata).to.be.a('string')
+    })
+
+    it('queries specific deposit for the global proposal', async function () {
+        const depositResult = await gov.getDeposit(globalProposalId, signer.address)
+        expect(depositResult.proposalId).to.equal(globalProposalId)
+        expect(depositResult.depositor).to.equal(signer.address)
+        expect(depositResult.amount.length).to.be.greaterThan(0)
+        expect(depositResult.amount[0].denom).to.equal('atest')
+    })
+
+    it('queries all deposits for the global proposal', async function () {
+        const pagination = { key: new Uint8Array(), offset: 0, limit: 10, countTotal: true, reverse: false }
+        const depositsResult = await gov.getDeposits(globalProposalId, pagination)
+        
+        expect(depositsResult.deposits.length).to.be.greaterThan(0)
+        expect(depositsResult.deposits[0].proposalId).to.equal(globalProposalId)
+        expect(depositsResult.deposits[0].depositor).to.equal(signer.address)
+        expect(depositsResult.deposits[0].amount.length).to.be.greaterThan(0)
+        expect(depositsResult.pageResponse.total).to.be.greaterThan(0)
+    })
+
+    it('queries tally result for the global proposal', async function () {
+        const tallyResult = await gov.getTallyResult(globalProposalId)
+        expect(tallyResult.yes).to.be.a('string')
+        expect(tallyResult.abstain).to.be.a('string')
+        expect(tallyResult.no).to.be.a('string')
+        expect(tallyResult.noWithVeto).to.be.a('string')
+    })
+
+    it('queries all proposals', async function () {
+        const pagination = { key: new Uint8Array(), offset: 0, limit: 10, countTotal: true, reverse: false }
+        const result = await gov.getProposals(0, signer.address, signer.address, pagination)
+        
+        expect(result.proposals.length).to.be.greaterThan(0)
+        expect(result.pageResponse.total).to.be.greaterThan(0)
+        
+        const proposal = result.proposals.find(p => p.id === globalProposalId)
+        expect(proposal).to.exist
+        expect(proposal.proposer).to.equal(signer.address)
+        expect(proposal.title).to.equal('test prop')
+        expect(proposal.summary).to.equal('test prop')
+    })
+
+    it('cancels a proposal', async function () {
+        // Create a separate proposal just for cancellation test
+        const jsonProposal = buildProposal(COSMOS_ADDR)
+        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('1') }
+
+        console.log('Creating proposal for cancellation test...')
+        const submitTx = await gov
+            .connect(signer)
+            .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
+        const submitRcpt = await submitTx.wait(2)
+        
+        console.log('Submit transaction receipt:', submitRcpt.status)
+        console.log('Submit transaction logs count:', submitRcpt.logs.length)
+        
+        const submitEvt = submitRcpt.logs
+            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
+            .find(e => e && e.name === 'SubmitProposal')
+        
+        expect(submitEvt, 'SubmitProposal event must be emitted').to.exist
+        const proposalToCancel = submitEvt.args.proposalId
+        console.log('Proposal ID to cancel:', proposalToCancel.toString())
+
+        // Verify the proposal exists before trying to cancel
+        const proposalBeforeCancel = await gov.getProposal(proposalToCancel)
+        console.log('Proposal status before cancel:', proposalBeforeCancel.status)
+
+        const cancelTx = await gov
+            .connect(signer)
+            .cancelProposal(signer.address, proposalToCancel, { gasLimit: GAS_LIMIT })
+        const cancelRcpt = await cancelTx.wait(2)
+        const cancelEvt = cancelRcpt.logs
+            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
+            .find(e => e && e.name === 'CancelProposal')
+        
+        expect(cancelEvt, 'CancelProposal event must be emitted').to.exist
+        expect(cancelEvt.args.proposer).to.equal(signer.address)
+        expect(cancelEvt.args.proposalId).to.equal(proposalToCancel)
+
+        const cancelledProposal = await gov.getProposal(proposalToCancel)
+        expect(cancelledProposal.status).to.equal(5) // PROPOSAL_STATUS_CANCELED
     })
 })
