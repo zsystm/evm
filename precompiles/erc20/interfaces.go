@@ -1,10 +1,11 @@
 package erc20
 
 import (
-	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

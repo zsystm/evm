@@ -2,7 +2,6 @@ package erc20
 
 import (
 	"fmt"
-	cmn "github.com/cosmos/evm/precompiles/common"
 	"math"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"github.com/cosmos/evm/ibc"
+	cmn "github.com/cosmos/evm/precompiles/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
