@@ -1,6 +1,5 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
-const {prop} = require("truffle/build/258.bundled");
 
 // Hardhat tests for the Governance precompile
 
