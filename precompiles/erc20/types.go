@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 )
 
 // EventTransfer defines the event data for the ERC20 Transfer events.
@@ -126,4 +129,32 @@ func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
 	}
 
 	return account, nil
+}
+
+// NewGetParamsRequest creates a new request for the ERC20 parameters query.
+func NewGetParamsRequest(args []interface{}) (*erc20types.QueryParamsRequest, error) {
+
+	return &erc20types.QueryParamsRequest{}, nil
+}
+
+// GetParamsOutput contains the output data for the ERC20 parameters query
+type GetParamsOutput struct {
+	EnableErc20                bool     `abi:"enableErc20"`
+	NativePrecompiles          []string `abi:"nativePrecompiles"`
+	DynamicPrecompiles         []string `abi:"dynamicPrecompiles"`
+	PermissionlessRegistration bool     `abi:"permissionlessRegistration"`
+}
+
+// FromResponse populates the GetParamsOutput from the ERC20 Params
+func (o *GetParamsOutput) FromResponse(params erc20types.Params) *GetParamsOutput {
+	o.EnableErc20 = params.EnableErc20
+	o.NativePrecompiles = params.NativePrecompiles
+	o.DynamicPrecompiles = params.DynamicPrecompiles
+	o.PermissionlessRegistration = params.PermissionlessRegistration
+	return o
+}
+
+// Pack packs a given slice of abi arguments into a byte array.
+func (o *GetParamsOutput) Pack(args abi.Arguments) ([]byte, error) {
+	return args.Pack(o.EnableErc20, o.NativePrecompiles, o.DynamicPrecompiles, o.PermissionlessRegistration)
 }

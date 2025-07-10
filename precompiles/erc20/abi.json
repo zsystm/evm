@@ -272,6 +272,34 @@
       ],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getParams",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "enableErc20",
+          "type": "bool"
+        },
+        {
+          "internalType": "string[]",
+          "name": "nativePrecompiles",
+          "type": "string[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "dynamicPrecompiles",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "permissionlessRegistration",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": "0x",
