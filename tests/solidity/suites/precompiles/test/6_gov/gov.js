@@ -1,5 +1,6 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
+const {prop} = require("truffle/build/258.bundled");
 
 // Hardhat tests for the Governance precompile
 
@@ -187,44 +188,25 @@ describe('Gov Precompile', function () {
     })
 
     it('cancels a proposal', async function () {
-        // Create a separate proposal just for cancellation test
-        const jsonProposal = buildProposal(COSMOS_ADDR)
-        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('1') }
-
-        console.log('Creating proposal for cancellation test...')
-        const submitTx = await gov
-            .connect(signer)
-            .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
-        const submitRcpt = await submitTx.wait(2)
-        
-        console.log('Submit transaction receipt:', submitRcpt.status)
-        console.log('Submit transaction logs count:', submitRcpt.logs.length)
-        
-        const submitEvt = submitRcpt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'SubmitProposal')
-        
-        expect(submitEvt, 'SubmitProposal event must be emitted').to.exist
-        const proposalToCancel = submitEvt.args.proposalId
-        console.log('Proposal ID to cancel:', proposalToCancel.toString())
-
-        // Verify the proposal exists before trying to cancel
-        const proposalBeforeCancel = await gov.getProposal(proposalToCancel)
-        console.log('Proposal status before cancel:', proposalBeforeCancel.status)
-
+        const proposalIdToCancel = globalProposalId
         const cancelTx = await gov
             .connect(signer)
-            .cancelProposal(signer.address, proposalToCancel, { gasLimit: GAS_LIMIT })
+            .cancelProposal(signer.address, proposalIdToCancel, {gasLimit: GAS_LIMIT})
         const cancelRcpt = await cancelTx.wait(2)
         const cancelEvt = cancelRcpt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
+            .map(log => {
+                try {
+                    return gov.interface.parseLog(log)
+                } catch {
+                    return null
+                }
+            })
             .find(e => e && e.name === 'CancelProposal')
-        
+
         expect(cancelEvt, 'CancelProposal event must be emitted').to.exist
         expect(cancelEvt.args.proposer).to.equal(signer.address)
-        expect(cancelEvt.args.proposalId).to.equal(proposalToCancel)
+        expect(cancelEvt.args.proposalId).to.equal(proposalIdToCancel)
 
-        const cancelledProposal = await gov.getProposal(proposalToCancel)
-        expect(cancelledProposal.status).to.equal(5) // PROPOSAL_STATUS_CANCELED
+        await expect(gov.getProposal(proposalIdToCancel)).to.be.reverted;
     })
 })
