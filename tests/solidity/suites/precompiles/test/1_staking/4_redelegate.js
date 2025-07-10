@@ -39,7 +39,7 @@ describe('Staking – redelegate with event and state assertions', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
     const GAS_LIMIT = 1_000_000 // skip gas estimation for simplicity
 
-    let staking, bech32, signer
+    let staking, signer
 
     before(async () => {
         [signer] = await hre.ethers.getSigners()

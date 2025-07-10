@@ -39,9 +39,6 @@ describe('Distribution – validator query methods', function () {
     });
 
     it('delegatorValidators lists validators for delegator', async function () {
-        const amountBn = hre.ethers.parseEther('0.001');
-        const amount = BigInt(amountBn.toString());
-
         const validators = await distribution.delegatorValidators(signer.address);
         console.log('delegatorValidators:', validators);
         console.log(validators)

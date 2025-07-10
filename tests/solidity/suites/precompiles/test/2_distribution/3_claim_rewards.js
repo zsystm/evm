@@ -58,7 +58,6 @@ describe('DistributionI – claimRewards', function () {
         expect(evt, 'ClaimRewards event should be emitted').to.exist;
         expect(evt.args.delegatorAddress).to.equal(signer.address);
         expect(evt.args.amount).to.be.a('bigint');
-        const claimed = BigInt(evt.args.amount.toString());
         console.log('totalRewards claimed:', evt.args.amount);
 
         // 3) query total rewards after claim, re-parse

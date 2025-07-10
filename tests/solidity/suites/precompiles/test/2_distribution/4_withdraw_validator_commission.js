@@ -15,8 +15,6 @@ describe('Distribution – withdraw validator commission', function () {
 
     it('withdraws validator commission and emits proper event', async function () {
         const valBech32     = 'cosmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pw4xyrql'
-        const stakeAmountBn = ethers.parseEther('0.001')
-        const stakeAmount   = BigInt(stakeAmountBn.toString())
 
         // 1) query commission before withdrawal
         const beforeRes = await distribution.validatorCommission(valBech32)
