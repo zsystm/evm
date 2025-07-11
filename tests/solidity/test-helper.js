@@ -371,7 +371,7 @@ async function main () {
 
     console.log(`Running Tests: ${allTests.join()}`)
 
-    proc = await setupNetwork({ runConfig, timeout: 100000 })
+    proc = await setupNetwork({ runConfig, timeout: 200000 })
 
     // sleep for 20s to wait blocks being produced
     //

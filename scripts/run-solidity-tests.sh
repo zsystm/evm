@@ -22,4 +22,4 @@ else
 	yarn install
 fi
 
-yarn test --network cosmos "$@"
+yarn test --network cosmos "$@" --verbose-log
