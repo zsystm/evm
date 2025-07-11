@@ -17,7 +17,10 @@ const (
 	GetParamsMethod = "getParams"
 )
 
-// GetSigningInfo implements the query to get a validator's signing info.
+// GetSigningInfo handles the `getSigningInfo` precompile call.
+// It expects a single argument: the validator’s consensus address in hex format.
+// That address comes from the validator’s Tendermint ed25519 public key,
+// typically found in `$HOME/.evmd/config/priv_validator_key.json`.
 func (p *Precompile) GetSigningInfo(
 	ctx sdk.Context,
 	method *abi.Method,
