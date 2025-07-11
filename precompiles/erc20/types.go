@@ -133,25 +133,47 @@ func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
 
 // NewGetParamsRequest creates a new request for the ERC20 parameters query.
 func NewGetParamsRequest(args []interface{}) (*erc20types.QueryParamsRequest, error) {
-
 	return &erc20types.QueryParamsRequest{}, nil
+}
+
+func ConvertStringsToAddresses(strings []string) ([]common.Address, error) {
+	addresses := make([]common.Address, len(strings))
+	for i, str := range strings {
+		addr := common.HexToAddress(str)
+		if addr == (common.Address{}) {
+			return nil, fmt.Errorf("invalid address: %s", str)
+		}
+		addresses[i] = addr
+	}
+	return addresses, nil
 }
 
 // GetParamsOutput contains the output data for the ERC20 parameters query
 type GetParamsOutput struct {
-	EnableErc20                bool     `abi:"enableErc20"`
-	NativePrecompiles          []string `abi:"nativePrecompiles"`
-	DynamicPrecompiles         []string `abi:"dynamicPrecompiles"`
-	PermissionlessRegistration bool     `abi:"permissionlessRegistration"`
+	EnableErc20                bool             `abi:"enableErc20"`
+	NativePrecompiles          []common.Address `abi:"nativePrecompiles"`
+	DynamicPrecompiles         []common.Address `abi:"dynamicPrecompiles"`
+	PermissionlessRegistration bool             `abi:"permissionlessRegistration"`
 }
 
 // FromResponse populates the GetParamsOutput from the ERC20 Params
-func (o *GetParamsOutput) FromResponse(params erc20types.Params) *GetParamsOutput {
+func (o *GetParamsOutput) FromResponse(params erc20types.Params) (*GetParamsOutput, error) {
 	o.EnableErc20 = params.EnableErc20
-	o.NativePrecompiles = params.NativePrecompiles
-	o.DynamicPrecompiles = params.DynamicPrecompiles
+
+	nativePrecompiles, err := ConvertStringsToAddresses(params.NativePrecompiles)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert native precompiles: %w", err)
+	}
+	o.NativePrecompiles = nativePrecompiles
+
+	dynamicPrecompiles, err := ConvertStringsToAddresses(params.DynamicPrecompiles)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert dynamic precompiles: %w", err)
+	}
+	o.DynamicPrecompiles = dynamicPrecompiles
+
 	o.PermissionlessRegistration = params.PermissionlessRegistration
-	return o
+	return o, nil
 }
 
 // Pack packs a given slice of abi arguments into a byte array.

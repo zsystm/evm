@@ -2,7 +2,6 @@ package distribution
 
 import (
 	"fmt"
-
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/holiman/uint256"
 
@@ -1017,11 +1016,8 @@ func (s *PrecompileTestSuite) TestGetParams() {
 				// Verify the parameters are valid Dec/bool values
 				s.Require().NotNil(out.CommunityTax.Value)
 				s.Require().Equal(uint8(18), out.CommunityTax.Precision)
-				s.Require().NotNil(out.BaseProposerReward.Value)
-				s.Require().Equal(uint8(18), out.BaseProposerReward.Precision)
-				s.Require().NotNil(out.BonusProposerReward.Value)
-				s.Require().Equal(uint8(18), out.BonusProposerReward.Precision)
 				// WithdrawAddrEnabled can be true or false, both are valid
+				s.Require().IsType(false, out.WithdrawAddrEnabled, "WithdrawAddrEnabled should be a boolean")
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)

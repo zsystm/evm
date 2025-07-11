@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "IERC20MetadataAllowance",
-  "sourceName": "solidity/precompiles/erc20/IERC20MetadataAllowance.sol",
+  "contractName": "IERC20Precompile",
+  "sourceName": "solidity/precompiles/erc20/IERC20Precompile.sol",
   "abi": [
     {
       "anonymous": false,
@@ -155,6 +155,34 @@
         }
       ],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getParams",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "enableErc20",
+          "type": "bool"
+        },
+        {
+          "internalType": "address[]",
+          "name": "nativePrecompiles",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "dynamicPrecompiles",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "permissionlessRegistration",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {

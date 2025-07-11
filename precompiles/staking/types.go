@@ -5,10 +5,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"math/big"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"math/big"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
@@ -889,7 +888,13 @@ type GetParamsOutput struct {
 
 // FromResponse populates the GetParamsOutput from a QueryParamsResponse
 func (o *GetParamsOutput) FromResponse(res *stakingtypes.QueryParamsResponse) *GetParamsOutput {
-	o.UnbondingTime = uint64(res.Params.UnbondingTime.Nanoseconds())
+	// Safely convert int64 to uint64, protecting against negative values
+	unbondingTimeNanos := res.Params.UnbondingTime.Nanoseconds()
+	if unbondingTimeNanos < 0 {
+		o.UnbondingTime = 0
+	} else {
+		o.UnbondingTime = uint64(unbondingTimeNanos)
+	}
 	o.MaxValidators = res.Params.MaxValidators
 	o.MaxEntries = res.Params.MaxEntries
 	o.HistoricalEntries = res.Params.HistoricalEntries

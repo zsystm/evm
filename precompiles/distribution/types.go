@@ -494,8 +494,6 @@ func NewGetParamsRequest(args []interface{}) (*distributiontypes.QueryParamsRequ
 // GetParamsOutput contains the output data for the distribution parameters query
 type GetParamsOutput struct {
 	CommunityTax        cmn.Dec `abi:"communityTax"`
-	BaseProposerReward  cmn.Dec `abi:"baseProposerReward"`
-	BonusProposerReward cmn.Dec `abi:"bonusProposerReward"`
 	WithdrawAddrEnabled bool    `abi:"withdrawAddrEnabled"`
 }
 
@@ -505,19 +503,11 @@ func (o *GetParamsOutput) FromResponse(res *distributiontypes.QueryParamsRespons
 		Value:     res.Params.CommunityTax.BigInt(),
 		Precision: math.LegacyPrecision,
 	}
-	o.BaseProposerReward = cmn.Dec{
-		Value:     res.Params.BaseProposerReward.BigInt(),
-		Precision: math.LegacyPrecision,
-	}
-	o.BonusProposerReward = cmn.Dec{
-		Value:     res.Params.BonusProposerReward.BigInt(),
-		Precision: math.LegacyPrecision,
-	}
 	o.WithdrawAddrEnabled = res.Params.WithdrawAddrEnabled
 	return o
 }
 
 // Pack packs a given slice of abi arguments into a byte array.
 func (o *GetParamsOutput) Pack(args abi.Arguments) ([]byte, error) {
-	return args.Pack(o.CommunityTax, o.BaseProposerReward, o.BonusProposerReward, o.WithdrawAddrEnabled)
+	return args.Pack(o.CommunityTax, o.WithdrawAddrEnabled)
 }

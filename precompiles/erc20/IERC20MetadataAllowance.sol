@@ -32,20 +32,4 @@ interface IERC20MetadataAllowance is IERC20Metadata {
         address spender,
         uint256 subtractedValue
     ) external returns (bool approved);
-
-    /** @dev Queries the ERC20 module parameters.
-      * @return enableErc20 Whether ERC20 conversion is enabled
-      * @return nativePrecompiles Array of native precompile addresses
-      * @return dynamicPrecompiles Array of dynamic precompile addresses
-      * @return permissionlessRegistration Whether permissionless registration is allowed
-    */
-    function getParams()
-        external
-        view
-        returns (
-            bool enableErc20,
-            string[] memory nativePrecompiles,
-            string[] memory dynamicPrecompiles,
-            bool permissionlessRegistration
-        );
 }

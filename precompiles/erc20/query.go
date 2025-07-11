@@ -229,7 +229,10 @@ func (p Precompile) GetParams(
 
 	params := p.erc20Keeper.GetParams(ctx)
 
-	out := new(GetParamsOutput).FromResponse(params)
+	out, err := new(GetParamsOutput).FromResponse(params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert params: %w", err)
+	}
 
 	return out.Pack(method.Outputs)
 }
