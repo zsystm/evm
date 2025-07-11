@@ -1,10 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
 
-/**
- * Hardhat tests for Distribution precompile validator query methods.
- * Covers validatorDistributionInfo, validatorSlashes and delegatorValidators.
- */
 describe('Distribution – validator query methods', function () {
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801';
     const VAL_OPER_BECH32 = 'cosmosvaloper1cml96vmptgw99syqrrz8az79xer2pcgpqqyk2g';

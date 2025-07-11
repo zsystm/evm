@@ -1,8 +1,6 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
 
-// Hardhat tests for the Governance precompile
-
 describe('Gov Precompile', function () {
     const GOV_ADDRESS = '0x0000000000000000000000000000000000000805'
     const GAS_LIMIT = 1_000_000

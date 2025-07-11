@@ -1,11 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
 
-/**
- * Hardhat tests for WERC20 precompile happy cases.
- * Tests deposit and withdraw functionality.
- * Note: This is a mock implementation - no actual tokens are transferred.
- */
 describe('WERC20 – deposit and withdraw', function () {
     // Using a placeholder address for WERC20 - in reality this would be dynamic
     // based on the actual ERC20 token pair configuration

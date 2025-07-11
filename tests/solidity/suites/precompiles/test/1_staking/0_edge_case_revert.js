@@ -1,10 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
 
-/**
- * Hardhat edge case test for staking precompile using callPrecompileBeforeAndAfterRevert pattern.
- * Tests that exactly two delegate operations are executed when numTimes=1.
- */
 describe('Staking – edge case revert test', function () {
     const STAKING_PRECOMPILE_ADDRESS = '0x0000000000000000000000000000000000000800';
     const GAS_LIMIT = 10_000_000;

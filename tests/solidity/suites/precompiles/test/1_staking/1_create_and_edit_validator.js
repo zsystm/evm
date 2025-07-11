@@ -100,7 +100,7 @@ describe('StakingI – createValidator with Bech32 operator address', function (
         expect(info.operatorAddress.toLowerCase()).to.equal(signer.address.toLowerCase())
         expect(info.consensusPubkey).to.equal(pubkey)
         expect(info.jailed).to.be.false
-        expect(info.status).to.equal(3n)                      // BondStatus.Bonded === 3
+        expect(info.status).to.equal(3n) // BondStatus.Bonded === 3
         expect(info.tokens).to.equal(deposit)
         expect(info.delegatorShares).to.be.gt(0n)
         expect(info.description).to.equal(description.details)

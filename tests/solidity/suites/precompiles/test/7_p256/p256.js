@@ -1,7 +1,6 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
 
-// Hardhat tests for the P256 precompile
 describe('P256 Precompile', function () {
     const P256_ADDRESS = '0x0000000000000000000000000000000000000100'
     const GAS_LIMIT = 1_000_000
