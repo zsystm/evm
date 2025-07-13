@@ -4,7 +4,6 @@ pragma solidity >=0.8.18;
 import "./IERC20MetadataAllowance.sol";
 
 /**
- * @author Evmos Team
  * @title ERC20 Precompile Interface
  * @dev Interface for the ERC20 precompile contract with additional query methods.
  */

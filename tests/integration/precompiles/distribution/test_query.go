@@ -2,6 +2,7 @@ package distribution
 
 import (
 	"fmt"
+
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/holiman/uint256"
 
