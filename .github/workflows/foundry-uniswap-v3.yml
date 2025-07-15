@@ -8,6 +8,7 @@ on:
       - 'scripts/setup-compatibility-tests.sh'
       - 'scripts/ci-foundry-uniswap-v3.sh'
       - 'local_node.sh'
+      - '.github/workflows/foundry-uniswap-v3.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
@@ -15,6 +16,7 @@ on:
       - 'scripts/setup-compatibility-tests.sh'
       - 'scripts/ci-foundry-uniswap-v3.sh'
       - 'local_node.sh'
+      - '.github/workflows/foundry-uniswap-v3.yml'
 
 jobs:
   foundry-uniswap-v3:
@@ -55,9 +57,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
     
-    - name: Build evmd
+    - name: Build and install evmd
       run: |
-        make build
+        make install
     
     - name: Run foundry-uniswap-v3 tests
       run: |

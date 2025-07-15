@@ -40,9 +40,9 @@ fi
 echo "Starting evmd node..."
 pushd "$ROOT" >/dev/null
 if [ "$VERBOSE" = true ]; then
-    ./local_node.sh -y --no-install &
+    ./local_node.sh -y &
 else
-    ./local_node.sh -y --no-install > /tmp/evmd.log 2>&1 &
+    ./local_node.sh -y > /tmp/evmd.log 2>&1 &
 fi
 NODE_PID=$!
 popd >/dev/null
