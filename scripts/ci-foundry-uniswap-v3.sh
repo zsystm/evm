@@ -150,7 +150,7 @@ else
 	forge script script/DeployNFTDescriptor.s.sol:DeployNFTDescriptor \
 		--rpc-url "$CUSTOM_RPC" \
 		--broadcast \
-		--chain-id "$CHAIN_ID" > "$NFT_LOG_FILE" 2>&1
+		--chain-id "$CHAIN_ID" >"$NFT_LOG_FILE" 2>&1
 fi
 
 NFT_EXIT_CODE=${PIPESTATUS[0]}
@@ -199,7 +199,7 @@ else
 		--broadcast \
 		--slow \
 		--private-key "$PRIVATE_KEY" \
-		--libraries "lib/v3-periphery/contracts/libraries/NFTDescriptor.sol:NFTDescriptor:$LIBRARY_CONTRACT" > "$UNISWAP_LOG_FILE" 2>&1
+		--libraries "lib/v3-periphery/contracts/libraries/NFTDescriptor.sol:NFTDescriptor:$LIBRARY_CONTRACT" >"$UNISWAP_LOG_FILE" 2>&1
 fi
 
 UNISWAP_EXIT_CODE=${PIPESTATUS[0]}
