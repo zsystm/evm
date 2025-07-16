@@ -140,11 +140,11 @@ echo "Running foundry compatibility tests sequentially..."
 extract_tx_hash() {
 	local script_name="$1"
 	local broadcast_dir="$TEST_DIR/broadcast/${script_name}.s.sol"
-	
+
 	# Find the most recent run-latest.json file in any chain directory
 	local json_file
 	json_file=$(find "$broadcast_dir" -name "run-latest.json" -type f | head -1)
-	
+
 	if [ -f "$json_file" ]; then
 		# Extract the first transaction hash from the JSON file
 		local tx_hash
@@ -159,11 +159,11 @@ extract_tx_hash() {
 extract_contract_address() {
 	local script_name="$1"
 	local broadcast_dir="$TEST_DIR/broadcast/${script_name}.s.sol"
-	
+
 	# Find the most recent run-latest.json file in any chain directory
 	local json_file
 	json_file=$(find "$broadcast_dir" -name "run-latest.json" -type f | head -1)
-	
+
 	if [ -f "$json_file" ]; then
 		# Extract the contract address from the JSON file
 		local contract_addr
@@ -180,79 +180,79 @@ run_shell_script() {
 	local tx_hash="$2"
 	local shell_script_dir="$TEST_DIR/shellscripts"
 	local shell_script=""
-	
+
 	# Map forge script names to shell script names
 	case "$script_name" in
-		"DeployERC20")
-			# No corresponding shell script for deployment
-			return
-			;;
-		"NetworkInfo")
-			shell_script="get-network-info.sh"
-			;;
-		"ReadState")
-			shell_script="read_state.sh"
-			;;
-		"Transfer")
-			shell_script="transfer.sh"
-			;;
-		"TransferError")
-			shell_script="transfer_error.sh"
-			;;
-		*)
-			echo "No corresponding shell script for $script_name"
-			return
-			;;
+	"DeployERC20")
+		# No corresponding shell script for deployment
+		return
+		;;
+	"NetworkInfo")
+		shell_script="get-network-info.sh"
+		;;
+	"ReadState")
+		shell_script="read_state.sh"
+		;;
+	"Transfer")
+		shell_script="transfer.sh"
+		;;
+	"TransferError")
+		shell_script="transfer_error.sh"
+		;;
+	*)
+		echo "No corresponding shell script for $script_name"
+		return
+		;;
 	esac
-	
+
 	if [ -f "$shell_script_dir/$shell_script" ]; then
 		echo "Running shell script: $shell_script"
-		
+
 		# Export TX_HASH for scripts that need it
 		export TX_HASH="$tx_hash"
-		
+
 		# Run the shell script
 		pushd "$shell_script_dir" >/dev/null
 		case "$script_name" in
-			"NetworkInfo")
-				bash "$shell_script" "$CUSTOM_RPC"
-				;;
-			"ReadState")
-				# Need contract address - extract from deployment broadcast JSON
+		"NetworkInfo")
+			bash "$shell_script" "$CUSTOM_RPC"
+			;;
+		"ReadState")
+			# Need contract address - extract from deployment broadcast JSON
+			local contract_addr
+			contract_addr=$(extract_contract_address "DeployERC20")
+			if [ -n "$contract_addr" ]; then
+				bash "$shell_script" "$contract_addr"
+			else
+				echo "Warning: Could not find contract address for ReadState shell script"
+			fi
+			;;
+		"Transfer")
+			# Need contract address and recipient
+			local contract_addr recipient_addr
+			contract_addr=$(extract_contract_address "DeployERC20")
+			recipient_addr="${ACCOUNT_2:-0x0000000000000000000000000000000000000002}"
+			if [ -n "$contract_addr" ]; then
+				bash "$shell_script" "$contract_addr" "$recipient_addr" "100000000000000000000"
+			else
+				echo "Warning: Could not find contract address for Transfer shell script"
+			fi
+			;;
+		"TransferError")
+			# For error case, ensure CONTRACT is set
+			if [ -z "${CONTRACT:-}" ]; then
+				# Try to get contract address from deployment broadcast JSON
 				local contract_addr
 				contract_addr=$(extract_contract_address "DeployERC20")
 				if [ -n "$contract_addr" ]; then
-					bash "$shell_script" "$contract_addr"
-				else
-					echo "Warning: Could not find contract address for ReadState shell script"
+					export CONTRACT="$contract_addr"
 				fi
-				;;
-			"Transfer")
-				# Need contract address and recipient
-				local contract_addr recipient_addr
-				contract_addr=$(extract_contract_address "DeployERC20")
-				recipient_addr="${ACCOUNT_2:-0x0000000000000000000000000000000000000002}"
-				if [ -n "$contract_addr" ]; then
-					bash "$shell_script" "$contract_addr" "$recipient_addr" "100000000000000000000"
-				else
-					echo "Warning: Could not find contract address for Transfer shell script"
-				fi
-				;;
-			"TransferError")
-				# For error case, ensure CONTRACT is set
-				if [ -z "${CONTRACT:-}" ]; then
-					# Try to get contract address from deployment broadcast JSON
-					local contract_addr
-					contract_addr=$(extract_contract_address "DeployERC20")
-					if [ -n "$contract_addr" ]; then
-						export CONTRACT="$contract_addr"
-					fi
-				fi
-				bash "$shell_script"
-				;;
+			fi
+			bash "$shell_script"
+			;;
 		esac
 		popd >/dev/null
-		
+
 		echo "Shell script $shell_script completed"
 		echo "---"
 	else
@@ -265,9 +265,9 @@ run_forge_script() {
 	local script_name="$1"
 	local description="$2"
 	local log_file="/tmp/${script_name}_deployment.log"
-	
+
 	echo "$description..."
-	
+
 	# Run forge and tee output to both stdout and log file
 	# Temporarily disable exit-on-error for forge command since TransferError is expected to fail
 	set +e
@@ -281,16 +281,16 @@ run_forge_script() {
 		forge script "script/${script_name}.s.sol:${script_name}" \
 			--rpc-url "$CUSTOM_RPC" \
 			--broadcast \
-			--chain-id "$CHAIN_ID" > "$log_file" 2>&1
+			--chain-id "$CHAIN_ID" >"$log_file" 2>&1
 		local exit_code=$?
 	fi
 	# Re-enable exit-on-error
 	set -e
-	
+
 	# Give a moment for output to be fully written to log file
 	echo "Waiting for output to be written to log file..."
 	sleep 3
-	
+
 	# Special handling for TransferError - it's expected to fail with simulation error
 	# Check this BEFORE checking exit codes since forge exits with non-zero for simulation failures
 	if [ "$script_name" = "TransferError" ]; then
@@ -310,7 +310,7 @@ run_forge_script() {
 			tail -20 "$log_file"
 			exit 1
 		fi
-		
+
 		# Check for success based on script type
 		if grep -q "ONCHAIN EXECUTION COMPLETE & SUCCESSFUL" "$log_file"; then
 			echo "$description completed successfully!"
@@ -323,7 +323,7 @@ run_forge_script() {
 			exit 1
 		fi
 	fi
-	
+
 	# Extract transaction hash and run corresponding shell script
 	local tx_hash
 	tx_hash=$(extract_tx_hash "$script_name")
@@ -335,7 +335,7 @@ run_forge_script() {
 		# Still run shell script without TX_HASH for scripts that don't need it
 		run_shell_script "$script_name" ""
 	fi
-	
+
 	# Small delay between tests
 	sleep 3
 }

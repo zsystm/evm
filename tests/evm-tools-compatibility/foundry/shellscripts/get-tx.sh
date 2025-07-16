@@ -4,6 +4,7 @@
 # Example: ./get-tx.sh 0x1234... http://127.0.0.1:8545
 
 # shellcheck source=../.env
+# shellcheck disable=SC1091
 source ../.env
 TX_HASH=$1
 RPC_URL=${2:-http://127.0.0.1:8545}

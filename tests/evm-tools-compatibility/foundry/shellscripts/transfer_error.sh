@@ -4,6 +4,7 @@ set -euo pipefail
 # Usage: ./error_edge_case.sh
 # Requires in .env: CUSTOM_RPC, PRIVATE_KEY, ACCOUNT_2 (recipient), CONTRACT
 # shellcheck source=../.env
+# shellcheck disable=SC1091
 source ../.env
 export FOUNDRY_DISABLE_NIGHTLY_WARNING=1
 

@@ -5,6 +5,7 @@ set -euo pipefail
 # .env에 CUSTOM_RPC, ALICE_ADDRESS 를 정의해 두세요.
 
 # shellcheck source=../.env
+# shellcheck disable=SC1091
 source ../.env
 RPC_URL=${CUSTOM_RPC:-http://127.0.0.1:8545}
 CONTRACT=$1

@@ -10,6 +10,7 @@ if [ $# -ne 3 ]; then
 fi
 
 # shellcheck source=../.env
+# shellcheck disable=SC1091
 source ../.env
 CONTRACT=$1
 TO=$2

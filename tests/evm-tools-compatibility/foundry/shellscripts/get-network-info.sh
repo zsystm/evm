@@ -5,6 +5,7 @@ set -euo pipefail
 # If RPC_URL is not provided as the first argument, falls back to $CUSTOM_RPC or http://127.0.0.1:8545
 
 # shellcheck source=../.env
+# shellcheck disable=SC1091
 source ../.env
 RPC_URL=${1:-${CUSTOM_RPC:-http://127.0.0.1:8545}}
 
