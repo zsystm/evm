@@ -5,14 +5,15 @@ set -euo pipefail
 # Requires: .env with CUSTOM_RPC and PRIVATE_KEY
 
 if [ $# -ne 3 ]; then
-  echo "Usage: $0 <CONTRACT_ADDR> <TO_ADDR> <AMOUNT>"
-  exit 1
+	echo "Usage: $0 <CONTRACT_ADDR> <TO_ADDR> <AMOUNT>"
+	exit 1
 fi
 
+# shellcheck source=../.env
 source ../.env
 CONTRACT=$1
 TO=$2
-AMOUNT=$3                  # e.g. 100000000000000000000 for 100 tokens (18 decimals)
+AMOUNT=$3 # e.g. 100000000000000000000 for 100 tokens (18 decimals)
 RPC_URL=${CUSTOM_RPC:-http://127.0.0.1:8545}
 PRIVATE_KEY=${PRIVATE_KEY:?}
 CHAIN_ID=${CHAIN_ID:-262144}
@@ -24,12 +25,12 @@ echo "📦 Sending transfer($TO, $AMOUNT) to $CONTRACT"
 echo "💸 Sending transfer transaction:"
 echo "$ cast send \"$CONTRACT\" 'transfer(address,uint256)' \"$TO\" \"$AMOUNT\" --rpc-url \"$RPC_URL\" --private-key \"[HIDDEN]\" --chain-id \"$CHAIN_ID\" --json"
 RESPONSE=$(cast send \
-  "$CONTRACT" \
-  'transfer(address,uint256)' "$TO" "$AMOUNT" \
-  --rpc-url "$RPC_URL" \
-  --private-key "$PRIVATE_KEY" \
-  --chain-id "$CHAIN_ID" \
-  --json)
+	"$CONTRACT" \
+	'transfer(address,uint256)' "$TO" "$AMOUNT" \
+	--rpc-url "$RPC_URL" \
+	--private-key "$PRIVATE_KEY" \
+	--chain-id "$CHAIN_ID" \
+	--json)
 
 TXHASH=$(echo "$RESPONSE" | jq -r '.hash // .transactionHash')
 echo "✅ Transaction sent: $TXHASH"
@@ -51,17 +52,17 @@ echo
 echo "💰 Checking balances:"
 echo "$ cast call --rpc-url \"$RPC_URL\" \"$CONTRACT\" 'balanceOf(address)(uint256)' \"$SENDER\""
 SENDER_BALANCE=$(cast call \
-  --rpc-url "$RPC_URL" \
-  "$CONTRACT" \
-  'balanceOf(address)(uint256)' \
-  "$SENDER")
+	--rpc-url "$RPC_URL" \
+	"$CONTRACT" \
+	'balanceOf(address)(uint256)' \
+	"$SENDER")
 
 echo "$ cast call --rpc-url \"$RPC_URL\" \"$CONTRACT\" 'balanceOf(address)(uint256)' \"$TO\""
 RECEIVER_BALANCE=$(cast call \
-  --rpc-url "$RPC_URL" \
-  "$CONTRACT" \
-  'balanceOf(address)(uint256)' \
-  "$TO")
+	--rpc-url "$RPC_URL" \
+	"$CONTRACT" \
+	'balanceOf(address)(uint256)' \
+	"$TO")
 
 echo "👤 Sender ($SENDER) balance:   $SENDER_BALANCE"
 echo "👤 Receiver ($TO) balance: $RECEIVER_BALANCE"
