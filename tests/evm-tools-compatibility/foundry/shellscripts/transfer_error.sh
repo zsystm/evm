@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Usage: ./error_edge_case.sh
 # Requires in .env: CUSTOM_RPC, PRIVATE_KEY, ACCOUNT_2 (recipient), CONTRACT
-source .env
+source ../.env
 export FOUNDRY_DISABLE_NIGHTLY_WARNING=1
 
 RPC_URL=${CUSTOM_RPC:-http://127.0.0.1:8545}
@@ -23,6 +23,8 @@ AMOUNT=2000000000000000000000
 echo "🔄 Sending transfer exceeding balance..."
 
 # 1) Send via cast and capture output (suppress exit)
+echo "❌ Attempting transfer that should fail:"
+echo "$ cast send \"$CONTRACT\" 'transfer(address,uint256)' \"$RECIPIENT\" \"$AMOUNT\" --rpc-url \"$RPC_URL\" --private-key \"[HIDDEN]\" --chain-id \"$CHAIN_ID\" --json"
 OUTPUT=$(cast send \
   "$CONTRACT" \
   'transfer(address,uint256)' "$RECIPIENT" "$AMOUNT" \

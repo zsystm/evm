@@ -3,7 +3,7 @@
 # Usage: ./get-tx.sh <TX_HASH> [RPC_URL]
 # Example: ./get-tx.sh 0x1234... http://127.0.0.1:8545
 
-source .env
+source ../.env
 TX_HASH=$1
 RPC_URL=${2:-http://127.0.0.1:8545}
 
@@ -23,6 +23,9 @@ read -r -d '' PAYLOAD <<EOF
 EOF
 
 # get transaction by hash
+echo "📡 Getting transaction by hash:"
+echo "$ curl -s -X POST -H \"Content-Type: application/json\" --data '$PAYLOAD' \"$RPC_URL\" | jq"
+echo
 curl -s -X POST \
   -H "Content-Type: application/json" \
   --data "$PAYLOAD" \

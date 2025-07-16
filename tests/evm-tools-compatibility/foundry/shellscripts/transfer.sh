@@ -9,7 +9,7 @@ if [ $# -ne 3 ]; then
   exit 1
 fi
 
-source .env
+source ../.env
 CONTRACT=$1
 TO=$2
 AMOUNT=$3                  # e.g. 100000000000000000000 for 100 tokens (18 decimals)
@@ -21,6 +21,8 @@ echo "🔗 RPC URL: $RPC_URL"
 echo "📦 Sending transfer($TO, $AMOUNT) to $CONTRACT"
 
 # 1) Send transaction with cast
+echo "💸 Sending transfer transaction:"
+echo "$ cast send \"$CONTRACT\" 'transfer(address,uint256)' \"$TO\" \"$AMOUNT\" --rpc-url \"$RPC_URL\" --private-key \"[HIDDEN]\" --chain-id \"$CHAIN_ID\" --json"
 RESPONSE=$(cast send \
   "$CONTRACT" \
   'transfer(address,uint256)' "$TO" "$AMOUNT" \
@@ -39,15 +41,22 @@ sleep 2
 echo
 
 # 3) Derive sender address
+echo "🔑 Getting sender address:"
+echo "$ cast wallet address --private-key \"[HIDDEN]\""
 SENDER=$(cast wallet address --private-key "$PRIVATE_KEY")
+echo "Sender: $SENDER"
+echo
 
 # 4) Verify balances
+echo "💰 Checking balances:"
+echo "$ cast call --rpc-url \"$RPC_URL\" \"$CONTRACT\" 'balanceOf(address)(uint256)' \"$SENDER\""
 SENDER_BALANCE=$(cast call \
   --rpc-url "$RPC_URL" \
   "$CONTRACT" \
   'balanceOf(address)(uint256)' \
   "$SENDER")
 
+echo "$ cast call --rpc-url \"$RPC_URL\" \"$CONTRACT\" 'balanceOf(address)(uint256)' \"$TO\""
 RECEIVER_BALANCE=$(cast call \
   --rpc-url "$RPC_URL" \
   "$CONTRACT" \

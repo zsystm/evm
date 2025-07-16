@@ -136,6 +136,130 @@ fi
 
 echo "Running foundry compatibility tests sequentially..."
 
+# Function to extract transaction hash from forge script broadcast files
+extract_tx_hash() {
+	local script_name="$1"
+	local broadcast_dir="$TEST_DIR/broadcast/${script_name}.s.sol"
+	
+	# Find the most recent run-latest.json file in any chain directory
+	local json_file
+	json_file=$(find "$broadcast_dir" -name "run-latest.json" -type f | head -1)
+	
+	if [ -f "$json_file" ]; then
+		# Extract the first transaction hash from the JSON file
+		local tx_hash
+		tx_hash=$(jq -r '.transactions[0].hash // empty' "$json_file" 2>/dev/null)
+		echo "$tx_hash"
+	else
+		echo ""
+	fi
+}
+
+# Function to extract contract address from forge script broadcast files
+extract_contract_address() {
+	local script_name="$1"
+	local broadcast_dir="$TEST_DIR/broadcast/${script_name}.s.sol"
+	
+	# Find the most recent run-latest.json file in any chain directory
+	local json_file
+	json_file=$(find "$broadcast_dir" -name "run-latest.json" -type f | head -1)
+	
+	if [ -f "$json_file" ]; then
+		# Extract the contract address from the JSON file
+		local contract_addr
+		contract_addr=$(jq -r '.transactions[0].contractAddress // .transactions[0].additionalContracts[0].address // empty' "$json_file" 2>/dev/null)
+		echo "$contract_addr"
+	else
+		echo ""
+	fi
+}
+
+# Function to run corresponding shell script
+run_shell_script() {
+	local script_name="$1"
+	local tx_hash="$2"
+	local shell_script_dir="$TEST_DIR/shellscripts"
+	local shell_script=""
+	
+	# Map forge script names to shell script names
+	case "$script_name" in
+		"DeployERC20")
+			# No corresponding shell script for deployment
+			return
+			;;
+		"NetworkInfo")
+			shell_script="get-network-info.sh"
+			;;
+		"ReadState")
+			shell_script="read_state.sh"
+			;;
+		"Transfer")
+			shell_script="transfer.sh"
+			;;
+		"TransferError")
+			shell_script="transfer_error.sh"
+			;;
+		*)
+			echo "No corresponding shell script for $script_name"
+			return
+			;;
+	esac
+	
+	if [ -f "$shell_script_dir/$shell_script" ]; then
+		echo "Running shell script: $shell_script"
+		
+		# Export TX_HASH for scripts that need it
+		export TX_HASH="$tx_hash"
+		
+		# Run the shell script
+		pushd "$shell_script_dir" >/dev/null
+		case "$script_name" in
+			"NetworkInfo")
+				bash "$shell_script" "$CUSTOM_RPC"
+				;;
+			"ReadState")
+				# Need contract address - extract from deployment broadcast JSON
+				local contract_addr
+				contract_addr=$(extract_contract_address "DeployERC20")
+				if [ -n "$contract_addr" ]; then
+					bash "$shell_script" "$contract_addr"
+				else
+					echo "Warning: Could not find contract address for ReadState shell script"
+				fi
+				;;
+			"Transfer")
+				# Need contract address and recipient
+				local contract_addr recipient_addr
+				contract_addr=$(extract_contract_address "DeployERC20")
+				recipient_addr="${ACCOUNT_2:-0x0000000000000000000000000000000000000002}"
+				if [ -n "$contract_addr" ]; then
+					bash "$shell_script" "$contract_addr" "$recipient_addr" "100000000000000000000"
+				else
+					echo "Warning: Could not find contract address for Transfer shell script"
+				fi
+				;;
+			"TransferError")
+				# For error case, ensure CONTRACT is set
+				if [ -z "${CONTRACT:-}" ]; then
+					# Try to get contract address from deployment broadcast JSON
+					local contract_addr
+					contract_addr=$(extract_contract_address "DeployERC20")
+					if [ -n "$contract_addr" ]; then
+						export CONTRACT="$contract_addr"
+					fi
+				fi
+				bash "$shell_script"
+				;;
+		esac
+		popd >/dev/null
+		
+		echo "Shell script $shell_script completed"
+		echo "---"
+	else
+		echo "Shell script $shell_script not found in $shell_script_dir"
+	fi
+}
+
 # Function to run forge script with proper error checking
 run_forge_script() {
 	local script_name="$1"
@@ -198,6 +322,18 @@ run_forge_script() {
 			tail -20 "$log_file"
 			exit 1
 		fi
+	fi
+	
+	# Extract transaction hash and run corresponding shell script
+	local tx_hash
+	tx_hash=$(extract_tx_hash "$script_name")
+	if [ -n "$tx_hash" ]; then
+		echo "Extracted TX_HASH: $tx_hash"
+		run_shell_script "$script_name" "$tx_hash"
+	else
+		echo "No transaction hash found in broadcast files"
+		# Still run shell script without TX_HASH for scripts that don't need it
+		run_shell_script "$script_name" ""
 	fi
 	
 	# Small delay between tests
