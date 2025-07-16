@@ -2,11 +2,12 @@
 
 # CI script for running foundry-uniswap-v3 tests
 # This script sets up dependencies, submodules, and runs the required forge script commands
-# Usage: ./ci-foundry-uniswap-v3.sh [--verbose]
+# Usage: ./ci-foundry-uniswap-v3.sh [--verbose] [--node-log-print]
 
 set -eo pipefail
 
 VERBOSE=false
+NODE_LOG_PRINT=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -15,9 +16,13 @@ while [[ $# -gt 0 ]]; do
 		VERBOSE=true
 		shift
 		;;
+	--node-log-print)
+		NODE_LOG_PRINT=true
+		shift
+		;;
 	*)
 		echo "Unknown option: $1"
-		echo "Usage: $0 [--verbose]"
+		echo "Usage: $0 [--verbose] [--node-log-print]"
 		exit 1
 		;;
 	esac
@@ -30,7 +35,7 @@ echo "Setting up foundry-uniswap-v3 tests..."
 
 # Setup dependencies and submodules
 echo "Running setup-compatibility-tests.sh..."
-if [ "$VERBOSE" = true ]; then
+if [ "$NODE_LOG_PRINT" = true ]; then
 	"$ROOT/scripts/setup-compatibility-tests.sh"
 else
 	"$ROOT/scripts/setup-compatibility-tests.sh" >/tmp/setup-compatibility-tests.log 2>&1
@@ -39,7 +44,7 @@ fi
 # Launch evmd node
 echo "Starting evmd node..."
 pushd "$ROOT" >/dev/null
-if [ "$VERBOSE" = true ]; then
+if [ "$NODE_LOG_PRINT" = true ]; then
 	./local_node.sh -y &
 else
 	./local_node.sh -y >/tmp/evmd.log 2>&1 &
@@ -82,9 +87,7 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
 		if [ -n "$BLOCK_HEX" ] && [ "$BLOCK_HEX" != "null" ]; then
 			# Convert hex to decimal (handle potential errors)
 			if BLOCK_NUMBER=$((16#${BLOCK_HEX#0x})); then
-				if [ "$VERBOSE" = true ]; then
-					echo "Current block number: $BLOCK_NUMBER (waiting for >= 5)"
-				fi
+				echo "Current block number: $BLOCK_NUMBER (waiting for >= 5)"
 
 				# Check if block number is >= 5
 				if [ "$BLOCK_NUMBER" -ge 5 ]; then
@@ -95,9 +98,7 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
 		fi
 	fi
 
-	if [ "$VERBOSE" = true ]; then
-		echo "Waiting for node... ($ELAPSED/$TIMEOUT seconds)"
-	fi
+	echo "Waiting for node... ($ELAPSED/$TIMEOUT seconds)"
 
 	sleep 2
 	ELAPSED=$((ELAPSED + 2))
@@ -105,11 +106,9 @@ done
 
 if [ $ELAPSED -ge $TIMEOUT ]; then
 	echo "Error: Node failed to reach block 5 within $TIMEOUT seconds"
-	if [ "$VERBOSE" = true ]; then
-		echo "Last response: $RESPONSE"
-		echo "Checking node logs:"
-		tail -20 /tmp/evmd.log 2>/dev/null || echo "No evmd logs found"
-	fi
+	echo "Last response: $RESPONSE"
+	echo "Checking node logs:"
+	tail -20 /tmp/evmd.log 2>/dev/null || echo "No evmd logs found"
 	exit 1
 fi
 
@@ -122,7 +121,7 @@ if [ -f ".env" ]; then
 	# shellcheck source=/dev/null
 	source .env
 else
-	echo "Error: .env file not found in $TEST_DIR"
+	echo "Error: No .env file found in $TEST_DIR"
 	exit 1
 fi
 
@@ -139,10 +138,42 @@ echo "Running foundry-uniswap-v3 deployment scripts..."
 
 # Deploy NFTDescriptor
 echo "Deploying NFTDescriptor..."
-forge script script/DeployNFTDescriptor.s.sol:DeployNFTDescriptor \
-	--rpc-url "$CUSTOM_RPC" \
-	--broadcast \
-	--chain-id "$CHAIN_ID"
+NFT_LOG_FILE="/tmp/nft_deployment.log"
+
+# Run forge and tee output to both stdout and log file
+if [ "$VERBOSE" = true ]; then
+	forge script script/DeployNFTDescriptor.s.sol:DeployNFTDescriptor \
+		--rpc-url "$CUSTOM_RPC" \
+		--broadcast \
+		--chain-id "$CHAIN_ID" 2>&1 | tee "$NFT_LOG_FILE"
+else
+	forge script script/DeployNFTDescriptor.s.sol:DeployNFTDescriptor \
+		--rpc-url "$CUSTOM_RPC" \
+		--broadcast \
+		--chain-id "$CHAIN_ID" > "$NFT_LOG_FILE" 2>&1
+fi
+
+NFT_EXIT_CODE=${PIPESTATUS[0]}
+
+# Give a moment for output to be fully written to log file
+sleep 2
+
+# Check for success
+if [ $NFT_EXIT_CODE -ne 0 ]; then
+	echo "Error: NFTDescriptor deployment failed with exit code $NFT_EXIT_CODE"
+	echo "Last 20 lines of output:"
+	tail -20 "$NFT_LOG_FILE"
+	exit 1
+fi
+
+if ! grep -q "ONCHAIN EXECUTION COMPLETE & SUCCESSFUL" "$NFT_LOG_FILE"; then
+	echo "Error: NFTDescriptor deployment did not complete successfully"
+	echo "Last 20 lines of output:"
+	tail -20 "$NFT_LOG_FILE"
+	exit 1
+fi
+
+echo "NFTDescriptor deployment completed successfully!"
 
 # Take a rest to ensure the deployment is complete
 echo "Waiting for NFTDescriptor deployment to complete..."
@@ -150,12 +181,46 @@ sleep 5
 
 # Deploy UniswapV3 with NFTDescriptor library
 echo "Deploying UniswapV3..."
-forge script script/DeployUniswapV3.s.sol:DeployUniswapV3 \
-	--rpc-url "$CUSTOM_RPC" \
-	--chain-id "$CHAIN_ID" \
-	--broadcast \
-	--slow \
-	--private-key "$PRIVATE_KEY" \
-	--libraries "lib/v3-periphery/contracts/libraries/NFTDescriptor.sol:NFTDescriptor:$LIBRARY_CONTRACT"
+UNISWAP_LOG_FILE="/tmp/uniswap_deployment.log"
 
+# Run forge and tee output to both stdout and log file
+if [ "$VERBOSE" = true ]; then
+	forge script script/DeployUniswapV3.s.sol:DeployUniswapV3 \
+		--rpc-url "$CUSTOM_RPC" \
+		--chain-id "$CHAIN_ID" \
+		--broadcast \
+		--slow \
+		--private-key "$PRIVATE_KEY" \
+		--libraries "lib/v3-periphery/contracts/libraries/NFTDescriptor.sol:NFTDescriptor:$LIBRARY_CONTRACT" 2>&1 | tee "$UNISWAP_LOG_FILE"
+else
+	forge script script/DeployUniswapV3.s.sol:DeployUniswapV3 \
+		--rpc-url "$CUSTOM_RPC" \
+		--chain-id "$CHAIN_ID" \
+		--broadcast \
+		--slow \
+		--private-key "$PRIVATE_KEY" \
+		--libraries "lib/v3-periphery/contracts/libraries/NFTDescriptor.sol:NFTDescriptor:$LIBRARY_CONTRACT" > "$UNISWAP_LOG_FILE" 2>&1
+fi
+
+UNISWAP_EXIT_CODE=${PIPESTATUS[0]}
+
+# Give a moment for output to be fully written to log file
+sleep 2
+
+# Check for success
+if [ $UNISWAP_EXIT_CODE -ne 0 ]; then
+	echo "Error: UniswapV3 deployment failed with exit code $UNISWAP_EXIT_CODE"
+	echo "Last 20 lines of output:"
+	tail -20 "$UNISWAP_LOG_FILE"
+	exit 1
+fi
+
+if ! grep -q "ONCHAIN EXECUTION COMPLETE & SUCCESSFUL" "$UNISWAP_LOG_FILE"; then
+	echo "Error: UniswapV3 deployment did not complete successfully"
+	echo "Last 20 lines of output:"
+	tail -20 "$UNISWAP_LOG_FILE"
+	exit 1
+fi
+
+echo "UniswapV3 deployment completed successfully!"
 echo "foundry-uniswap-v3 tests completed successfully!"

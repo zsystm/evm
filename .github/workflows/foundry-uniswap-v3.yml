@@ -67,6 +67,6 @@ jobs:
       - name: Run foundry-uniswap-v3 tests
         run: |
           chmod +x scripts/ci-foundry-uniswap-v3.sh
-          ./scripts/ci-foundry-uniswap-v3.sh
+          ./scripts/ci-foundry-uniswap-v3.sh --verbose
         env:
           COMPAT_DIR: ${{ github.workspace }}/tests/evm-tools-compatibility
