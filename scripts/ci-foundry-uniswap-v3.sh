@@ -159,7 +159,7 @@ NFT_EXIT_CODE=${PIPESTATUS[0]}
 sleep 2
 
 # Check for success
-if [ $NFT_EXIT_CODE -ne 0 ]; then
+if [ "$NFT_EXIT_CODE" -ne 0 ]; then
 	echo "Error: NFTDescriptor deployment failed with exit code $NFT_EXIT_CODE"
 	echo "Last 20 lines of output:"
 	tail -20 "$NFT_LOG_FILE"
@@ -208,7 +208,7 @@ UNISWAP_EXIT_CODE=${PIPESTATUS[0]}
 sleep 2
 
 # Check for success
-if [ $UNISWAP_EXIT_CODE -ne 0 ]; then
+if [ "$UNISWAP_EXIT_CODE" -ne 0 ]; then
 	echo "Error: UniswapV3 deployment failed with exit code $UNISWAP_EXIT_CODE"
 	echo "Last 20 lines of output:"
 	tail -20 "$UNISWAP_LOG_FILE"
