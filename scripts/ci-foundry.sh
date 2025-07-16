@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+
+# CI script for running foundry compatibility tests
+# This script sets up dependencies, submodules, and runs the required forge script commands
+# Usage: ./ci-foundry.sh [--verbose] [--node-log-print]
+
+set -eo pipefail
+
+VERBOSE=false
+NODE_LOG_PRINT=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+	case $1 in
+	--verbose | -v)
+		VERBOSE=true
+		shift
+		;;
+	--node-log-print)
+		NODE_LOG_PRINT=true
+		shift
+		;;
+	*)
+		echo "Unknown option: $1"
+		echo "Usage: $0 [--verbose] [--node-log-print]"
+		exit 1
+		;;
+	esac
+done
+
+ROOT="$(git rev-parse --show-toplevel)"
+TEST_DIR="$ROOT/tests/evm-tools-compatibility/foundry"
+
+echo "Setting up foundry compatibility tests..."
+
+# Setup dependencies and submodules
+echo "Running setup-compatibility-tests.sh..."
+if [ "$NODE_LOG_PRINT" = true ]; then
+	"$ROOT/scripts/setup-compatibility-tests.sh"
+else
+	"$ROOT/scripts/setup-compatibility-tests.sh" >/tmp/setup-compatibility-tests.log 2>&1
+fi
+
+# Launch evmd node
+echo "Starting evmd node..."
+pushd "$ROOT" >/dev/null
+if [ "$NODE_LOG_PRINT" = true ]; then
+	./local_node.sh -y &
+else
+	./local_node.sh -y >/tmp/evmd.log 2>&1 &
+fi
+NODE_PID=$!
+popd >/dev/null
+
+# Cleanup function to kill the node on exit
+cleanup() {
+	if [ -n "$NODE_PID" ]; then
+		echo "Stopping evmd node..."
+		kill "$NODE_PID" 2>/dev/null || true
+		wait "$NODE_PID" 2>/dev/null || true
+	fi
+}
+
+# Set trap to cleanup on exit
+trap cleanup EXIT
+
+# Give the node a moment to start before checking
+echo "Giving node time to initialize..."
+sleep 3
+
+# Wait for the node to be ready
+echo "Waiting for evmd node to be ready..."
+RPC_URL="http://127.0.0.1:8545"
+TIMEOUT=60
+ELAPSED=0
+
+while [ $ELAPSED -lt $TIMEOUT ]; do
+	# Get the block number from the RPC endpoint
+	RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
+		--data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
+		"$RPC_URL" 2>/dev/null || true)
+
+	if [ -n "$RESPONSE" ]; then
+		# Extract the hex block number from the JSON response
+		BLOCK_HEX=$(echo "$RESPONSE" | grep -o '"result":"[^"]*"' | cut -d'"' -f4 || true)
+
+		if [ -n "$BLOCK_HEX" ] && [ "$BLOCK_HEX" != "null" ]; then
+			# Convert hex to decimal (handle potential errors)
+			if BLOCK_NUMBER=$((16#${BLOCK_HEX#0x})); then
+				echo "Current block number: $BLOCK_NUMBER (waiting for >= 10)"
+
+				# Check if block number is >= 10
+				if [ "$BLOCK_NUMBER" -ge 10 ]; then
+					echo "Node is ready! Block number: $BLOCK_NUMBER"
+					break
+				fi
+			fi
+		fi
+	fi
+
+	echo "Waiting for node... ($ELAPSED/$TIMEOUT seconds)"
+
+	sleep 2
+	ELAPSED=$((ELAPSED + 2))
+done
+
+if [ $ELAPSED -ge $TIMEOUT ]; then
+	echo "Error: Node failed to reach block 5 within $TIMEOUT seconds"
+	echo "Last response: $RESPONSE"
+	echo "Checking node logs:"
+	tail -20 /tmp/evmd.log 2>/dev/null || echo "No evmd logs found"
+	exit 1
+fi
+
+# Change to the test directory
+cd "$TEST_DIR"
+
+# Source the environment file
+if [ -f ".env" ]; then
+	echo "Sourcing .env file..."
+	# shellcheck source=/dev/null
+	source .env
+else
+	echo "Error: No .env file found in $TEST_DIR"
+	exit 1
+fi
+
+# Verify required environment variables are set
+if [ -z "$CUSTOM_RPC" ] || [ -z "$CHAIN_ID" ] || [ -z "$PRIVATE_KEY" ]; then
+	echo "Error: Required environment variables not set"
+	echo "CUSTOM_RPC: $CUSTOM_RPC"
+	echo "CHAIN_ID: $CHAIN_ID"
+	echo "PRIVATE_KEY: [hidden]"
+	exit 1
+fi
+
+echo "Running foundry compatibility tests sequentially..."
+
+# Function to run forge script with proper error checking
+run_forge_script() {
+	local script_name="$1"
+	local description="$2"
+	local log_file="/tmp/${script_name}_deployment.log"
+	
+	echo "$description..."
+	
+	# Run forge and tee output to both stdout and log file
+	# Temporarily disable exit-on-error for forge command since TransferError is expected to fail
+	set +e
+	if [ "$VERBOSE" = true ]; then
+		forge script "script/${script_name}.s.sol:${script_name}" \
+			--rpc-url "$CUSTOM_RPC" \
+			--broadcast \
+			--chain-id "$CHAIN_ID" 2>&1 | tee "$log_file"
+		local exit_code=${PIPESTATUS[0]}
+	else
+		forge script "script/${script_name}.s.sol:${script_name}" \
+			--rpc-url "$CUSTOM_RPC" \
+			--broadcast \
+			--chain-id "$CHAIN_ID" > "$log_file" 2>&1
+		local exit_code=$?
+	fi
+	# Re-enable exit-on-error
+	set -e
+	
+	# Give a moment for output to be fully written to log file
+	echo "Waiting for output to be written to log file..."
+	sleep 3
+	
+	# Special handling for TransferError - it's expected to fail with simulation error
+	# Check this BEFORE checking exit codes since forge exits with non-zero for simulation failures
+	if [ "$script_name" = "TransferError" ]; then
+		if grep -q "Error: Simulated execution failed" "$log_file" && grep -q "Script ran successfully" "$log_file"; then
+			echo "$description completed successfully! (Expected revert detected)"
+		else
+			echo "Error: $description should have failed with simulated execution error"
+			echo "Last 20 lines of output:"
+			tail -20 "$log_file"
+			exit 1
+		fi
+	else
+		# Normal success checking for other scripts
+		if [ "$exit_code" -ne 0 ]; then
+			echo "Error: $description failed with exit code $exit_code"
+			echo "Last 20 lines of output:"
+			tail -20 "$log_file"
+			exit 1
+		fi
+		
+		# Check for success based on script type
+		if grep -q "ONCHAIN EXECUTION COMPLETE & SUCCESSFUL" "$log_file"; then
+			echo "$description completed successfully!"
+		elif grep -q "Script ran successfully" "$log_file"; then
+			echo "$description completed successfully!"
+		else
+			echo "Error: $description did not complete successfully"
+			echo "Last 20 lines of output:"
+			tail -20 "$log_file"
+			exit 1
+		fi
+	fi
+	
+	# Small delay between tests
+	sleep 3
+}
+
+# Test 1: Deploy ERC20 contract
+run_forge_script "DeployERC20" "Deploying ERC20 contract"
+
+# Test 2: Query Network Info
+run_forge_script "NetworkInfo" "Querying network information"
+
+# Test 3: Read State
+run_forge_script "ReadState" "Reading contract state"
+
+# Test 4: Transfer
+run_forge_script "Transfer" "Executing ERC20 transfer"
+
+# Test 5: Transfer Error (revert case)
+run_forge_script "TransferError" "Testing transfer error"
+
+echo "All foundry compatibility tests completed successfully!"
