@@ -1,28 +1,28 @@
-name: Foundry Uniswap V3 Tests
+name: Compatibility Tests for Viem
 
 on:
   push:
     branches: [main, develop]
     paths:
-      - 'tests/evm-tools-compatibility/foundry-uniswap-v3/**'
-      - 'scripts/setup-compatibility-tests.sh'
-      - 'scripts/ci-foundry-uniswap-v3.sh'
+      - 'tests/evm-tools-compatibility/viem/**'
+      - '../../scripts/tests_compatibility_setup.sh'
+      - '../../scripts/tests_compatibility_viem.sh'
       - 'local_node.sh'
-      - '.github/workflows/foundry-uniswap-v3.yml'
+      - 'tests-compatibility-viem.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'tests/evm-tools-compatibility/foundry-uniswap-v3/**'
-      - 'scripts/setup-compatibility-tests.sh'
-      - 'scripts/ci-foundry-uniswap-v3.sh'
+      - 'tests/evm-tools-compatibility/viem/**'
+      - '../../scripts/tests_compatibility_setup.sh'
+      - '../../scripts/tests_compatibility_viem.sh'
       - 'local_node.sh'
-      - '.github/workflows/foundry-uniswap-v3.yml'
+      - 'tests-compatibility-viem.yml'
 
 permissions:
   contents: read
 
 jobs:
-  foundry-uniswap-v3:
+  viem-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
@@ -40,7 +40,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential curl git
+          sudo apt-get install -y build-essential curl git jq
       
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -60,13 +60,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: tests/evm-tools-compatibility/viem/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('tests/evm-tools-compatibility/viem/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
       - name: Build and install evmd
         run: |
           make install
       
-      - name: Run foundry-uniswap-v3 tests
+      - name: Run viem compatibility tests
         run: |
-          chmod +x scripts/ci-foundry-uniswap-v3.sh
-          ./scripts/ci-foundry-uniswap-v3.sh --verbose
+          chmod +x scripts/tests_compatibility_viem.sh
+          ./scripts/tests_compatibility_viem.sh --verbose
         env:
           COMPAT_DIR: ${{ github.workspace }}/tests/evm-tools-compatibility

@@ -2,9 +2,12 @@
 
 # CI script for running foundry-uniswap-v3 tests
 # This script sets up dependencies, submodules, and runs the required forge script commands
-# Usage: ./ci-foundry-uniswap-v3.sh [--verbose] [--node-log-print]
+# Usage: ./tests_compatibility_foundry_uniswap_v3.sh [--verbose] [--node-log-print]
 
 set -eo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/tests_compatibility_common.sh
+source "$SCRIPT_DIR/tests_compatibility_common.sh"
 
 VERBOSE=false
 NODE_LOG_PRINT=false
@@ -34,83 +37,13 @@ TEST_DIR="$ROOT/tests/evm-tools-compatibility/foundry-uniswap-v3"
 echo "Setting up foundry-uniswap-v3 tests..."
 
 # Setup dependencies and submodules
-echo "Running setup-compatibility-tests.sh..."
-if [ "$NODE_LOG_PRINT" = true ]; then
-	"$ROOT/scripts/setup-compatibility-tests.sh"
-else
-	"$ROOT/scripts/setup-compatibility-tests.sh" >/tmp/setup-compatibility-tests.log 2>&1
-fi
+setup_compatibility_tests "$NODE_LOG_PRINT"
 
-# Launch evmd node
-echo "Starting evmd node..."
-pushd "$ROOT" >/dev/null
-if [ "$NODE_LOG_PRINT" = true ]; then
-	./local_node.sh -y &
-else
-	./local_node.sh -y >/tmp/evmd.log 2>&1 &
-fi
-NODE_PID=$!
-popd >/dev/null
-
-# Cleanup function to kill the node on exit
-cleanup() {
-	if [ -n "$NODE_PID" ]; then
-		echo "Stopping evmd node..."
-		kill "$NODE_PID" 2>/dev/null || true
-		wait "$NODE_PID" 2>/dev/null || true
-	fi
-}
-
-# Set trap to cleanup on exit
-trap cleanup EXIT
-
-# Give the node a moment to start before checking
-echo "Giving node time to initialize..."
+start_node "$NODE_LOG_PRINT"
+trap cleanup_node EXIT
 sleep 3
 
-# Wait for the node to be ready
-echo "Waiting for evmd node to be ready..."
-RPC_URL="http://127.0.0.1:8545"
-TIMEOUT=60
-ELAPSED=0
-
-while [ $ELAPSED -lt $TIMEOUT ]; do
-	# Get the block number from the RPC endpoint
-	RESPONSE=$(curl -s -X POST -H "Content-Type: application/json" \
-		--data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
-		"$RPC_URL" 2>/dev/null || true)
-
-	if [ -n "$RESPONSE" ]; then
-		# Extract the hex block number from the JSON response
-		BLOCK_HEX=$(echo "$RESPONSE" | grep -o '"result":"[^"]*"' | cut -d'"' -f4 || true)
-
-		if [ -n "$BLOCK_HEX" ] && [ "$BLOCK_HEX" != "null" ]; then
-			# Convert hex to decimal (handle potential errors)
-			if BLOCK_NUMBER=$((16#${BLOCK_HEX#0x})); then
-				echo "Current block number: $BLOCK_NUMBER (waiting for >= 5)"
-
-				# Check if block number is >= 5
-				if [ "$BLOCK_NUMBER" -ge 5 ]; then
-					echo "Node is ready! Block number: $BLOCK_NUMBER"
-					break
-				fi
-			fi
-		fi
-	fi
-
-	echo "Waiting for node... ($ELAPSED/$TIMEOUT seconds)"
-
-	sleep 2
-	ELAPSED=$((ELAPSED + 2))
-done
-
-if [ $ELAPSED -ge $TIMEOUT ]; then
-	echo "Error: Node failed to reach block 5 within $TIMEOUT seconds"
-	echo "Last response: $RESPONSE"
-	echo "Checking node logs:"
-	tail -20 /tmp/evmd.log 2>/dev/null || echo "No evmd logs found"
-	exit 1
-fi
+wait_for_node 10
 
 # Change to the test directory
 cd "$TEST_DIR"

@@ -1,28 +1,28 @@
-name: Hardhat Compatibility Tests
+name: Compatibility Tests for Web3.js
 
 on:
   push:
     branches: [main, develop]
     paths:
-      - 'tests/evm-tools-compatibility/hardhat/**'
-      - 'scripts/setup-compatibility-tests.sh'
-      - 'scripts/ci-hardhat.sh'
+      - 'tests/evm-tools-compatibility/web3.js/**'
+      - '../../scripts/tests_compatibility_setup.sh'
+      - '../../scripts/tests_compatibility_web3js.sh'
       - 'local_node.sh'
-      - '.github/workflows/hardhat.yml'
+      - 'tests-compatibility-web3js.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'tests/evm-tools-compatibility/hardhat/**'
-      - 'scripts/setup-compatibility-tests.sh'
-      - 'scripts/ci-hardhat.sh'
+      - 'tests/evm-tools-compatibility/web3.js/**'
+      - '../../scripts/tests_compatibility_setup.sh'
+      - '../../scripts/tests_compatibility_web3js.sh'
       - 'local_node.sh'
-      - '.github/workflows/hardhat.yml'
+      - 'tests-compatibility-web3js.yml'
 
 permissions:
   contents: read
 
 jobs:
-  hardhat-compatibility:
+  web3js-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
@@ -63,8 +63,8 @@ jobs:
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
-          path: tests/evm-tools-compatibility/hardhat/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('tests/evm-tools-compatibility/hardhat/package-lock.json') }}
+          path: tests/evm-tools-compatibility/web3.js/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('tests/evm-tools-compatibility/web3.js/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       
@@ -72,9 +72,9 @@ jobs:
         run: |
           make install
       
-      - name: Run hardhat compatibility tests
+      - name: Run web3.js compatibility tests
         run: |
-          chmod +x scripts/ci-hardhat.sh
-          ./scripts/ci-hardhat.sh --verbose
+          chmod +x scripts/tests_compatibility_web3js.sh
+          ./scripts/tests_compatibility_web3js.sh --verbose
         env:
           COMPAT_DIR: ${{ github.workspace }}/tests/evm-tools-compatibility
