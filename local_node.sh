@@ -227,7 +227,7 @@ fi
 evmd start "$TRACE" \
 	--pruning nothing \
 	--log_level $LOGLEVEL \
-	--minimum-gas-prices=1atest \
+	--minimum-gas-prices=0.0001atest \
 	--home "$CHAINDIR" \
 	--json-rpc.api eth,txpool,personal,net,debug,web3 \
 	--chain-id "$CHAINID"
