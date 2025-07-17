@@ -3,7 +3,6 @@ const {
   createPublicClient,
   createWalletClient,
   http,
-  parseEther,
 } = require("viem");
 const { privateKeyToAccount } = require("viem/accounts");
 const { expect } = require("chai");
