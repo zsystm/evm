@@ -43,9 +43,15 @@ describe("Uniswap V3 Router and Manager Deployment Test", function () {
         await nftDescriptor.waitForDeployment();
         const nftDescriptorAddr = await nftDescriptor.getAddress();
         console.log("lib: "+nftDescriptorAddr);
-        const Descriptor=await ethers.getContractFactoryFromArtifact(descriptorArtifact,{signer:deployer,libraries: {
-            NFTDescriptor: nftDescriptorAddr
-          }})
+        const Descriptor=await ethers.getContractFactoryFromArtifact(
+            descriptorArtifact,
+            {
+                signer:deployer,
+                libraries: {
+                    NFTDescriptor: nftDescriptorAddr
+                }
+            }
+        );
         const label = await ethers.encodeBytes32String("ETH");
         console.log("Descriptor Label:", label, typeof label);
 
