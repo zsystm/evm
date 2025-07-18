@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
+const { findEvent } = require('../common');
 
 /**
  * Parse the raw return from delegationTotalRewards into structured objects.
@@ -50,11 +51,7 @@ describe('DistributionI – claimRewards', function () {
         const receipt = await tx.wait(2);
         console.log('ClaimRewards tx hash:', receipt.hash, 'gas used:', receipt.gasUsed.toString());
 
-        const evt = receipt.logs
-            .map(log => {
-                try { return distribution.interface.parseLog(log); } catch { return null; }
-            })
-            .find(e => e && e.name === 'ClaimRewards');
+        const evt = findEvent(receipt.logs, distribution.interface, 'ClaimRewards');
         expect(evt, 'ClaimRewards event should be emitted').to.exist;
         expect(evt.args.delegatorAddress).to.equal(signer.address);
         expect(evt.args.amount).to.be.a('bigint');

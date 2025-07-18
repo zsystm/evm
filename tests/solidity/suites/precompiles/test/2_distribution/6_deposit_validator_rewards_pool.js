@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
+const { findEvent } = require('../common');
 
 describe('Distribution – deposit validator rewards pool', function () {
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801';
@@ -27,9 +28,7 @@ describe('Distribution – deposit validator rewards pool', function () {
         const receipt = await tx.wait(2);
         console.log('DepositValidatorRewardsPool tx hash:', receipt.hash);
 
-        const evt = receipt.logs
-            .map(log => { try { return distribution.interface.parseLog(log); } catch { return null; } })
-            .find(e => e && e.name === 'DepositValidatorRewardsPool');
+        const evt = findEvent(receipt.logs, distribution.interface, 'DepositValidatorRewardsPool');
         expect(evt, 'DepositValidatorRewardsPool event must be emitted').to.exist;
         expect(evt.args.depositor).to.equal(signer.address);
         expect(evt.args.validatorAddress).to.equal(VAL_HEX);

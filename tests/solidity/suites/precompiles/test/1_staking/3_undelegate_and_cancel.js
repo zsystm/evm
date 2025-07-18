@@ -1,5 +1,6 @@
 const {expect} = require('chai')
 const hre = require('hardhat')
+const { findEvent } = require('../common')
 
 function formatUnbondingDelegation(res) {
     const delegatorAddress = res[0]
@@ -55,15 +56,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         console.log('Delegate tx hash:', delegateTx.hash, 'gas used:', delegateReceipt.gasUsed.toString())
 
         const hexValAddr = '0x7cB61D4117AE31a12E393a1Cfa3BaC666481D02E'
-        const delegateEvt = delegateReceipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'Delegate')
+        const delegateEvt = findEvent(delegateReceipt.logs, staking.interface, 'Delegate')
         expect(delegateEvt, 'Delegate event should be emitted').to.exist
         expect(delegateEvt.args.delegatorAddress).to.equal(signer.address)
         expect(delegateEvt.args.validatorAddress).to.equal(hexValAddr)
@@ -78,15 +71,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         const undelegateReceipt = await undelegateTx.wait(2)
         console.log('Undelegate tx hash:', undelegateTx.hash, 'gas used:', undelegateReceipt.gasUsed.toString())
 
-        const unbondEvt = undelegateReceipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'Unbond')
+        const unbondEvt = findEvent(undelegateReceipt.logs, staking.interface, 'Unbond')
         expect(unbondEvt, 'Unbond event should be emitted').to.exist
         expect(unbondEvt.args.delegatorAddress).to.equal(signer.address)
         expect(unbondEvt.args.validatorAddress).to.equal(hexValAddr)
@@ -121,15 +106,7 @@ describe('Staking – delegate, undelegate & cancelUnbondingDelegation with even
         const cancelReceipt = await cancelTx.wait(2)
         console.log('CancelUnbondingDelegation tx hash:', cancelTx.hash, 'gas used:', cancelReceipt.gasUsed.toString())
 
-        const cancelEvt = cancelReceipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'CancelUnbondingDelegation')
+        const cancelEvt = findEvent(cancelReceipt.logs, staking.interface, 'CancelUnbondingDelegation')
         expect(cancelEvt, 'CancelUnbondingDelegation event should be emitted').to.exist
         expect(cancelEvt.args.delegatorAddress).to.equal(signer.address)
         expect(cancelEvt.args.validatorAddress).to.equal(hexValAddr)

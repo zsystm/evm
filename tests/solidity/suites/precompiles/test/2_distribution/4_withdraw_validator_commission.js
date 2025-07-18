@@ -1,5 +1,6 @@
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
+const { findEvent } = require('../common')
 
 describe('Distribution – withdraw validator commission', function () {
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801'
@@ -29,12 +30,7 @@ describe('Distribution – withdraw validator commission', function () {
         const receipt = await tx.wait(2)
 
         // 3) parse the event
-        const parsedEvt = receipt.logs
-            .map(log => {
-                try { return distribution.interface.parseLog(log) }
-                catch { return null }
-            })
-            .find(e => e && e.name === 'WithdrawValidatorCommission')
+        const parsedEvt = findEvent(receipt.logs, distribution.interface, 'WithdrawValidatorCommission')
         expect(parsedEvt, 'event must be emitted').to.exist
 
         // 4) verify the indexed validatorAddress via topic hash

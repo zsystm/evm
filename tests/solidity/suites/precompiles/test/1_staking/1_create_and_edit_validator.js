@@ -3,33 +3,14 @@ const hre = require('hardhat')
 const {
     STAKING_PRECOMPILE_ADDRESS,
     DEFAULT_GAS_LIMIT,
-    parseValidator
+    parseValidator,
+    findEvent
 } = require('../common')
 
 describe('StakingI – createValidator', function () {
     const GAS_LIMIT = DEFAULT_GAS_LIMIT // skip gas estimation for simplicity
 
     let staking, signer
-
-    /**
-     * Convert the raw tuple from staking.validator(...)
-     * into an object that mirrors the Validator struct.
-     */
-    function parseValidator(raw) {
-        return {
-            operatorAddress: raw[0],
-            consensusPubkey: raw[1],
-            jailed: raw[2],
-            status: raw[3],
-            tokens: raw[4],
-            delegatorShares: raw[5],
-            description: raw[6],
-            unbondingHeight: raw[7],
-            unbondingTime: raw[8],
-            commission: raw[9],
-            minSelfDelegation: raw[10],
-        }
-    }
 
     before(async () => {
         [signer] = await hre.ethers.getSigners()
@@ -76,15 +57,11 @@ describe('StakingI – createValidator', function () {
         console.log('Transaction hash:', receipt.hash)
 
         // Find and parse the CreateValidator event from the transaction logs
-        const parsed = receipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'CreateValidator')
+        const parsed = findEvent(
+            receipt.logs,
+            staking.interface,
+            'CreateValidator'
+        )
 
         expect(parsed, 'CreateValidator event must be emitted').to.exist
         expect(parsed.args.validatorAddress).to.equal(signer.address)
@@ -135,15 +112,7 @@ describe('StakingI – createValidator', function () {
         console.log('EditValidator tx hash:', editTx.hash)
 
         // parse EditValidator event
-        const editEvt = editReceipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'EditValidator')
+        const editEvt = findEvent(editReceipt.logs, staking.interface, 'EditValidator')
         expect(editEvt, 'EditValidator event must be emitted').to.exist
         expect(editEvt.args.validatorAddress).to.equal(signer.address)
         expect(editEvt.args.commissionRate).to.equal(DO_NOT_MODIFY)

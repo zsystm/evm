@@ -30,6 +30,21 @@ function parseValidator (raw) {
     }
 }
 
+// Utility to parse logs and return the first matching event by name
+function findEvent (logs, iface, eventName) {
+    for (const log of logs) {
+        try {
+            const parsed = iface.parseLog(log)
+            if (parsed && parsed.name === eventName) {
+                return parsed
+            }
+        } catch {
+            // ignore logs that do not match the contract interface
+        }
+    }
+    return null
+}
+
 module.exports = {
     STAKING_PRECOMPILE_ADDRESS,
     BECH32_PRECOMPILE_ADDRESS,
@@ -41,5 +56,6 @@ module.exports = {
     WERC20_ADDRESS,
     DEFAULT_GAS_LIMIT,
     LARGE_GAS_LIMIT,
-    parseValidator
+    parseValidator,
+    findEvent
 }

@@ -1,5 +1,6 @@
 const {expect} = require('chai');
 const hre = require('hardhat');
+const { findEvent } = require('../common');
 
 describe('Distribution – set withdraw address', function () {
     const DIST_ADDRESS = '0x0000000000000000000000000000000000000801';
@@ -20,15 +21,7 @@ describe('Distribution – set withdraw address', function () {
         const receipt = await tx.wait(2);
         console.log('SetWithdrawAddress tx hash:', receipt.hash);
 
-        const evt = receipt.logs
-            .map(log => {
-                try {
-                    return distribution.interface.parseLog(log);
-                } catch {
-                    return null;
-                }
-            })
-            .find(e => e && e.name === 'SetWithdrawerAddress');
+        const evt = findEvent(receipt.logs, distribution.interface, 'SetWithdrawerAddress');
         expect(evt, 'SetWithdrawerAddress event must be emitted').to.exist;
         expect(evt.args.caller).to.equal(signer.address);
         expect(evt.args.withdrawerAddress).to.equal(newWithdrawAddress);

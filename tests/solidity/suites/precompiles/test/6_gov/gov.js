@@ -1,5 +1,6 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
+const { findEvent } = require('../common')
 
 describe('Gov Precompile', function () {
     const GOV_ADDRESS = '0x0000000000000000000000000000000000000805'
@@ -22,9 +23,7 @@ describe('Gov Precompile', function () {
             .submitProposal(signer.address, jsonProposal, [deposit], { gasLimit: GAS_LIMIT })
         const receipt = await tx.wait(2)
 
-        const evt = receipt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'SubmitProposal')
+        const evt = findEvent(receipt.logs, gov.interface, 'SubmitProposal')
         
         if (!evt) {
             throw new Error('SubmitProposal event not found in receipt')
@@ -70,9 +69,7 @@ describe('Gov Precompile', function () {
             .connect(signer)
             .deposit(signer.address, globalProposalId, [deposit], { gasLimit: GAS_LIMIT })
         const depRcpt = await depTx.wait(2)
-        const depEvt = depRcpt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'Deposit')
+        const depEvt = findEvent(depRcpt.logs, gov.interface, 'Deposit')
         expect(depEvt, 'Deposit event must be emitted').to.exist
         expect(depEvt.args.proposalId).to.equal(globalProposalId)
         expect(depEvt.args.depositor).to.equal(signer.address)
@@ -83,9 +80,7 @@ describe('Gov Precompile', function () {
             .connect(signer)
             .vote(signer.address, globalProposalId, 1, 'simple vote', { gasLimit: GAS_LIMIT })
         const voteRcpt = await voteTx.wait(2)
-        const voteEvt = voteRcpt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'Vote')
+        const voteEvt = findEvent(voteRcpt.logs, gov.interface, 'Vote')
         expect(voteEvt, 'Vote event must be emitted').to.exist
         expect(voteEvt.args.option).to.equal(1)
         expect(voteEvt.args.proposalId).to.equal(globalProposalId)
@@ -103,9 +98,7 @@ describe('Gov Precompile', function () {
             .voteWeighted(signer.address, globalProposalId, weightedOptions, 'weighted vote', { gasLimit: GAS_LIMIT })
         const receipt = await tx.wait(2)
 
-        const evt = receipt.logs
-            .map(log => { try { return gov.interface.parseLog(log) } catch { return null } })
-            .find(e => e && e.name === 'VoteWeighted')
+        const evt = findEvent(receipt.logs, gov.interface, 'VoteWeighted')
         expect(evt, 'VoteWeighted event must be emitted').to.exist
         expect(evt.args.voter).to.equal(signer.address)
         expect(evt.args.proposalId).to.equal(globalProposalId)
@@ -190,15 +183,7 @@ describe('Gov Precompile', function () {
             .connect(signer)
             .cancelProposal(signer.address, proposalIdToCancel, {gasLimit: GAS_LIMIT})
         const cancelRcpt = await cancelTx.wait(2)
-        const cancelEvt = cancelRcpt.logs
-            .map(log => {
-                try {
-                    return gov.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(e => e && e.name === 'CancelProposal')
+        const cancelEvt = findEvent(cancelRcpt.logs, gov.interface, 'CancelProposal')
 
         expect(cancelEvt, 'CancelProposal event must be emitted').to.exist
         expect(cancelEvt.args.proposer).to.equal(signer.address)

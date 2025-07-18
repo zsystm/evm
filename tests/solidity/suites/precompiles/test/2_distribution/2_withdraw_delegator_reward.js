@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
+const { findEvent } = require('../common');
 
 describe('Distribution – withdraw delegator reward', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
@@ -43,9 +44,7 @@ describe('Distribution – withdraw delegator reward', function () {
         console.log('WithdrawDelegatorRewards tx hash:', receipt.hash);
 
         // Check events
-        const evt = receipt.logs
-            .map(log => { try { return distribution.interface.parseLog(log); } catch { return null; } })
-            .find(e => e && e.name === 'WithdrawDelegatorReward');
+        const evt = findEvent(receipt.logs, distribution.interface, 'WithdrawDelegatorReward');
         expect(evt, 'WithdrawDelegatorReward event must be emitted').to.exist;
         expect(evt.args.delegatorAddress).to.equal(signer.address);
         expect(evt.args.validatorAddress).to.equal(valHex);

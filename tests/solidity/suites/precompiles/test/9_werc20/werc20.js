@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
-const { WERC20_ADDRESS, DEFAULT_GAS_LIMIT } = require('../common');
+const { WERC20_ADDRESS, DEFAULT_GAS_LIMIT, findEvent } = require('../common');
 
 describe('WERC20 – deposit and withdraw', function () {
     const GAS_LIMIT = DEFAULT_GAS_LIMIT;
@@ -32,16 +32,7 @@ describe('WERC20 – deposit and withdraw', function () {
             expect(receipt.gasUsed).to.be.greaterThan(0);
             
             // Look for Deposit event
-            const depositEvent = receipt.logs.find(log => {
-                try {
-                    const parsed = werc20.interface.parseLog(log);
-                    return parsed && parsed.name === 'Deposit';
-                } catch {
-                    return false;
-                }
-            });
-            
-            const parsed = werc20.interface.parseLog(depositEvent);
+            const parsed = findEvent(receipt.logs, werc20.interface, 'Deposit');
             console.log('Deposit event:', parsed.args);
             expect(parsed.args.dst).to.equal(signer.address);
             expect(parsed.args.wad).to.equal(depositAmount);
@@ -109,16 +100,7 @@ describe('WERC20 – deposit and withdraw', function () {
             expect(receipt.gasUsed).to.be.greaterThan(0);
             
             // Look for Withdrawal event
-            const withdrawEvent = receipt.logs.find(log => {
-                try {
-                    const parsed = werc20.interface.parseLog(log);
-                    return parsed && parsed.name === 'Withdrawal';
-                } catch {
-                    return false;
-                }
-            });
-            
-            const parsed = werc20.interface.parseLog(withdrawEvent);
+            const parsed = findEvent(receipt.logs, werc20.interface, 'Withdrawal');
             console.log('Withdrawal event:', parsed.args);
             expect(parsed.args.src).to.equal(signer.address);
             expect(parsed.args.wad).to.equal(withdrawAmount);

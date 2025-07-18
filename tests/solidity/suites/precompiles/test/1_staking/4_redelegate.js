@@ -1,5 +1,6 @@
 const {expect} = require('chai')
 const hre = require('hardhat')
+const { findEvent } = require('../common')
 
 /**
  * Convert the raw tuple from staking.redelegation(...)
@@ -74,15 +75,7 @@ describe('Staking – redelegate with event and state assertions', function () {
         console.log('Redelegate tx hash:', tx.hash, 'gas used:', receipt.gasUsed.toString())
 
         // 4) parse and assert the Redelegate event
-        const redelegateEvt = receipt.logs
-            .map(log => {
-                try {
-                    return staking.interface.parseLog(log)
-                } catch {
-                    return null
-                }
-            })
-            .find(evt => evt && evt.name === 'Redelegate')
+        const redelegateEvt = findEvent(receipt.logs, staking.interface, 'Redelegate')
         expect(redelegateEvt, 'Redelegate event should be emitted').to.exist
         expect(redelegateEvt.args.delegatorAddress).to.equal(signer.address)
         expect(redelegateEvt.args.validatorSrcAddress).to.equal(srcValHex)
