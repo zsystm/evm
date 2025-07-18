@@ -1,11 +1,9 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
+const { WERC20_ADDRESS, DEFAULT_GAS_LIMIT } = require('../common');
 
 describe('WERC20 – deposit and withdraw', function () {
-    // Using a placeholder address for WERC20 - in reality this would be dynamic
-    // based on the actual ERC20 token pair configuration
-    const WERC20_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-    const GAS_LIMIT = 1_000_000;
+    const GAS_LIMIT = DEFAULT_GAS_LIMIT;
     
     let werc20, signer;
 
@@ -124,7 +122,6 @@ describe('WERC20 – deposit and withdraw', function () {
             console.log('Withdrawal event:', parsed.args);
             expect(parsed.args.src).to.equal(signer.address);
             expect(parsed.args.wad).to.equal(withdrawAmount);
-            console.log('No Withdrawal event found (expected for mock implementation)');
         });
 
         it('withdraws different amounts', async function () {

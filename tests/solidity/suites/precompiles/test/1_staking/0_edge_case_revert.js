@@ -1,9 +1,12 @@
 const { expect } = require('chai');
 const hre = require('hardhat');
+const {
+    STAKING_PRECOMPILE_ADDRESS,
+    LARGE_GAS_LIMIT
+} = require('../common');
 
 describe('Staking – edge case revert test', function () {
-    const STAKING_PRECOMPILE_ADDRESS = '0x0000000000000000000000000000000000000800';
-    const GAS_LIMIT = 10_000_000;
+    const GAS_LIMIT = LARGE_GAS_LIMIT;
 
     let stakingReverter, staking, signer;
     let validatorAddress;

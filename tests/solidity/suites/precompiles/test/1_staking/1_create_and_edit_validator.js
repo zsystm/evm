@@ -1,12 +1,15 @@
-const {expect} = require('chai')
+const { expect } = require('chai')
 const hre = require('hardhat')
+const {
+    STAKING_PRECOMPILE_ADDRESS,
+    DEFAULT_GAS_LIMIT,
+    parseValidator
+} = require('../common')
 
-describe('StakingI – createValidator with Bech32 operator address', function () {
-    const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
-    const BECH32_ADDRESS = '0x0000000000000000000000000000000000000400'
-    const GAS_LIMIT = 1_000_000 // skip gas estimation for simplicity
+describe('StakingI – createValidator', function () {
+    const GAS_LIMIT = DEFAULT_GAS_LIMIT // skip gas estimation for simplicity
 
-    let staking, bech32, signer
+    let staking, signer
 
     /**
      * Convert the raw tuple from staking.validator(...)
@@ -32,12 +35,10 @@ describe('StakingI – createValidator with Bech32 operator address', function (
         [signer] = await hre.ethers.getSigners()
 
         // Instantiate the StakingI precompile contract
-        staking = await hre.ethers.getContractAt('StakingI', STAKING_ADDRESS)
-        // Instantiate the Bech32I precompile contract for address conversion
-        bech32 = await hre.ethers.getContractAt('Bech32I', BECH32_ADDRESS)
+        staking = await hre.ethers.getContractAt('StakingI', STAKING_PRECOMPILE_ADDRESS)
     })
 
-    it('should create a validator successfully using a Bech32-encoded operator address', async function () {
+    it('should create a validator successfully', async function () {
         // Define the validator’s descriptive metadata
         const description = {
             moniker: 'TestValidator',
