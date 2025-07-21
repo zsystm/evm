@@ -2,7 +2,7 @@ const {expect} = require('chai')
 const hre = require('hardhat')
 const { findEvent } = require('../common')
 
-describe('Staking – delegate with event assertion (gte & precision)', function () {
+describe('Staking – delegate with event assertion', function () {
     const STAKING_ADDRESS = '0x0000000000000000000000000000000000000800'
     const BECH32_ADDRESS = '0x0000000000000000000000000000000000000400'
     const GAS_LIMIT = 1_000_000 // skip gas estimation for simplicity
@@ -62,10 +62,10 @@ describe('Staking – delegate with event assertion (gte & precision)', function
         const afterBalance = BigInt(afterDelegation.balance.amount.toString())
         console.log('Delegated amount after staking:', afterBalance.toString())
 
-        // ensure on-chain balance increased by at least stakeAmount
-        expect(afterBalance).to.be.at.least(
+        // ensure on-chain balance increased by exactly stakeAmount
+        expect(afterBalance).to.equal(
             initialBalance + stakeAmount,
-            'Delegation balance should increase by at least stakeAmount'
+            'Delegation balance should increase by exactly stakeAmount'
         )
     })
 })
