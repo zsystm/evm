@@ -63,12 +63,24 @@ describe('Gov Precompile', function () {
     })
 
     it('deposits on the global proposal', async function () {
-        const deposit = { denom: 'atest', amount: hre.ethers.parseEther('0.5') }
+        const amt = hre.ethers.parseEther('0.5')
+        const deposit = { denom: 'atest', amount: amt }
+
+        // Check balances before deposit
+        const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address)
 
         const depTx = await gov
             .connect(signer)
             .deposit(signer.address, globalProposalId, [deposit], { gasLimit: GAS_LIMIT })
         const depRcpt = await depTx.wait(2)
+
+        // Check balances after deposit
+        const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address)
+        const gasFee = depRcpt.gasUsed * depRcpt.gasPrice
+
+        // Verify balance changes (only gas fees should be deducted for gov deposit)
+        expect(signerBalanceAfter).to.equal(signerBalanceBefore - amt - gasFee)
+
         const depEvt = findEvent(depRcpt.logs, gov.interface, 'Deposit')
         expect(depEvt, 'Deposit event must be emitted').to.exist
         expect(depEvt.args.proposalId).to.equal(globalProposalId)
