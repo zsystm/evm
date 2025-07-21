@@ -16,6 +16,10 @@ describe('WERC20 – deposit and withdraw', function () {
         it('deposits native tokens successfully', async function () {
             const depositAmount = hre.ethers.parseEther('1.0');
             
+            // Check balances before deposit
+            const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+
             console.log('Depositing', hre.ethers.formatEther(depositAmount), 'tokens');
             
             const tx = await werc20.deposit({
@@ -24,12 +28,21 @@ describe('WERC20 – deposit and withdraw', function () {
             });
             const receipt = await tx.wait();
             
+            // Check balances after deposit
+            const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+            
             console.log('Deposit transaction hash:', receipt.hash);
             console.log('Gas used:', receipt.gasUsed.toString());
             
             // Check that transaction was successful
             expect(receipt.status).to.equal(1);
             expect(receipt.gasUsed).to.be.greaterThan(0);
+            const gasFee = receipt.gasUsed * receipt.gasPrice;
+
+            // Verify balance changes
+            expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+            expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
             
             // Look for Deposit event
             const parsed = findEvent(receipt.logs, werc20.interface, 'Deposit');
@@ -46,6 +59,10 @@ describe('WERC20 – deposit and withdraw', function () {
             ];
 
             for (const amount of amounts) {
+                // Check balances before deposit
+                const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+                const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+                
                 console.log('Depositing', hre.ethers.formatEther(amount), 'tokens');
                 
                 const tx = await werc20.deposit({
@@ -54,15 +71,28 @@ describe('WERC20 – deposit and withdraw', function () {
                 });
                 const receipt = await tx.wait();
                 
+                // Check balances after deposit
+                const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+                const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+                
                 console.log('Gas used for', hre.ethers.formatEther(amount), 'deposit:', receipt.gasUsed.toString());
                 
                 expect(receipt.status).to.equal(1);
                 expect(receipt.gasUsed).to.be.greaterThan(0);
+                const gasFee = receipt.gasUsed * receipt.gasPrice;
+                
+                // Verify balance changes
+                expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+                expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
             }
         });
 
         it('deposits via fallback function', async function () {
             const depositAmount = hre.ethers.parseEther('0.5');
+            
+            // Check balances before deposit
+            const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
             
             console.log('Depositing via fallback function');
             
@@ -74,16 +104,29 @@ describe('WERC20 – deposit and withdraw', function () {
             });
             const receipt = await tx.wait();
             
+            // Check balances after deposit
+            const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+            
             console.log('Fallback deposit gas used:', receipt.gasUsed.toString());
             
             expect(receipt.status).to.equal(1);
             expect(receipt.gasUsed).to.be.greaterThan(0);
+            const gasFee = receipt.gasUsed * receipt.gasPrice;
+            
+            // Verify balance changes
+            expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+            expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
         });
     });
 
     describe('Withdraw functionality', function () {
         it('withdraws tokens successfully', async function () {
             const withdrawAmount = hre.ethers.parseEther('1.0');
+            
+            // Check balances before withdrawal
+            const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
             
             console.log('Withdrawing', hre.ethers.formatEther(withdrawAmount), 'tokens');
             
@@ -92,12 +135,21 @@ describe('WERC20 – deposit and withdraw', function () {
             });
             const receipt = await tx.wait();
             
+            // Check balances after withdrawal
+            const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+            
             console.log('Withdraw transaction hash:', receipt.hash);
             console.log('Gas used:', receipt.gasUsed.toString());
             
             // Check that transaction was successful
             expect(receipt.status).to.equal(1);
             expect(receipt.gasUsed).to.be.greaterThan(0);
+            const gasFee = receipt.gasUsed * receipt.gasPrice;
+            
+            // Verify balance changes
+            expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+            expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
             
             // Look for Withdrawal event
             const parsed = findEvent(receipt.logs, werc20.interface, 'Withdrawal');
@@ -115,6 +167,10 @@ describe('WERC20 – deposit and withdraw', function () {
             ];
 
             for (const amount of amounts) {
+                // Check balances before withdrawal
+                const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+                const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+                
                 console.log('Withdrawing', hre.ethers.formatEther(amount), 'tokens');
                 
                 const tx = await werc20.withdraw(amount, {
@@ -122,15 +178,28 @@ describe('WERC20 – deposit and withdraw', function () {
                 });
                 const receipt = await tx.wait();
                 
+                // Check balances after withdrawal
+                const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+                const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+                
                 console.log('Gas used for', hre.ethers.formatEther(amount), 'withdrawal:', receipt.gasUsed.toString());
                 
                 expect(receipt.status).to.equal(1);
                 expect(receipt.gasUsed).to.be.greaterThan(0);
+                const gasFee = receipt.gasUsed * receipt.gasPrice;
+                
+                // Verify balance changes
+                expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+                expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
             }
         });
 
         it('withdraws zero amount (edge case)', async function () {
             const zeroAmount = hre.ethers.parseEther('0');
+            
+            // Check balances before withdrawal
+            const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceBefore = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
             
             console.log('Withdrawing zero amount');
             
@@ -139,10 +208,19 @@ describe('WERC20 – deposit and withdraw', function () {
             });
             const receipt = await tx.wait();
             
+            // Check balances after withdrawal
+            const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address);
+            const contractBalanceAfter = await hre.ethers.provider.getBalance(WERC20_ADDRESS);
+            
             console.log('Gas used for zero withdrawal:', receipt.gasUsed.toString());
             
             expect(receipt.status).to.equal(1);
             expect(receipt.gasUsed).to.be.greaterThan(0);
+            
+            // Verify balance changes (should be no change for zero withdrawal except gas fees)
+            const gasFee = receipt.gasUsed * receipt.gasPrice;
+            expect(contractBalanceAfter).to.equal(contractBalanceBefore);
+            expect(signerBalanceAfter).to.equal(signerBalanceBefore - gasFee);
         });
     });
 });
