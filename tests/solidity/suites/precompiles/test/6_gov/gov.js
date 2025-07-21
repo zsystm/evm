@@ -189,12 +189,31 @@ describe('Gov Precompile', function () {
         expect(proposal.summary).to.equal('test prop')
     })
 
+    // TODO: Add multiple depositors case.
     it('cancels a proposal', async function () {
         const proposalIdToCancel = globalProposalId
+        
+        // Calculate total deposits made (1 ETH initial + 0.5 ETH additional)
+        const initialDeposit = hre.ethers.parseEther('1')
+        const additionalDeposit = hre.ethers.parseEther('0.5')
+        const totalDeposits = initialDeposit + additionalDeposit
+        const expectedRefund = totalDeposits / 2n // 50% refund
+        
+        // Check balances before cancel
+        const signerBalanceBefore = await hre.ethers.provider.getBalance(signer.address)
+        
         const cancelTx = await gov
             .connect(signer)
             .cancelProposal(signer.address, proposalIdToCancel, {gasLimit: GAS_LIMIT})
         const cancelRcpt = await cancelTx.wait(2)
+        
+        // Check balances after cancel
+        const signerBalanceAfter = await hre.ethers.provider.getBalance(signer.address)
+        const gasFee = cancelRcpt.gasUsed * cancelRcpt.gasPrice
+        
+        // Verify balance changes (50% refund minus gas fees)
+        expect(signerBalanceAfter).to.equal(signerBalanceBefore + expectedRefund - gasFee)
+        
         const cancelEvt = findEvent(cancelRcpt.logs, gov.interface, 'CancelProposal')
 
         expect(cancelEvt, 'CancelProposal event must be emitted').to.exist
