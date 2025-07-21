@@ -21,6 +21,8 @@ describe('Distribution – withdraw delegator reward', function () {
         const valHex = '0x7cB61D4117AE31a12E393a1Cfa3BaC666481D02E';
         const stakeAmountBn = hre.ethers.parseEther('0.001')   // BigNumber
         const stakeAmount = BigInt(stakeAmountBn.toString())
+        // This address is a current withdraw address for the signer. Check 1_set_withdraw_address.js test for more details.
+        const newWithdrawAddress = '0x498B5AeC5D439b733dC2F58AB489783A23FB26dA';
 
         // Delegate to the validator first
         const delegateTx = await staking
@@ -37,11 +39,19 @@ describe('Distribution – withdraw delegator reward', function () {
         const result = await distribution.delegationRewards(signer.address, valBech32);
         const currentReward = result[0];
 
+        // Check user balance before withdrawal
+        const balanceBefore = await hre.ethers.provider.getBalance(newWithdrawAddress);
+        console.log('User balance before withdrawal:', balanceBefore.toString());
+
         const tx = await distribution
             .connect(signer)
             .withdrawDelegatorRewards(signer.address, valBech32, {gasLimit: GAS_LIMIT});
         const receipt = await tx.wait(2);
         console.log('WithdrawDelegatorRewards tx hash:', receipt.hash);
+
+        // Check user balance after withdrawal
+        const balanceAfter = await hre.ethers.provider.getBalance(newWithdrawAddress);
+        console.log('User balance after withdrawal:', balanceAfter.toString());
 
         // Check events
         const evt = findEvent(receipt.logs, distribution.interface, 'WithdrawDelegatorReward');
@@ -50,6 +60,12 @@ describe('Distribution – withdraw delegator reward', function () {
         expect(evt.args.validatorAddress).to.equal(valHex);
         expect(evt.args.amount).to.be.a('bigint');
         expect(evt.args.amount).to.be.greaterThan(currentReward.amount, 'Withdrawn amount should be greater than zero');
+        console.log('finished event checks')
+        // Validate balance increase (accounting for gas costs)
+        const gasUsed = receipt.gasUsed * receipt.gasPrice;
+        const expectedMinBalance = balanceBefore - gasUsed + evt.args.amount;
+        expect(balanceAfter).to.be.gte(expectedMinBalance, 'User balance should increase by withdrawn rewards minus gas costs');
+        console.log('finished balance checks')
 
         // Check state after withdrawal
         const afterResult = await distribution.delegationRewards(signer.address, valBech32);
