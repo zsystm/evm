@@ -1,5 +1,6 @@
 const { expect } = require('chai')
 const hre = require('hardhat')
+const { findEvent } = require('../common')
 
 describe('ERC20 Precompile', function () {
     let erc20, owner, spender, recipient
@@ -48,7 +49,13 @@ describe('ERC20 Precompile', function () {
         const prev   = await erc20.balanceOf(spender.address)
 
         const tx = await erc20.connect(owner).transfer(spender.address, amount)
-        await tx.wait(1)
+        const receipt = await tx.wait(1)
+
+        const transferEvent = findEvent(receipt.logs, erc20.interface, 'Transfer')
+        expect(transferEvent, 'Transfer event must be emitted').to.exist
+        expect(transferEvent.args.from).to.equal(owner.address)
+        expect(transferEvent.args.to).to.equal(spender.address)
+        expect(transferEvent.args.value).to.equal(amount)
 
         const after = await erc20.balanceOf(spender.address)
         expect(after - prev).to.equal(amount)
@@ -61,8 +68,14 @@ describe('ERC20 Precompile', function () {
         const approvalTx = await erc20.
             connect(owner)
             .approve(spender.address, amount, {gasLimit: GAS_LIMIT})
-        await approvalTx.wait(1)
+        const approvalReceipt = await approvalTx.wait(1)
         console.log(`Approval transaction hash: ${approvalTx.hash}`)
+
+        const approvalEvent = findEvent(approvalReceipt.logs, erc20.interface, 'Approval')
+        expect(approvalEvent, 'Approval event must be emitted').to.exist
+        expect(approvalEvent.args.owner).to.equal(owner.address)
+        expect(approvalEvent.args.spender).to.equal(spender.address)
+        expect(approvalEvent.args.value).to.equal(amount)
 
         // record pre-transfer balances and allowance
         const prevBalance    = await erc20.balanceOf(recipient.address)
@@ -74,8 +87,14 @@ describe('ERC20 Precompile', function () {
         const tx = await erc20
             .connect(spender)
             .transferFrom(owner.address, recipient.address, amount, {gasLimit: GAS_LIMIT})
-        await tx.wait(1)
+        const receipt = await tx.wait(1)
         console.log(`Transfer transaction hash: ${tx.hash}`)
+
+        const transferEvent = findEvent(receipt.logs, erc20.interface, 'Transfer')
+        expect(transferEvent, 'Transfer event must be emitted').to.exist
+        expect(transferEvent.args.from).to.equal(owner.address)
+        expect(transferEvent.args.to).to.equal(recipient.address)
+        expect(transferEvent.args.value).to.equal(amount)
 
         // post-transfer checks
         const afterBalance   = await erc20.balanceOf(recipient.address)
