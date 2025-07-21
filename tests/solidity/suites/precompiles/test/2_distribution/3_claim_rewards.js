@@ -44,6 +44,12 @@ describe('DistributionI – claimRewards', function () {
         const { delegationRewards, totalRewards } = formatTotalRewards(rawRewards)
         console.log('Parsed delegationRewards:', delegationRewards)
         console.log('Parsed totalRewards:', totalRewards)
+        // This address is a current withdraw address for the signer. Check 1_set_withdraw_address.js test for more details.
+        const newWithdrawAddress = '0x498B5AeC5D439b733dC2F58AB489783A23FB26dA';
+
+        // Check user balance before claiming rewards
+        const balanceBefore = await hre.ethers.provider.getBalance(newWithdrawAddress);
+        console.log('User balance before claiming:', balanceBefore.toString());
 
         const tx = await distribution
             .connect(signer)
@@ -51,11 +57,21 @@ describe('DistributionI – claimRewards', function () {
         const receipt = await tx.wait(2);
         console.log('ClaimRewards tx hash:', receipt.hash, 'gas used:', receipt.gasUsed.toString());
 
+        // Check user balance after claiming rewards
+        const balanceAfter = await hre.ethers.provider.getBalance(newWithdrawAddress);
+        console.log('User balance after claiming:', balanceAfter.toString());
+
         const evt = findEvent(receipt.logs, distribution.interface, 'ClaimRewards');
         expect(evt, 'ClaimRewards event should be emitted').to.exist;
         expect(evt.args.delegatorAddress).to.equal(signer.address);
         expect(evt.args.amount).to.be.a('bigint');
         console.log('totalRewards claimed:', evt.args.amount);
+
+        // Validate balance increase (accounting for gas costs)
+        const gasUsed = receipt.gasUsed * receipt.gasPrice;
+        const expectedMinBalance = balanceBefore - gasUsed + evt.args.amount;
+        expect(balanceAfter).to.be.gte(expectedMinBalance, 'User balance should increase by claimed rewards minus gas costs');
+        console.log('finished balance checks');
 
         // 3) query total rewards after claim, re-parse
         const postRaw = await distribution.delegationTotalRewards(delegatorAddress)
