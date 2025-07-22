@@ -1,9 +1,9 @@
 package ante
 
 import (
-	"github.com/cosmos/evm/testutil/constants"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/evm/testutil/constants"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 )
 
