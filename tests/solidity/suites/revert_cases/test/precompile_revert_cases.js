@@ -2,7 +2,6 @@ const { expect } = require('chai');
 const hre = require('hardhat');
 const {
     LARGE_GAS_LIMIT,
-    DEFAULT_GAS_LIMIT
 } = require('./common');
 
 describe('Precompile Revert Cases E2E Tests', function () {
