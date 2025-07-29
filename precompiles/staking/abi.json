@@ -480,7 +480,7 @@
             }
           ],
           "internalType": "struct StakingParams",
-          "name": "params",
+          "name": "",
           "type": "tuple"
         }
       ],

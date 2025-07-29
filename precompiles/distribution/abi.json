@@ -451,7 +451,7 @@
             }
           ],
           "internalType": "struct DistributionParams",
-          "name": "params",
+          "name": "",
           "type": "tuple"
         }
       ],

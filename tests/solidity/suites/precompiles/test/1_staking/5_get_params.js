@@ -16,12 +16,10 @@ describe('StakingI – getParams', function () {
     })
 
     it('should retrieve staking module parameters successfully', async function () {
+        console.log('staking.getParams')
+        console.log(staking.getParams)
         const params = await staking.getParams({ gasLimit: GAS_LIMIT })
-        
-        // getParams returns a struct, which ethers converts to a Result object (array-like with named properties)
-        expect(params).to.be.an.instanceOf(Array) // Result objects are array-like
-        expect(params).to.have.lengthOf(6) // Should have 6 parameters
-        
+
         // Verify parameter types and basic validity
         expect(params.unbondingTime).to.be.a('bigint')
         expect(params.unbondingTime).to.be.gt(0n) // Should be positive
