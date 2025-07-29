@@ -18,60 +18,50 @@ describe('StakingI – getParams', function () {
     it('should retrieve staking module parameters successfully', async function () {
         const params = await staking.getParams({ gasLimit: GAS_LIMIT })
         
-        console.log('Staking params raw:', params)
-        console.log('Staking params types:', params.map(p => typeof p))
-        
-        // Verify that all expected parameters are returned
-        expect(params).to.have.lengthOf(6)
-        
-        const [unbondingTime, maxValidators, maxEntries, historicalEntries, bondDenom, minCommissionRate] = params
-        
-        console.log('Individual params:')
-        console.log('  unbondingTime:', unbondingTime, typeof unbondingTime)
-        console.log('  maxValidators:', maxValidators, typeof maxValidators)
-        console.log('  maxEntries:', maxEntries, typeof maxEntries)
-        console.log('  historicalEntries:', historicalEntries, typeof historicalEntries)
-        console.log('  bondDenom:', bondDenom, typeof bondDenom)
-        console.log('  minCommissionRate:', minCommissionRate, typeof minCommissionRate)
+        // getParams returns a struct, which ethers converts to a Result object (array-like with named properties)
+        expect(params).to.be.an.instanceOf(Array) // Result objects are array-like
+        expect(params).to.have.lengthOf(6) // Should have 6 parameters
         
         // Verify parameter types and basic validity
-        expect(unbondingTime).to.be.a('bigint')
-        expect(unbondingTime).to.be.gt(0n) // Should be positive
+        expect(params.unbondingTime).to.be.a('bigint')
+        expect(params.unbondingTime).to.be.gt(0n) // Should be positive
         
         // These are uint32 so they come back as bigint in ethers v6
-        expect(maxValidators).to.be.a('bigint')
-        expect(maxValidators).to.be.gt(0n) // Should be positive
+        expect(params.maxValidators).to.be.a('bigint')
+        expect(params.maxValidators).to.be.gt(0n) // Should be positive
         
-        expect(maxEntries).to.be.a('bigint')
-        expect(maxEntries).to.be.gt(0n) // Should be positive
+        expect(params.maxEntries).to.be.a('bigint')
+        expect(params.maxEntries).to.be.gt(0n) // Should be positive
         
-        expect(historicalEntries).to.be.a('bigint')
-        expect(historicalEntries).to.be.gte(0n) // Can be 0 or positive
+        expect(params.historicalEntries).to.be.a('bigint')
+        expect(params.historicalEntries).to.be.gte(0n) // Can be 0 or positive
         
-        expect(bondDenom).to.be.a('string')
-        expect(bondDenom).to.not.be.empty // Should not be empty
+        expect(params.bondDenom).to.be.a('string')
+        expect(params.bondDenom).to.not.be.empty // Should not be empty
         
-        // minCommissionRate is a Dec struct which returns as [value, decimals] array
-        if (Array.isArray(minCommissionRate)) {
-            expect(minCommissionRate).to.have.lengthOf(2)
-            expect(minCommissionRate[0]).to.be.a('bigint') // value
-            expect(minCommissionRate[1]).to.be.a('bigint') // decimals
+        // minCommissionRate is a Dec struct which returns as [value, precision] array or object
+        if (Array.isArray(params.minCommissionRate)) {
+            expect(params.minCommissionRate).to.have.lengthOf(2)
+            expect(params.minCommissionRate[0]).to.be.a('bigint') // value
+            expect(params.minCommissionRate[1]).to.be.a('bigint') // precision
         } else {
-            expect(minCommissionRate).to.be.an('object')
-            expect(minCommissionRate).to.have.property('value')
+            expect(params.minCommissionRate).to.be.an('object')
+            expect(params.minCommissionRate).to.have.property('value')
+            expect(params.minCommissionRate).to.have.property('precision')
         }
         
         console.log('✓ All staking parameters retrieved and validated')
         console.log('Parameter values:')
-        console.log('  - Unbonding Time:', unbondingTime.toString(), 'nanoseconds')
-        console.log('  - Max Validators:', maxValidators.toString())
-        console.log('  - Max Entries:', maxEntries.toString())
-        console.log('  - Historical Entries:', historicalEntries.toString())
-        console.log('  - Bond Denomination:', bondDenom)
-        if (Array.isArray(minCommissionRate)) {
-            console.log('  - Min Commission Rate:', minCommissionRate[0].toString(), 'with', minCommissionRate[1].toString(), 'decimals')
+        console.log('  - Unbonding Time:', params.unbondingTime.toString(), 'nanoseconds')
+        console.log('  - Max Validators:', params.maxValidators.toString())
+        console.log('  - Max Entries:', params.maxEntries.toString())
+        console.log('  - Historical Entries:', params.historicalEntries.toString())
+        console.log('  - Bond Denomination:', params.bondDenom)
+        if (Array.isArray(params.minCommissionRate)) {
+            console.log('  - Min Commission Rate:', params.minCommissionRate[0].toString(), 'with', params.minCommissionRate[1].toString(), 'precision')
         } else {
-            console.log('  - Min Commission Rate:', minCommissionRate.value ? minCommissionRate.value.toString() : 'N/A')
+            console.log('  - Min Commission Rate:', params.minCommissionRate.value ? params.minCommissionRate.value.toString() : 'N/A', 
+                       'with precision', params.minCommissionRate.precision ? params.minCommissionRate.precision.toString() : 'N/A')
         }
     })
 })

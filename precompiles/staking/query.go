@@ -221,5 +221,5 @@ func (p Precompile) GetParams(
 
 	out := new(GetParamsOutput).FromResponse(res)
 
-	return out.Pack(method.Outputs)
+	return method.Outputs.Pack(out)
 }

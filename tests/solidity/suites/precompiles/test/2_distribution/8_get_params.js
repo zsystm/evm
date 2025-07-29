@@ -18,36 +18,32 @@ describe('DistributionI – getParams', function () {
     it('should retrieve distribution module parameters successfully', async function () {
         const params = await distribution.getParams({ gasLimit: GAS_LIMIT })
         
-        console.log('Distribution params raw:', params)
-        console.log('Distribution params types:', params.map(p => typeof p))
+        // getParams returns a struct, which ethers converts to a Result object (array-like with named properties)
+        expect(params).to.be.an.instanceOf(Array) // Result objects are array-like
+        expect(params).to.have.lengthOf(2) // Should have 2 parameters
         
-        // Verify that all expected parameters are returned
-        expect(params).to.have.lengthOf(2)
-        
-        const [communityTax, withdrawAddrEnabled] = params
-        
-        console.log('Individual params:')
-        console.log('  communityTax:', communityTax, typeof communityTax)
-        console.log('  withdrawAddrEnabled:', withdrawAddrEnabled, typeof withdrawAddrEnabled)
+        // Can access via named properties
+        expect(params.communityTax).to.exist
+        expect(params.withdrawAddrEnabled).to.exist
         
         // The communityTax appears to be returning as a Dec struct which is [value, decimals]
-        if (Array.isArray(communityTax)) {
-            expect(communityTax).to.have.lengthOf(2)
-            expect(communityTax[0]).to.be.a('bigint') // value
-            expect(communityTax[1]).to.be.a('bigint') // decimals  
+        if (Array.isArray(params.communityTax)) {
+            expect(params.communityTax).to.have.lengthOf(2)
+            expect(params.communityTax[0]).to.be.a('bigint') // value
+            expect(params.communityTax[1]).to.be.a('bigint') // decimals  
         } else {
-            expect(communityTax).to.be.an('object')
-            expect(communityTax).to.have.property('value')
+            expect(params.communityTax).to.be.an('object')
+            expect(params.communityTax).to.have.property('value')
         }
         
-        expect(withdrawAddrEnabled).to.be.a('boolean')
+        expect(params.withdrawAddrEnabled).to.be.a('boolean')
         
         console.log('✓ All distribution parameters retrieved and validated')
-        if (Array.isArray(communityTax)) {
-            console.log('  - Community Tax:', communityTax[0].toString(), 'with', communityTax[1].toString(), 'decimals')
+        if (Array.isArray(params.communityTax)) {
+            console.log('  - Community Tax:', params.communityTax[0].toString(), 'with', params.communityTax[1].toString(), 'decimals')
         } else {
-            console.log('  - Community Tax:', communityTax.value ? communityTax.value.toString() : 'N/A')
+            console.log('  - Community Tax:', params.communityTax.value ? params.communityTax.value.toString() : 'N/A')
         }
-        console.log('  - Withdraw Address Enabled:', withdrawAddrEnabled)
+        console.log('  - Withdraw Address Enabled:', params.withdrawAddrEnabled)
     })
 })

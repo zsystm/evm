@@ -939,8 +939,3 @@ func (o *GetParamsOutput) FromResponse(res *stakingtypes.QueryParamsResponse) *G
 	}
 	return o
 }
-
-// Pack packs a given slice of abi arguments into a byte array.
-func (o *GetParamsOutput) Pack(args abi.Arguments) ([]byte, error) {
-	return args.Pack(o.UnbondingTime, o.MaxValidators, o.MaxEntries, o.HistoricalEntries, o.BondDenom, o.MinCommissionRate)
-}

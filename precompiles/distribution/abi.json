@@ -428,24 +428,31 @@
         {
           "components": [
             {
-              "internalType": "uint256",
-              "name": "value",
-              "type": "uint256"
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "precision",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct Dec",
+              "name": "communityTax",
+              "type": "tuple"
             },
             {
-              "internalType": "uint8",
-              "name": "precision",
-              "type": "uint8"
+              "internalType": "bool",
+              "name": "withdrawAddrEnabled",
+              "type": "bool"
             }
           ],
-          "internalType": "struct Dec",
-          "name": "communityTax",
+          "internalType": "struct DistributionParams",
+          "name": "params",
           "type": "tuple"
-        },
-        {
-          "internalType": "bool",
-          "name": "withdrawAddrEnabled",
-          "type": "bool"
         }
       ],
       "stateMutability": "view",

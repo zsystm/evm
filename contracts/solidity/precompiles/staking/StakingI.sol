@@ -123,6 +123,16 @@ enum BondStatus {
     Bonded
 }
 
+/// @dev Staking module parameters
+struct StakingParams {
+    uint64 unbondingTime;
+    uint32 maxValidators;
+    uint32 maxEntries;
+    uint32 historicalEntries;
+    string bondDenom;
+    Dec minCommissionRate;
+}
+
 /// @author Evmos Team
 /// @title Staking Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with staking.
@@ -296,23 +306,11 @@ interface StakingI {
         );
 
     /// @dev Queries the staking module parameters.
-    /// @return unbondingTime The time duration for unbonding
-    /// @return maxValidators The maximum number of validators
-    /// @return maxEntries The maximum number of unbonding/redelegation entries
-    /// @return historicalEntries The number of historical entries to persist
-    /// @return bondDenom The denomination of the staking token
-    /// @return minCommissionRate The minimum commission rate for validators
+    /// @return params The staking module parameters
     function getParams()
         external
         view
-        returns (
-            uint64 unbondingTime,
-            uint32 maxValidators,
-            uint32 maxEntries,
-            uint32 historicalEntries,
-            string memory bondDenom,
-            Dec memory minCommissionRate
-        );
+        returns (StakingParams memory params);
 
     /// @dev CreateValidator defines an Event emitted when a create a new validator.
     /// @param validatorAddress The address of the validator

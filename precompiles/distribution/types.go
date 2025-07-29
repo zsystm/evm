@@ -540,8 +540,3 @@ func (o *GetParamsOutput) FromResponse(res *distributiontypes.QueryParamsRespons
 	o.WithdrawAddrEnabled = res.Params.WithdrawAddrEnabled
 	return o
 }
-
-// Pack packs a given slice of abi arguments into a byte array.
-func (o *GetParamsOutput) Pack(args abi.Arguments) ([]byte, error) {
-	return args.Pack(o.CommunityTax, o.WithdrawAddrEnabled)
-}

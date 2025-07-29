@@ -32,6 +32,12 @@ struct DelegationDelegatorReward {
     DecCoin[] reward;
 }
 
+/// @dev Distribution module parameters
+struct DistributionParams {
+    Dec communityTax;
+    bool withdrawAddrEnabled;
+}
+
 /// @author Evmos Team
 /// @title Distribution Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Distribution
@@ -236,13 +242,9 @@ interface DistributionI {
     function communityPool() external view returns (DecCoin[] calldata coins);
 
     /// @dev Queries the distribution module parameters.
-    /// @return communityTax The percentage of fees going to the community pool
-    /// @return withdrawAddrEnabled Whether delegators can set custom withdraw addresses
+    /// @return params The distribution module parameters
     function getParams()
         external
         view
-        returns (
-            Dec memory communityTax,
-            bool withdrawAddrEnabled
-        );
+        returns (DistributionParams memory params);
 }

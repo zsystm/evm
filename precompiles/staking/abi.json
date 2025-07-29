@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "StakingI",
-  "sourceName": "solidity/precompiles/staking/StakingI.sol",
+  "sourceName": "contracts/cosmos/staking/StakingI.sol",
   "abi": [
     {
       "anonymous": false,
@@ -435,45 +435,52 @@
       "name": "getParams",
       "outputs": [
         {
-          "internalType": "uint64",
-          "name": "unbondingTime",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint32",
-          "name": "maxValidators",
-          "type": "uint32"
-        },
-        {
-          "internalType": "uint32",
-          "name": "maxEntries",
-          "type": "uint32"
-        },
-        {
-          "internalType": "uint32",
-          "name": "historicalEntries",
-          "type": "uint32"
-        },
-        {
-          "internalType": "string",
-          "name": "bondDenom",
-          "type": "string"
-        },
-        {
           "components": [
             {
-              "internalType": "uint256",
-              "name": "value",
-              "type": "uint256"
+              "internalType": "uint64",
+              "name": "unbondingTime",
+              "type": "uint64"
             },
             {
-              "internalType": "uint8",
-              "name": "precision",
-              "type": "uint8"
+              "internalType": "uint32",
+              "name": "maxValidators",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "maxEntries",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "historicalEntries",
+              "type": "uint32"
+            },
+            {
+              "internalType": "string",
+              "name": "bondDenom",
+              "type": "string"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "precision",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct Dec",
+              "name": "minCommissionRate",
+              "type": "tuple"
             }
           ],
-          "internalType": "struct Dec",
-          "name": "minCommissionRate",
+          "internalType": "struct StakingParams",
+          "name": "params",
           "type": "tuple"
         }
       ],
