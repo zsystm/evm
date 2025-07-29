@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
   "contractName": "StakingI",
-  "sourceName": "contracts/cosmos/staking/StakingI.sol",
+  "sourceName": "solidity/precompiles/staking/StakingI.sol",
   "abi": [
     {
       "anonymous": false,
