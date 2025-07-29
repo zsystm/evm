@@ -741,18 +741,20 @@ func (s *PrecompileTestSuite) TestGetParams() {
 				s.Require().NoError(err)
 				s.Require().NotEmpty(bz)
 
-				var out staking.GetParamsOutput
-				err = s.precompile.UnpackIntoInterface(&out, staking.GetParamsMethod, bz)
+				var output struct {
+					Params staking.GetParamsOutput `json:"params"`
+				}
+				err = s.precompile.UnpackIntoInterface(&output, staking.GetParamsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 
 				// Verify the parameters are valid
-				s.Require().Greater(out.UnbondingTime, uint64(0))
-				s.Require().Greater(out.MaxValidators, uint32(0))
-				s.Require().Greater(out.MaxEntries, uint32(0))
-				s.Require().GreaterOrEqual(out.HistoricalEntries, uint32(0))
-				s.Require().NotEmpty(out.BondDenom)
-				s.Require().NotNil(out.MinCommissionRate.Value)
-				s.Require().Equal(uint8(18), out.MinCommissionRate.Precision)
+				s.Require().Greater(output.Params.UnbondingTime, uint64(0))
+				s.Require().Greater(output.Params.MaxValidators, uint32(0))
+				s.Require().Greater(output.Params.MaxEntries, uint32(0))
+				s.Require().GreaterOrEqual(output.Params.HistoricalEntries, uint32(0))
+				s.Require().NotEmpty(output.Params.BondDenom)
+				s.Require().NotNil(output.Params.MinCommissionRate.Value)
+				s.Require().Equal(uint8(18), output.Params.MinCommissionRate.Precision)
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)

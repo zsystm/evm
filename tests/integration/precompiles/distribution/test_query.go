@@ -1010,15 +1010,17 @@ func (s *PrecompileTestSuite) TestGetParams() {
 				s.Require().NoError(err)
 				s.Require().NotEmpty(bz)
 
-				var out distribution.GetParamsOutput
-				err = s.precompile.UnpackIntoInterface(&out, distribution.GetParamsMethod, bz)
+				var output struct {
+					Params distribution.GetParamsOutput `json:"params"`
+				}
+				err = s.precompile.UnpackIntoInterface(&output, distribution.GetParamsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 
 				// Verify the parameters are valid Dec/bool values
-				s.Require().NotNil(out.CommunityTax.Value)
-				s.Require().Equal(uint8(18), out.CommunityTax.Precision)
+				s.Require().NotNil(output.Params.CommunityTax.Value)
+				s.Require().Equal(uint8(18), output.Params.CommunityTax.Precision)
 				// WithdrawAddrEnabled can be true or false, both are valid
-				s.Require().IsType(false, out.WithdrawAddrEnabled, "WithdrawAddrEnabled should be a boolean")
+				s.Require().IsType(false, output.Params.WithdrawAddrEnabled, "WithdrawAddrEnabled should be a boolean")
 			} else {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)
