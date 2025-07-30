@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/evm/testutil/constants"
 	stdmath "math"
 	"math/big"
 	"os"
@@ -53,6 +54,7 @@ import (
 
 	cosmosmath "cosmossdk.io/math"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -481,13 +483,23 @@ func (t *BlockTest) RunWithBlockTestSuite(suite *BlockTestSuite, test *testing.T
 	if !ok {
 		return UnsupportedForkError{btJSON.Network}
 	}
+	chainID := constants.ChainID{
+		ChainID:    "cosmos-1",
+		EVMChainID: config.ChainID.Uint64(),
+	}
 
 	// Create custom genesis state from the block test pre-state
 	customGen := t.createCustomGenesisFromPreState(btJSON.Pre)
 
 	// Create a new suite with custom genesis configuration
-	blockSuite := NewBlockTestSuite(suite.create, append(suite.options,
-		network.WithCustomGenesis(customGen))...)
+	blockSuite := NewBlockTestSuite(
+		suite.create,
+		append(
+			suite.options,
+			network.WithCustomGenesis(customGen),
+			network.WithChainID(chainID),
+		)...,
+	)
 	blockSuite.SetupTest()
 
 	if err := t.executeBlocksWithSuite(blockSuite, btJSON); err != nil {
@@ -683,7 +695,8 @@ func (t *BlockTest) validatePostStateWithEVMD(test *testing.T, app *evmd.EVMD, e
 		codeHash := evmKeeper.GetCodeHash(ctx, addr)
 		code := evmKeeper.GetCode(ctx, codeHash)
 		if !bytes.Equal(code, expectedAccount.Code) {
-			return fmt.Errorf("code mismatch for %s", addr.Hex())
+			return fmt.Errorf("code mismatch for %s: expected %s, got %s",
+				addr.Hex(), hex.EncodeToString(expectedAccount.Code), hex.EncodeToString(code))
 		}
 
 		// Validate storage (if any)
@@ -703,15 +716,83 @@ func (t *BlockTest) validatePostStateWithEVMD(test *testing.T, app *evmd.EVMD, e
 func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc) network.CustomGenesisState {
 	customGen := network.CustomGenesisState{}
 
-	// Create prefunded accounts from pre-state
-	var fundedAccounts []sdk.AccAddress
-	for addr := range preState {
+	// Create genesis accounts and balances from preState
+	var genesisAccounts []authtypes.GenesisAccount
+	var balances []banktypes.Balance
+	var evmAccounts []evmtypes.GenesisAccount
+
+	for addr, account := range preState {
+		// Convert Ethereum address to Cosmos address format
 		cosmosAddr := sdk.AccAddress(addr.Bytes())
-		fundedAccounts = append(fundedAccounts, cosmosAddr)
+
+		// Create cosmos auth account with exact nonce
+		baseAccount := authtypes.NewBaseAccount(
+			cosmosAddr,
+			nil, // pubkey will be set when account sends first tx
+			0,   // account number
+			account.Nonce,
+		)
+		genesisAccounts = append(genesisAccounts, baseAccount)
+
+		// Create balance entry with exact balance from preState
+		if account.Balance != nil && account.Balance.Sign() > 0 {
+			balance := banktypes.Balance{
+				Address: cosmosAddr.String(),
+				Coins: sdk.NewCoins(sdk.NewCoin(
+					sdk.DefaultBondDenom, // Use standard denomination
+					cosmosmath.NewIntFromBigInt(account.Balance),
+				)),
+			}
+			balances = append(balances, balance)
+		}
+
+		// Create EVM genesis account if it has code or storage
+		if len(account.Code) > 0 || len(account.Storage) > 0 {
+			var storage evmtypes.Storage
+			for key, value := range account.Storage {
+				storage = append(storage, evmtypes.State{
+					Key:   key.Hex(),
+					Value: value.Hex(),
+				})
+			}
+
+			evmAccount := evmtypes.GenesisAccount{
+				Address: addr.Hex(),
+				Code:    hex.EncodeToString(account.Code),
+				Storage: storage,
+			}
+			evmAccounts = append(evmAccounts, evmAccount)
+		}
 	}
 
-	// Return custom genesis with prefunded accounts
-	// The network will handle converting these to proper genesis accounts and balances
+	// Set up custom genesis state for auth module (accounts)
+	if len(genesisAccounts) > 0 {
+		authGenState := authtypes.DefaultGenesisState()
+		for _, genesisAccount := range genesisAccounts {
+			// Pack genesis account into Any type as required
+			accAny, err := codectypes.NewAnyWithValue(genesisAccount)
+			if err != nil {
+				panic(fmt.Sprintf("failed to pack genesis account: %v", err))
+			}
+			authGenState.Accounts = append(authGenState.Accounts, accAny)
+		}
+		customGen[authtypes.ModuleName] = authGenState
+	}
+
+	// Set up custom genesis state for bank module (balances)
+	if len(balances) > 0 {
+		bankGenState := banktypes.DefaultGenesisState()
+		bankGenState.Balances = balances
+		customGen[banktypes.ModuleName] = bankGenState
+	}
+
+	// Set up custom genesis state for EVM module (contracts with code and storage)
+	if len(evmAccounts) > 0 {
+		evmGenState := evmtypes.DefaultGenesisState()
+		evmGenState.Accounts = evmAccounts
+		customGen[evmtypes.ModuleName] = evmGenState
+	}
+
 	return customGen
 }
 
