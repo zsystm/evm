@@ -88,16 +88,23 @@ func TestExecutionSpecBlocktests(t *testing.T) {
 }
 
 func execBlockTest(t *testing.T, bt *testMatcher, test *BlockTest) {
+	// Add panic recovery to show filename when test panics
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("PANIC in test file %s: %v", test.Filename, r)
+		}
+	}()
+
 	// Convert test data to JSON for the cosmos adapter
 	testJSON, err := json.Marshal(test.json)
 	if err != nil {
-		t.Fatalf("Failed to marshal test: %v", err)
+		t.Fatalf("Failed to marshal test from file %s: %v", test.Filename, err)
 	}
 
 	// Run the test using cosmos/evm
 	if err := bt.checkFailure(t, test.RunWithEVMD(t, testJSON)); err != nil {
-		// If test fails, print json for debugging
-		t.Logf("Test JSON: %s", testJSON)
+		// If test fails, print filename for debugging
+		t.Logf("Test failed in file: %s", test.Filename)
 		t.Errorf("cosmos/evm test failed: %v", err)
 	}
 }

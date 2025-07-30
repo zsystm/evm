@@ -235,6 +235,9 @@ func (tm *testMatcher) runTestFile(t *testing.T, path, name string, runTest inte
 		t.Fatal(err)
 	}
 
+	// Set filename on test objects after loading
+	setFilenameOnTests(m, path)
+
 	// Run all tests from the map. Don't wrap in a subtest if there is only one test in the file.
 	keys := sortedMapKeys(m)
 	if len(keys) == 1 {
@@ -279,6 +282,28 @@ func runTestFunc(runTest interface{}, t *testing.T, name string, m reflect.Value
 		reflect.ValueOf(name),
 		m.MapIndex(reflect.ValueOf(key)),
 	})
+}
+
+// setFilenameOnTests sets the Filename field on test objects that have it
+func setFilenameOnTests(m reflect.Value, path string) {
+	// Get just the filename from the full path
+	filename := filepath.Base(path)
+
+	// Iterate over all test objects in the map
+	for _, key := range m.MapKeys() {
+		testValue := m.MapIndex(key)
+		if testValue.Kind() == reflect.Ptr {
+			testValue = testValue.Elem()
+		}
+
+		// Check if the test object has a Filename field
+		if testValue.Kind() == reflect.Struct {
+			filenameField := testValue.FieldByName("Filename")
+			if filenameField.IsValid() && filenameField.CanSet() && filenameField.Kind() == reflect.String {
+				filenameField.SetString(filename)
+			}
+		}
+	}
 }
 
 func TestMatcherRunonlylist(t *testing.T) {

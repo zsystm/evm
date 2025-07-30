@@ -68,7 +68,8 @@ import (
 
 // A BlockTest checks handling of entire blocks.
 type BlockTest struct {
-	json btJSON
+	json     btJSON
+	Filename string
 }
 
 // UnmarshalJSON implements json.Unmarshaler interface.
@@ -154,6 +155,12 @@ func (s *BlockTestSuite) SetupTest() {
 }
 
 func (t *BlockTest) Run(snapshotter bool, scheme string, witness bool, tracer *tracing.Hooks, postCheck func(error, *core.BlockChain)) (result error) {
+	// Add panic recovery to show filename when test panics
+	defer func() {
+		if r := recover(); r != nil {
+			result = fmt.Errorf("PANIC in test file %s: %v", t.Filename, r)
+		}
+	}()
 	config, ok := Forks[t.json.Network]
 	if !ok {
 		return UnsupportedForkError{t.json.Network}
@@ -429,7 +436,13 @@ func (bb *btBlock) decode() (*types.Block, error) {
 }
 
 // RunWithEVMD executes the block test using cosmos/evm instead of geth
-func (t *BlockTest) RunWithEVMD(test *testing.T, jsonData []byte) error {
+func (t *BlockTest) RunWithEVMD(test *testing.T, jsonData []byte) (err error) {
+	// Add panic recovery to show filename when test panics deep in execution
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("PANIC in test file %s: %v", t.Filename, r)
+		}
+	}()
 	// Parse the JSON data into our test structure
 	var btJSON btJSON
 	if err := json.Unmarshal(jsonData, &btJSON); err != nil {
@@ -553,11 +566,13 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 
 	// Add fee collector balance to prevent insufficient funds errors during fee refunds
 	// This is needed because cosmos/evm requires the fee collector to have funds for fee processing
+	feeCollectorAmount := new(big.Int)
+	feeCollectorAmount.SetString("1000000000000000000000000000000000000000000", 10) // 1000 tokens - much larger amount for test fees
 	feeCollectorBalance := banktypes.Balance{
 		Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 		Coins: sdk.NewCoins(sdk.NewCoin(
 			sdk.DefaultBondDenom,
-			cosmosmath.NewInt(1000000000000000000), // 1 token with 18 decimals - sufficient for test fees
+			cosmosmath.NewIntFromBigInt(feeCollectorAmount),
 		)),
 	}
 	balances = append(balances, feeCollectorBalance)
