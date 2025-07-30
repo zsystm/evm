@@ -538,7 +538,7 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 			balance := banktypes.Balance{
 				Address: cosmosAddr.String(),
 				Coins: sdk.NewCoins(sdk.NewCoin(
-					sdk.DefaultBondDenom, // Use standard denomination like test_helpers.go
+					"atest", // Use atest denomination to match the chain configuration
 					cosmosmath.NewIntFromBigInt(account.Balance),
 				)),
 			}
@@ -571,7 +571,7 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 	feeCollectorBalance := banktypes.Balance{
 		Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 		Coins: sdk.NewCoins(sdk.NewCoin(
-			sdk.DefaultBondDenom,
+			"atest", // Use atest denomination to match the chain configuration
 			cosmosmath.NewIntFromBigInt(feeCollectorAmount),
 		)),
 	}
@@ -701,7 +701,7 @@ func (t *BlockTest) validatePostStateWithEVMD(test *testing.T, app *evmd.EVMD, e
 
 		// Get account balance
 		cosmosAddr := sdk.AccAddress(addr.Bytes())
-		balance := app.BankKeeper.GetBalance(ctx, cosmosAddr, sdk.DefaultBondDenom)
+		balance := app.BankKeeper.GetBalance(ctx, cosmosAddr, "atest")
 		actualBalance := balance.Amount.BigInt()
 
 		if expectedAccount.Balance.Cmp(actualBalance) != 0 {
@@ -749,7 +749,7 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 
 	// Check fee collector balance first
 	feeCollectorAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName)
-	feeCollectorBalance := app.BankKeeper.GetBalance(ctx, feeCollectorAddr, sdk.DefaultBondDenom)
+	feeCollectorBalance := app.BankKeeper.GetBalance(ctx, feeCollectorAddr, "atest")
 	fmt.Printf("DEBUG: Fee collector balance: %s\n", feeCollectorBalance.String())
 
 	if feeCollectorBalance.Amount.IsZero() {
@@ -773,7 +773,7 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 		}
 
 		// Check balance
-		balance := app.BankKeeper.GetBalance(ctx, cosmosAddr, sdk.DefaultBondDenom)
+		balance := app.BankKeeper.GetBalance(ctx, cosmosAddr, "atest")
 		expectedBalance := cosmosmath.NewIntFromBigInt(expectedAccount.Balance)
 		if !balance.Amount.Equal(expectedBalance) {
 			return fmt.Errorf("account %s balance mismatch: expected %s, got %s",
@@ -827,7 +827,7 @@ func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc)
 			balance := banktypes.Balance{
 				Address: cosmosAddr.String(),
 				Coins: sdk.NewCoins(sdk.NewCoin(
-					sdk.DefaultBondDenom, // Use standard denomination
+					"atest", // Use atest denomination to match the chain configuration
 					cosmosmath.NewIntFromBigInt(account.Balance),
 				)),
 			}
@@ -878,7 +878,7 @@ func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc)
 	feeCollectorBalance := banktypes.Balance{
 		Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 		Coins: sdk.NewCoins(sdk.NewCoin(
-			sdk.DefaultBondDenom,
+			"atest",                                // Use atest denomination to match the chain configuration
 			cosmosmath.NewInt(1000000000000000000), // 1 token with 18 decimals - sufficient for test fees
 		)),
 	}
