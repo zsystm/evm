@@ -531,6 +531,17 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 		}
 	}
 
+	// Add fee collector balance to prevent insufficient funds errors during fee refunds
+	// This is needed because cosmos/evm requires the fee collector to have funds for fee processing
+	feeCollectorBalance := banktypes.Balance{
+		Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+		Coins: sdk.NewCoins(sdk.NewCoin(
+			sdk.DefaultBondDenom,
+			cosmosmath.NewInt(1000000000000000000), // 1 token with 18 decimals - sufficient for test fees
+		)),
+	}
+	balances = append(balances, feeCollectorBalance)
+
 	// Create validator set for the test (following test_helpers.go pattern)
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()
@@ -713,7 +724,8 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 			codeHash := evmKeeper.GetCodeHash(ctx, addr)
 			code := evmKeeper.GetCode(ctx, codeHash)
 			if !bytes.Equal(code, expectedAccount.Code) {
-				return fmt.Errorf("account %s code mismatch", addr.Hex())
+				return fmt.Errorf("account %s code mismatch: expected %s, got %s",
+					addr.Hex(), hex.EncodeToString(expectedAccount.Code), hex.EncodeToString(code))
 			}
 			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
 		}
@@ -870,7 +882,8 @@ func (t *BlockTest) verifyGenesisSetup(suite *BlockTestSuite, preState types.Gen
 			codeHash := evmKeeper.GetCodeHash(ctx, addr)
 			code := evmKeeper.GetCode(ctx, codeHash)
 			if !bytes.Equal(code, expectedAccount.Code) {
-				return fmt.Errorf("account %s code mismatch", addr.Hex())
+				return fmt.Errorf("account %s code mismatch: expected %s, got %s",
+					addr.Hex(), hex.EncodeToString(expectedAccount.Code), hex.EncodeToString(code))
 			}
 			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
 		}
