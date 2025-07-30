@@ -780,11 +780,22 @@ func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc)
 	}
 
 	// Set up custom genesis state for bank module (balances)
+	bankGenState := banktypes.DefaultGenesisState()
 	if len(balances) > 0 {
-		bankGenState := banktypes.DefaultGenesisState()
 		bankGenState.Balances = balances
-		customGen[banktypes.ModuleName] = bankGenState
 	}
+
+	// Add fee collector balance to prevent insufficient funds errors during fee refunds
+	// This is needed because cosmos/evm requires the fee collector to have funds for fee processing
+	feeCollectorBalance := banktypes.Balance{
+		Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+		Coins: sdk.NewCoins(sdk.NewCoin(
+			sdk.DefaultBondDenom,
+			cosmosmath.NewInt(1000000000000000000), // 1 token with 18 decimals - sufficient for test fees
+		)),
+	}
+	bankGenState.Balances = append(bankGenState.Balances, feeCollectorBalance)
+	customGen[banktypes.ModuleName] = bankGenState
 
 	// Set up custom genesis state for EVM module (contracts with code and storage)
 	if len(evmAccounts) > 0 {
