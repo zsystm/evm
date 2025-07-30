@@ -23,6 +23,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// debugLogf logs debug information only if debug is enabled
+func debugLogf(t *testing.T, format string, args ...interface{}) {
+	if debugEnabled() {
+		t.Logf(format, args...)
+	}
+}
+
 func TestBlockchain(t *testing.T) {
 	bt := new(testMatcher)
 
@@ -71,8 +78,9 @@ func TestBlockchain(t *testing.T) {
 	bt.skipLoad(`.*\.meta/.*`)
 
 	bt.walk(t, blockTestDir, func(t *testing.T, name string, test *BlockTest) {
-		execBlockTest(t, bt, test)
+		execBlockTestWithPanicRecovery(t, bt, test)
 	})
+
 }
 
 // TestExecutionSpecBlocktests runs the test fixtures from execution-spec-tests.
@@ -83,28 +91,34 @@ func TestExecutionSpecBlocktests(t *testing.T) {
 	bt := new(testMatcher)
 
 	bt.walk(t, executionSpecBlockchainTestDir, func(t *testing.T, name string, test *BlockTest) {
-		execBlockTest(t, bt, test)
+		execBlockTestWithPanicRecovery(t, bt, test)
 	})
+
 }
 
-func execBlockTest(t *testing.T, bt *testMatcher, test *BlockTest) {
+// execBlockTestWithPanicRecovery executes a single block test with panic recovery
+func execBlockTestWithPanicRecovery(t *testing.T, bt *testMatcher, test *BlockTest) {
 	// Add panic recovery to show filename when test panics
 	defer func() {
 		if r := recover(); r != nil {
-			t.Fatalf("PANIC in test file %s: %v", test.Filename, r)
+			t.Errorf("PANIC in test file %s: %v", test.Filename, r)
 		}
 	}()
 
 	// Convert test data to JSON for the cosmos adapter
 	testJSON, err := json.Marshal(test.json)
 	if err != nil {
-		t.Fatalf("Failed to marshal test from file %s: %v", test.Filename, err)
+		t.Errorf("Failed to marshal test from file %s: %v", test.Filename, err)
+		return
 	}
 
 	// Run the test using cosmos/evm
 	if err := bt.checkFailure(t, test.RunWithEVMD(t, testJSON)); err != nil {
 		// If test fails, print filename for debugging
-		t.Logf("Test failed in file: %s", test.Filename)
+		debugLogf(t, "Test failed in file: %s", test.Filename)
 		t.Errorf("cosmos/evm test failed: %v", err)
+	} else {
+		// Log successful tests so you can see progress
+		debugLogf(t, "Test passed in file: %s", test.Filename)
 	}
 }

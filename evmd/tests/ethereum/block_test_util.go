@@ -66,6 +66,19 @@ import (
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 )
 
+// debugEnabled returns true if debug output should be shown.
+// Debug can be enabled by setting DEBUG_ETHEREUM_TESTS=1 environment variable
+func debugEnabled() bool {
+	return os.Getenv("DEBUG_ETHEREUM_TESTS") == "1"
+}
+
+// debugf prints debug information only if debug is enabled
+func debugf(format string, args ...interface{}) {
+	if debugEnabled() {
+		fmt.Printf("DEBUG: "+format, args...)
+	}
+}
+
 // A BlockTest checks handling of entire blocks.
 type BlockTest struct {
 	json     btJSON
@@ -750,7 +763,7 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 	// Check fee collector balance first
 	feeCollectorAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName)
 	feeCollectorBalance := app.BankKeeper.GetBalance(ctx, feeCollectorAddr, "atest")
-	fmt.Printf("DEBUG: Fee collector balance: %s\n", feeCollectorBalance.String())
+	debugf("Fee collector balance: %s\n", feeCollectorBalance.String())
 
 	if feeCollectorBalance.Amount.IsZero() {
 		return fmt.Errorf("fee collector has zero balance: %s", feeCollectorBalance.String())
@@ -780,7 +793,7 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 				addr.Hex(), expectedBalance.String(), balance.Amount.String())
 		}
 
-		fmt.Printf("DEBUG: Account %s - Nonce: %d, Balance: %s\n",
+		debugf("Account %s - Nonce: %d, Balance: %s\n",
 			addr.Hex(), account.GetSequence(), balance.String())
 
 		// Check code if present
@@ -792,11 +805,11 @@ func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.Ge
 				return fmt.Errorf("account %s code mismatch: expected %s, got %s",
 					addr.Hex(), hex.EncodeToString(expectedAccount.Code), hex.EncodeToString(code))
 			}
-			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
+			debugf("Account %s has code: %d bytes\n", addr.Hex(), len(code))
 		}
 	}
 
-	fmt.Printf("DEBUG: Genesis setup verification completed successfully\n")
+	debugf("Genesis setup verification completed successfully\n")
 	return nil
 }
 
@@ -908,7 +921,7 @@ func (t *BlockTest) verifyGenesisSetup(suite *BlockTestSuite, preState types.Gen
 	// Check fee collector balance first
 	feeCollectorAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName)
 	feeCollectorBalance := unitNetwork.App.GetBankKeeper().GetBalance(ctx, feeCollectorAddr, suite.network.GetBaseDenom())
-	fmt.Printf("DEBUG: Fee collector balance: %s\n", feeCollectorBalance.String())
+	debugf("Fee collector balance: %s\n", feeCollectorBalance.String())
 
 	if feeCollectorBalance.Amount.IsZero() {
 		return fmt.Errorf("fee collector has zero balance: %s", feeCollectorBalance.String())
@@ -938,7 +951,7 @@ func (t *BlockTest) verifyGenesisSetup(suite *BlockTestSuite, preState types.Gen
 				addr.Hex(), expectedBalance.String(), balance.Amount.String())
 		}
 
-		fmt.Printf("DEBUG: Account %s - Nonce: %d, Balance: %s\n",
+		debugf("Account %s - Nonce: %d, Balance: %s\n",
 			addr.Hex(), account.GetSequence(), balance.String())
 
 		// Check code if present
@@ -950,11 +963,11 @@ func (t *BlockTest) verifyGenesisSetup(suite *BlockTestSuite, preState types.Gen
 				return fmt.Errorf("account %s code mismatch: expected %s, got %s",
 					addr.Hex(), hex.EncodeToString(expectedAccount.Code), hex.EncodeToString(code))
 			}
-			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
+			debugf("Account %s has code: %d bytes\n", addr.Hex(), len(code))
 		}
 	}
 
-	fmt.Printf("DEBUG: Genesis setup verification completed successfully\n")
+	debugf("Genesis setup verification completed successfully\n")
 	return nil
 }
 
