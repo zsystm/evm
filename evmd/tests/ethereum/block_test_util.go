@@ -40,6 +40,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -504,6 +505,7 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 	// Create genesis accounts from the pre-state
 	var genesisAccounts []authtypes.GenesisAccount
 	var balances []banktypes.Balance
+	var evmAccounts []evmtypes.GenesisAccount
 
 	for addr, account := range btJSON.Pre {
 		// Convert Ethereum address to Cosmos address format
@@ -528,6 +530,24 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 				)),
 			}
 			balances = append(balances, balance)
+		}
+
+		// Create EVM genesis account if it has code or storage
+		if len(account.Code) > 0 || len(account.Storage) > 0 {
+			var storage evmtypes.Storage
+			for key, value := range account.Storage {
+				storage = append(storage, evmtypes.State{
+					Key:   key.Hex(),
+					Value: value.Hex(),
+				})
+			}
+
+			evmAccount := evmtypes.GenesisAccount{
+				Address: addr.Hex(),
+				Code:    hex.EncodeToString(account.Code),
+				Storage: storage,
+			}
+			evmAccounts = append(evmAccounts, evmAccount)
 		}
 	}
 
@@ -556,6 +576,36 @@ func (t *BlockTest) setupEVMDApp(test *testing.T, btJSON btJSON, config *params.
 	chainID := "test-chain"
 
 	app := evmd.SetupWithGenesisValSet(test, chainID, config.ChainID.Uint64(), valSet, genesisAccounts, balances...)
+
+	// Set up EVM genesis state for contracts with code and storage
+	if len(evmAccounts) > 0 {
+		ctx := app.NewContextLegacy(false, cmtproto.Header{})
+		evmKeeper := app.GetEVMKeeper()
+
+		for _, evmAccount := range evmAccounts {
+			addr := common.HexToAddress(evmAccount.Address)
+
+			// Set contract code if present
+			if evmAccount.Code != "" {
+				codeBytes, err := hex.DecodeString(evmAccount.Code)
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to decode contract code for %s: %v", evmAccount.Address, err)
+				}
+				// Calculate code hash and set code
+				codeHash := crypto.Keccak256(codeBytes)
+				evmKeeper.SetCode(ctx, codeHash, codeBytes)
+				// Also need to set the account's code hash
+				evmKeeper.SetCodeHash(ctx, addr.Bytes(), codeHash)
+			}
+
+			// Set contract storage if present
+			for _, storageState := range evmAccount.Storage {
+				key := common.HexToHash(storageState.Key)
+				valueBytes := common.HexToHash(storageState.Value).Bytes()
+				evmKeeper.SetState(ctx, addr, key, valueBytes)
+			}
+		}
+	}
 
 	return app, valSet, nil
 }
