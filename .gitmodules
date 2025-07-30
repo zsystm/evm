@@ -1,0 +1,3 @@
+[submodule "evmd/tests/ethereum/testdata"]
+	path = evmd/tests/ethereum/testdata
+	url = https://github.com/ethereum/tests
