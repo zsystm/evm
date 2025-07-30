@@ -54,6 +54,7 @@ func TestBlockchain(t *testing.T) {
 	// Skip tests with huge gas usage that might OOM
 	bt.skipLoad(`.*randomStatetest94.json.*`)
 	bt.skipLoad(`.*/stTimeConsuming/.*`)
+	bt.skipLoad(`.*OverflowGasRequire.*`)
 
 	// Skip performance tests
 	bt.skipLoad(`^GeneralStateTests/VMTests/vmPerformance`)

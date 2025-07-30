@@ -22,7 +22,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/evm/testutil/constants"
 	stdmath "math"
 	"math/big"
 	"os"
@@ -453,61 +452,17 @@ func (t *BlockTest) RunWithEVMD(test *testing.T, jsonData []byte) error {
 		return fmt.Errorf("failed to setup EVMD app: %v", err)
 	}
 
+	// Verify genesis state setup - check that preState accounts are properly funded
+	if err := t.verifyGenesisSetupWithEVMD(app, btJSON.Pre); err != nil {
+		return fmt.Errorf("genesis setup verification failed: %v", err)
+	}
+
 	if err := t.executeBlocksWithEVMD(test, app, btJSON, valSet); err != nil {
 		return fmt.Errorf("block execution failed: %v", err)
 	}
 
 	// Validate final state
 	if err := t.validatePostStateWithEVMD(test, app, btJSON.Post); err != nil {
-		return fmt.Errorf("post-state validation failed: %v", err)
-	}
-
-	return nil
-}
-
-// RunWithBlockTestSuite executes the block test using the BlockTestSuite and Network pattern
-func (t *BlockTest) RunWithBlockTestSuite(suite *BlockTestSuite, test *testing.T, jsonData []byte) error {
-	// Parse the JSON data into our test structure
-	var btJSON btJSON
-	if err := json.Unmarshal(jsonData, &btJSON); err != nil {
-		return err
-	}
-
-	// Skip tests that cosmos/evm cannot handle
-	if err := t.skipIncompatibleTest(btJSON); err != nil {
-		test.Skipf("Skipping test incompatible with cosmos/evm: %v", err)
-	}
-
-	// Validate network configuration
-	config, ok := Forks[btJSON.Network]
-	if !ok {
-		return UnsupportedForkError{btJSON.Network}
-	}
-	chainID := constants.ChainID{
-		ChainID:    "cosmos-1",
-		EVMChainID: config.ChainID.Uint64(),
-	}
-
-	// Create custom genesis state from the block test pre-state
-	customGen := t.createCustomGenesisFromPreState(btJSON.Pre)
-
-	// Create a new suite with custom genesis configuration
-	blockSuite := NewBlockTestSuite(
-		suite.create,
-		append(
-			suite.options,
-			network.WithCustomGenesis(customGen),
-			network.WithChainID(chainID),
-		)...,
-	)
-	blockSuite.SetupTest()
-
-	if err := t.executeBlocksWithSuite(blockSuite, btJSON); err != nil {
-		return fmt.Errorf("block execution failed: %v", err)
-	}
-
-	// Validate final state
-	if err := t.validatePostStateWithSuite(blockSuite, btJSON.Post); err != nil {
 		return fmt.Errorf("post-state validation failed: %v", err)
 	}
 
@@ -712,6 +667,62 @@ func (t *BlockTest) validatePostStateWithEVMD(test *testing.T, app *evmd.EVMD, e
 	return nil
 }
 
+// verifyGenesisSetupWithEVMD checks that the genesis state was applied correctly by verifying account balances
+func (t *BlockTest) verifyGenesisSetupWithEVMD(app *evmd.EVMD, preState types.GenesisAlloc) error {
+	ctx := app.NewContextLegacy(false, cmtproto.Header{})
+
+	// Check fee collector balance first
+	feeCollectorAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName)
+	feeCollectorBalance := app.BankKeeper.GetBalance(ctx, feeCollectorAddr, sdk.DefaultBondDenom)
+	fmt.Printf("DEBUG: Fee collector balance: %s\n", feeCollectorBalance.String())
+
+	if feeCollectorBalance.Amount.IsZero() {
+		return fmt.Errorf("fee collector has zero balance: %s", feeCollectorBalance.String())
+	}
+
+	// Verify preState accounts
+	for addr, expectedAccount := range preState {
+		cosmosAddr := sdk.AccAddress(addr.Bytes())
+
+		// Check account exists
+		account := app.AccountKeeper.GetAccount(ctx, cosmosAddr)
+		if account == nil {
+			return fmt.Errorf("preState account %s not found in genesis", addr.Hex())
+		}
+
+		// Check nonce
+		if account.GetSequence() != expectedAccount.Nonce {
+			return fmt.Errorf("account %s nonce mismatch: expected %d, got %d",
+				addr.Hex(), expectedAccount.Nonce, account.GetSequence())
+		}
+
+		// Check balance
+		balance := app.BankKeeper.GetBalance(ctx, cosmosAddr, sdk.DefaultBondDenom)
+		expectedBalance := cosmosmath.NewIntFromBigInt(expectedAccount.Balance)
+		if !balance.Amount.Equal(expectedBalance) {
+			return fmt.Errorf("account %s balance mismatch: expected %s, got %s",
+				addr.Hex(), expectedBalance.String(), balance.Amount.String())
+		}
+
+		fmt.Printf("DEBUG: Account %s - Nonce: %d, Balance: %s\n",
+			addr.Hex(), account.GetSequence(), balance.String())
+
+		// Check code if present
+		if len(expectedAccount.Code) > 0 {
+			evmKeeper := app.GetEVMKeeper()
+			codeHash := evmKeeper.GetCodeHash(ctx, addr)
+			code := evmKeeper.GetCode(ctx, codeHash)
+			if !bytes.Equal(code, expectedAccount.Code) {
+				return fmt.Errorf("account %s code mismatch", addr.Hex())
+			}
+			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
+		}
+	}
+
+	fmt.Printf("DEBUG: Genesis setup verification completed successfully\n")
+	return nil
+}
+
 // createCustomGenesisFromPreState converts Ethereum test pre-state to Network CustomGenesisState
 func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc) network.CustomGenesisState {
 	customGen := network.CustomGenesisState{}
@@ -805,6 +816,68 @@ func (t *BlockTest) createCustomGenesisFromPreState(preState types.GenesisAlloc)
 	}
 
 	return customGen
+}
+
+// verifyGenesisSetup checks that the genesis state was applied correctly by verifying account balances
+func (t *BlockTest) verifyGenesisSetup(suite *BlockTestSuite, preState types.GenesisAlloc) error {
+	ctx := suite.network.GetContext()
+
+	// Get the underlying app through the network interface
+	unitNetwork, ok := suite.network.(*network.UnitTestNetwork)
+	if !ok {
+		return fmt.Errorf("expected UnitTestNetwork, got %T", suite.network)
+	}
+
+	// Check fee collector balance first
+	feeCollectorAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName)
+	feeCollectorBalance := unitNetwork.App.GetBankKeeper().GetBalance(ctx, feeCollectorAddr, suite.network.GetBaseDenom())
+	fmt.Printf("DEBUG: Fee collector balance: %s\n", feeCollectorBalance.String())
+
+	if feeCollectorBalance.Amount.IsZero() {
+		return fmt.Errorf("fee collector has zero balance: %s", feeCollectorBalance.String())
+	}
+
+	// Verify preState accounts
+	for addr, expectedAccount := range preState {
+		cosmosAddr := sdk.AccAddress(addr.Bytes())
+
+		// Check account exists
+		account := unitNetwork.App.GetAccountKeeper().GetAccount(ctx, cosmosAddr)
+		if account == nil {
+			return fmt.Errorf("preState account %s not found in genesis", addr.Hex())
+		}
+
+		// Check nonce
+		if account.GetSequence() != expectedAccount.Nonce {
+			return fmt.Errorf("account %s nonce mismatch: expected %d, got %d",
+				addr.Hex(), expectedAccount.Nonce, account.GetSequence())
+		}
+
+		// Check balance
+		balance := unitNetwork.App.GetBankKeeper().GetBalance(ctx, cosmosAddr, suite.network.GetBaseDenom())
+		expectedBalance := cosmosmath.NewIntFromBigInt(expectedAccount.Balance)
+		if !balance.Amount.Equal(expectedBalance) {
+			return fmt.Errorf("account %s balance mismatch: expected %s, got %s",
+				addr.Hex(), expectedBalance.String(), balance.Amount.String())
+		}
+
+		fmt.Printf("DEBUG: Account %s - Nonce: %d, Balance: %s\n",
+			addr.Hex(), account.GetSequence(), balance.String())
+
+		// Check code if present
+		if len(expectedAccount.Code) > 0 {
+			evmKeeper := unitNetwork.App.GetEVMKeeper()
+			codeHash := evmKeeper.GetCodeHash(ctx, addr)
+			code := evmKeeper.GetCode(ctx, codeHash)
+			if !bytes.Equal(code, expectedAccount.Code) {
+				return fmt.Errorf("account %s code mismatch", addr.Hex())
+			}
+			fmt.Printf("DEBUG: Account %s has code: %d bytes\n", addr.Hex(), len(code))
+		}
+	}
+
+	fmt.Printf("DEBUG: Genesis setup verification completed successfully\n")
+	return nil
 }
 
 // executeBlocksWithSuite executes test blocks using the BlockTestSuite and Network
