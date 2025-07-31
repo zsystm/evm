@@ -22,7 +22,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	stdmath "math"
 	"math/big"
 	"os"
 	"reflect"
@@ -32,22 +31,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/consensus/beacon"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/triedb"
-	"github.com/ethereum/go-ethereum/triedb/hashdb"
-	"github.com/ethereum/go-ethereum/triedb/pathdb"
-
 	// Cosmos/EVM imports for actual state transitions
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -167,95 +156,6 @@ func (s *BlockTestSuite) SetupTest() {
 	s.network = nw
 }
 
-func (t *BlockTest) Run(snapshotter bool, scheme string, witness bool, tracer *tracing.Hooks, postCheck func(error, *core.BlockChain)) (result error) {
-	// Add panic recovery to show filename when test panics
-	defer func() {
-		if r := recover(); r != nil {
-			result = fmt.Errorf("PANIC in test file %s: %v", t.Filename, r)
-		}
-	}()
-	config, ok := Forks[t.json.Network]
-	if !ok {
-		return UnsupportedForkError{t.json.Network}
-	}
-	// import pre accounts & construct test genesis block & state root
-	var (
-		db    = rawdb.NewMemoryDatabase()
-		tconf = &triedb.Config{
-			Preimages: true,
-		}
-	)
-	if scheme == rawdb.PathScheme {
-		tconf.PathDB = pathdb.Defaults
-	} else {
-		tconf.HashDB = hashdb.Defaults
-	}
-	// Commit genesis state
-	gspec := t.genesis(config)
-
-	// if ttd is not specified, set an arbitrary huge value
-	if gspec.Config.TerminalTotalDifficulty == nil {
-		gspec.Config.TerminalTotalDifficulty = big.NewInt(stdmath.MaxInt64)
-	}
-	triedb := triedb.NewDatabase(db, tconf)
-	gblock, err := gspec.Commit(db, triedb)
-	if err != nil {
-		return err
-	}
-	triedb.Close() // close the db to prevent memory leak
-
-	if gblock.Hash() != t.json.Genesis.Hash {
-		return fmt.Errorf("genesis block hash doesn't match test: computed=%x, test=%x", gblock.Hash().Bytes()[:6], t.json.Genesis.Hash[:6])
-	}
-	if gblock.Root() != t.json.Genesis.StateRoot {
-		return fmt.Errorf("genesis block state root does not match test: computed=%x, test=%x", gblock.Root().Bytes()[:6], t.json.Genesis.StateRoot[:6])
-	}
-	// Wrap the original engine within the beacon-engine
-	engine := beacon.New(ethash.NewFaker())
-
-	cache := &core.CacheConfig{TrieCleanLimit: 0, StateScheme: scheme, Preimages: true}
-	if snapshotter {
-		cache.SnapshotLimit = 1
-		cache.SnapshotWait = true
-	}
-	chain, err := core.NewBlockChain(db, cache, gspec, nil, engine, vm.Config{
-		Tracer:                  tracer,
-		StatelessSelfValidation: witness,
-	}, nil)
-	if err != nil {
-		return err
-	}
-	defer chain.Stop()
-
-	validBlocks, err := t.insertBlocks(chain)
-	if err != nil {
-		return err
-	}
-	// Import succeeded: regardless of whether the _test_ succeeds or not, schedule
-	// the post-check to run
-	if postCheck != nil {
-		defer postCheck(result, chain)
-	}
-	cmlast := chain.CurrentBlock().Hash()
-	if common.Hash(t.json.BestBlock) != cmlast {
-		return fmt.Errorf("last block hash validation mismatch: want: %x, have: %x", t.json.BestBlock, cmlast)
-	}
-	newDB, err := chain.State()
-	if err != nil {
-		return err
-	}
-	if err = t.validatePostState(newDB); err != nil {
-		return fmt.Errorf("post state validation failed: %v", err)
-	}
-	// Cross-check the snapshot-to-hash against the trie hash
-	if snapshotter {
-		if err := chain.Snapshots().Verify(chain.CurrentBlock().Root); err != nil {
-			return err
-		}
-	}
-	return t.validateImportedHeaders(chain, validBlocks)
-}
-
 func (t *BlockTest) genesis(config *params.ChainConfig) *core.Genesis {
 	return &core.Genesis{
 		Config:        config,
@@ -273,60 +173,6 @@ func (t *BlockTest) genesis(config *params.ChainConfig) *core.Genesis {
 		BlobGasUsed:   t.json.Genesis.BlobGasUsed,
 		ExcessBlobGas: t.json.Genesis.ExcessBlobGas,
 	}
-}
-
-/*
-See https://github.com/ethereum/tests/wiki/Blockchain-Tests-II
-
-	Whether a block is valid or not is a bit subtle, it's defined by presence of
-	blockHeader, transactions and uncleHeaders fields. If they are missing, the block is
-	invalid and we must verify that we do not accept it.
-
-	Since some tests mix valid and invalid blocks we need to check this for every block.
-
-	If a block is invalid it does not necessarily fail the test, if it's invalidness is
-	expected we are expected to ignore it and continue processing and then validate the
-	post state.
-*/
-func (t *BlockTest) insertBlocks(blockchain *core.BlockChain) ([]btBlock, error) {
-	validBlocks := make([]btBlock, 0)
-	// insert the test blocks, which will execute all transactions
-	for bi, b := range t.json.Blocks {
-		cb, err := b.decode()
-		if err != nil {
-			if b.BlockHeader == nil {
-				log.Info("Block decoding failed", "index", bi, "err", err)
-				continue // OK - block is supposed to be invalid, continue with next block
-			} else {
-				return nil, fmt.Errorf("block RLP decoding failed when expected to succeed: %v", err)
-			}
-		}
-		// RLP decoding worked, try to insert into chain:
-		blocks := types.Blocks{cb}
-		i, err := blockchain.InsertChain(blocks)
-		if err != nil {
-			if b.BlockHeader == nil {
-				continue // OK - block is supposed to be invalid, continue with next block
-			} else {
-				return nil, fmt.Errorf("block #%v insertion into chain failed: %v", blocks[i].Number(), err)
-			}
-		}
-		if b.BlockHeader == nil {
-			if data, err := json.MarshalIndent(cb.Header(), "", "  "); err == nil {
-				fmt.Fprintf(os.Stderr, "block (index %d) insertion should have failed due to: %v:\n%v\n",
-					bi, b.ExpectException, string(data))
-			}
-			return nil, fmt.Errorf("block (index %d) insertion should have failed due to: %v",
-				bi, b.ExpectException)
-		}
-
-		// validate RLP decoding by checking all values against test file JSON
-		if err = validateHeader(b.BlockHeader, cb.Header()); err != nil {
-			return nil, fmt.Errorf("deserialised block header validation failed: %v", err)
-		}
-		validBlocks = append(validBlocks, b)
-	}
-	return validBlocks, nil
 }
 
 func validateHeader(h *btHeader, h2 *types.Header) error {
